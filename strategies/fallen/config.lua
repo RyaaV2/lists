@@ -2,6 +2,7 @@
 -- Edit matchmaking, required towers, map priority, and map strategy paths here.
 
 return {
+    MatchTimeoutMinutes = 20,
     UseAutoGutlin = true,
 
     -- Route-specific engine behavior.
