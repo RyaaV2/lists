@@ -2,6 +2,8 @@
 -- Edit matchmaking, required towers, map priority, and map strategy paths here.
 
 return {
+    MatchTimeoutMinutes = 10,
+        
         Win = {
             Matchmaking = {Difficulty = "Easy", Type = "survival"},
             RequiredTowers = {"Soldier"},
