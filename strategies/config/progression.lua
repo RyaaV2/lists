@@ -2,6 +2,9 @@
 -- Keep map lists out of this file.
 
 return {
+    MatchTimeoutMinutes = 15,
+    GameOverStuckMinutes = 5,
+
     AutoFarmUntilGatling = {
         Win = {
             GrindRules = {
