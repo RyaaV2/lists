@@ -2,8 +2,7 @@
 -- Edit matchmaking, required towers, map priority, and map strategy paths here.
 
 return {
-    DisableMatchTimeout = true,
-
+    MatchTimeoutMinutes = 20,
     UseAutoGutlin = true,
 
         Matchmaking = {Difficulty = "Frost", Type = "survival"},
