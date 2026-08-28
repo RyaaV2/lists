@@ -160,7 +160,7 @@ return {
                 Currency = "Coins",
                 Price = 350,
                 GrindRules = {
-                    {ProgressionMode = "Win", MaxLevel = 49, Route = "Easy.Starter", FarmBehavior = "ReturnAfterMatch"},
+                    {ProgressionMode = "Win", MaxLevel = 49, Route = "Easy.Starter", FarmBehavior = "RepeatUntilAffordable"},
                     {ProgressionMode = "Lose", MaxLevel = 49, Route = "Easy.Lose", FarmBehavior = "RestartUntilAffordable"},
                     {ProgressionMode = "AutoMax", MaxLevel = 49, Route = "Easy.Lose", FarmBehavior = "RestartUntilAffordable"}
                 }
