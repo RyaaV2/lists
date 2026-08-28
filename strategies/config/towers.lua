@@ -3,7 +3,7 @@
 
 return {
         FarmRoutes = {
-            Gems = {Route = "Hardcore", FarmBehavior = "ReturnAfterMatch"},
+            Gems = {Route = "Frost", FarmBehavior = "RematchUntilAffordable"},
             Coins = {Route = "Frost", FarmBehavior = "RematchUntilAffordable"}
         },
 
