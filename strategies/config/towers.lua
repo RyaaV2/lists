@@ -89,7 +89,7 @@ return {
                 Price = 5500,
                 Level = 50,
                 GrindRules = {
-                    {MinLevel = 175, Route = "Hardcore", FarmBehavior = "ReturnAfterMatch"}
+                    {MinLevel = 175, Route = "Hardcore", FarmBehavior = "RepeatUntilAffordable"}
                 }
             },
             ["Necromancer"] = {Type = "Currency", Currency = "Gems", Price = 2250, Level = 50},
