@@ -3,7 +3,6 @@
 
 return {
     MatchTimeoutMinutes = 10,
-    MilestoneBehavior = "DirectMatchmaking",
 
     CountLoseGameOver = true,
 
