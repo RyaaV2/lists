@@ -7,13 +7,6 @@ return {
             Coins = {Route = "Fallen.Late", FarmBehavior = "RepeatUntilAffordable"}
         },
 
-        LayByRequired = {
-            "Gatling Gun",
-            "Hacker",
-            "Trapper",
-            "DJ Booth"
-        },
-
         Automation = {
             AutoChain = {
                 Tower = "Commander",
