@@ -130,7 +130,7 @@ return {
                 Currency = "Coins",
                 Price = 5000,
                 GrindRules = {
-                    {MinLevel = 175, Route = "Fallen.Starter", FarmBehavior = "RepeatUntilAffordable"}
+                    {ProgressionMode = "AutoMax", MinLevel = 175, Route = "Fallen.Starter", FarmBehavior = "RepeatUntilAffordable"},
                 }
             },
             ["Commander"] = {Type = "Currency", Currency = "Coins", Price = 4000},
@@ -162,7 +162,8 @@ return {
                 Currency = "Coins",
                 Price = 3000,
                 GrindRules = {
-                    {MinLevel = 175, Route = "LateGrind", FarmBehavior = "RepeatUntilAffordable"}
+                    {ProgressionMode = "Win", Route = "Easy.Win", FarmBehavior = "RepeatUntilAffordable"},
+                    {ProgressionMode = "AutoMax", MinLevel = 175, Route = "Fallen.Starter", FarmBehavior = "RepeatUntilAffordable"},
                 }
             },
             ["Shotgunner"] = {Type = "Currency", Currency = "Coins", Price = 850},
