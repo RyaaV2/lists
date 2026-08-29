@@ -23,6 +23,7 @@ return {
         "Forgetten Docks"
     },
     Maps = {
+        ["Dead Ahead"] = "strategies/fallen/late/dead_ahead.lua",
         ["Construction Crazy"] = "strategies/fallen/late/construction_crazy.lua",
         ["The Heights"] = "strategies/fallen/late/the_heights.lua",
         ["Retro The Heights"] = "strategies/fallen/late/retro_the_heights.lua",
