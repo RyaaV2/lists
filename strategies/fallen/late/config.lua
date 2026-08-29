@@ -16,6 +16,7 @@ return {
         "Soldier"
     },
     Priority = {
+        "Dead Ahead"
         "Construction Crazy",
         "The Heights",
         "Retro The Heights",
