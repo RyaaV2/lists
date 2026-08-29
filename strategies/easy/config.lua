@@ -8,19 +8,19 @@ return {
             Matchmaking = {Difficulty = "Easy", Type = "survival"},
             RequiredTowers = {"Scout"},
             Priority = {
-                "Black Spot Exchange",
-                "Mason Arch",
-                "Gilded Path",
-                "Dead Ahead",
-                "Lay By"
-            },
-            Maps = {
-                ["Black Spot Exchange"] = "strategies/easy/starter/black_spot_exchange.lua",
-                ["Mason Arch"] = "strategies/easy/starter/mason_arch.lua",
-                ["Gilded Path"] = "strategies/easy/starter/gilded_path.lua",
-                ["Dead Ahead"] = "strategies/easy/starter/dead_ahead.lua",
-                ["Lay By"] = "strategies/easy/starter/lay_by.lua"
-            }
+                "Meltdown",
+                "Simplicity",
+                "Stained Temple",
+                "Midnight Issue",
+                "Spring Fever"
+        },
+        Maps = {
+            ["Meltdown"] = "strategies/easy/starter/meltdown.lua",
+            ["Simplicity"] = "strategies/easy/starter/simplicity.lua",
+            ["Stained Temple"] = "strategies/easy/starter/stained_temple.lua",
+            ["Midnight Issue"] = "strategies/easy/starter/midnight_issue.lua",
+            ["Spring Fever"] = "strategies/easy/starter/spring_fever.lua"
+        }
         },
 
         Win = {
