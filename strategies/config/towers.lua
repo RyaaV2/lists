@@ -3,8 +3,8 @@
 
 return {
         FarmRoutes = {
-            Gems = {Route = "Frost", FarmBehavior = "RepeatUntilAffordable"},
-            Coins = {Route = "Frost", FarmBehavior = "RepeatUntilAffordable"}
+            Gems = {Route = "Hardcore", FarmBehavior = "RepeatUntilAffordable"},
+            Coins = {Route = "Fallen.Late", FarmBehavior = "RepeatUntilAffordable"}
         },
 
         LayByRequired = {
