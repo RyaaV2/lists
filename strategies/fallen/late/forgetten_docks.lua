@@ -1,79 +1,83 @@
-TDS:Loadout("Hacker", "Gatling Gun", "Mercenary Base", "Turret", "Soldier")
+TDS:Loadout("Hacker", "Gatling Gun", "Mercenary Base", "DJ Booth", "Trapper")
 
 TDS:Mode("Fallen")
-TDS:GameInfo("Forgetten Docks")
 
-TDS:Mercenary(150, 1)
+TDS:GameInfo("Forgetten Docks", {
+    "HiddenEnemies",
+    "Glass",
+    "ExplodingEnemies",
+    "Limitation",
+    "Committed",
+    "Quarantine",
+    "Fog"
+})
+
 TDS:VoteSkip()
 
-TDS:Place("Soldier", -29.360931396484, 0, -14.618578910828, true) --1
+TDS:Mercenary(140, 1)
+
+TDS:Place("Trapper", -22.387372970581055, 1.024996638298035, -18.186660766601562, true)
+
 TDS:Ready()
 
-TDS:Place("Soldier", -29.360931396484, 0, -14.618578910828, true) --2
-TDS:Place("Soldier", -29.360931396484, 0, -14.618578910828, true) --3
-TDS:Place("Soldier", -29.360931396484, 0, -14.618578910828, true) --4
-TDS:Place("Soldier", -29.360931396484, 0, -14.618578910828, true) --5
+TDS:Place("Trapper", -22.387372970581055, 1.024996638298035, -18.186660766601562, true)
+TDS:Place("Trapper", -22.387372970581055, 1.024996638298035, -18.186660766601562, true)
 
-for _ = 1, 2 do
-    for _, index in ipairs({1, 2, 3, 4, 5}) do
-        TDS:Upgrade(index)
-    end
-end
+TDS:Place("Trapper", -29.125415802001953, 1.024989724159241, -4.172865867614746, true)
+TDS:Place("Trapper", -29.125415802001953, 1.024989724159241, -4.172865867614746, true)
 
-TDS:Place("Gatling Gun", 21.987722396851, 0, -1.8362607955933, true) --6
-TDS:UpgradeTimes(6, 2)
+TDS:UpgradeTimes(5, 2)
+TDS:SetOption(5, "Trap", "Landmine")
+TDS:SetTarget(5, "Strongest")
 
-TDS:Place("Hacker", -29.360931396484, 0, -14.618578910828, true) --7
-TDS:Place("Hacker", -29.360931396484, 0, -14.618578910828, true) --8
+TDS:UpgradeTimes(4, 2)
+TDS:SetOption(4, "Trap", "Landmine")
 
-TDS:UpgradeTimes(8, 2)
-TDS:UpgradeTimes(7, 2)
+TDS:Upgrade(1)
+TDS:Upgrade(2)
+TDS:Upgrade(3)
 
-TDS:Place("Mercenary Base", 21.987722396851, 0, -1.8362607955933, true) --9
-TDS:UpgradeTimes(9, 4)
-TDS:SetOption(9, "Unit 1", "Riot Guard")
-TDS:SetOption(9, "Unit 2", "Riot Guard")
-TDS:SetOption(9, "Unit 3", "Riot Guard")
-
-TDS:Place("Mercenary Base", 21.987722396851, 0, -1.8362607955933, true) --10
-TDS:UpgradeTimes(10, 4)
-TDS:SetOption(10, "Unit 1", "Riot Guard")
-TDS:SetOption(10, "Unit 2", "Riot Guard")
-TDS:SetOption(10, "Unit 3", "Riot Guard")
-
-TDS:Place("Mercenary Base", 21.987722396851, 0, -1.8362607955933, true) --11
-TDS:UpgradeTimes(11, 4)
-TDS:SetOption(11, "Unit 1", "Riot Guard")
-TDS:SetOption(11, "Unit 2", "Riot Guard")
-TDS:SetOption(11, "Unit 3", "Riot Guard")
-
-TDS:Upgrade(9)
-TDS:Upgrade(10)
-TDS:Upgrade(11)
+TDS:Place("Gatling Gun", 22.113616943359375, 1.025004267692566, -1.426929473876953, true)
 
 TDS:UpgradeTimes(6, 2)
 
-TDS:UpgradeTimes(8, 2)
-TDS:Upgrade(8, 2)
+TDS:Place("Hacker", -26.938291549682617, 1.024994730949402, -24.882318496704102, true)
 
-TDS:UpgradeTimes(7, 2)
+TDS:UpgradeTimes(7, 3)
+
+TDS:Place("DJ Booth", 22.113616943359375, 1.025004267692566, -1.426929473876953, true)
+
+TDS:UpgradeTimes(8, 3)
+TDS:SetOption(8, "Track", "Green")
+
+TDS:UpgradeTimes(6, 2)
+TDS:UpgradeTimes(8, 2)
+
+TDS:Place("Mercenary Base", 22.113616943359375, 1.025004267692566, -1.426929473876953, true)
+
+TDS:UpgradeTimes(9, 6)
+
+TDS:Upgrade(7)
 TDS:Upgrade(7, 2)
 
-TDS:Upgrade(9)
-TDS:Upgrade(10)
-TDS:Upgrade(11)
-
 TDS:UpgradeTimes(6, 2)
 
-TDS:Place("Turret", -21.877502441406, 0, -9.7464361190796, true) --12
-TDS:Place("Turret", -21.877502441406, 0, -9.7464361190796, true) --13
-TDS:Place("Turret", -21.877502441406, 0, -9.7464361190796, true) --14
+TDS:Place("Mercenary Base", 22.113616943359375, 1.025004267692566, -1.426929473876953, true)
 
-for _ = 1, 5 do
-    for _, index in ipairs({12, 13, 14}) do
-        TDS:Upgrade(index)
-    end
-end
+TDS:UpgradeTimes(5, 2)
+TDS:SetOption(5, "Trap", "Bear Traps")
 
-TDS:LoopAbility(8, "Hologram Tower", {towerPosition = Vector3.new(23.523794174194, 1.0249900817871, 3.7587015628815), towerToClone = 6})
+TDS:UpgradeTimes(1, 3)
+TDS:SetOption(1, "Trap", "Bear Traps")
 
+TDS:UpgradeTimes(3, 3)
+TDS:SetOption(3, "Trap", "Bear Traps")
+
+TDS:UpgradeTimes(2, 3)
+
+TDS:SetOption(8, "Track", "Red")
+
+TDS:LoopAbility(7, "Hologram Tower", {
+    towerPosition = Vector3.new(22.113616943359375, 26.025004267692566, -1.426929473876953),
+    towerToClone = 6
+})
