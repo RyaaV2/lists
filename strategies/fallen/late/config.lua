@@ -12,8 +12,8 @@ return {
         "Hacker",
         "Gatling Gun",
         "Mercenary Base",
-        "Turret",
-        "Soldier"
+        "Trapper",
+        "DJ Booth"
     },
     Priority = {
         "Dead Ahead",
