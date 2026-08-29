@@ -17,6 +17,7 @@ return {
     },
     Priority = {
         "Dead Ahead",
+        "Lay By",
         "Construction Crazy",
         "The Heights",
         "Retro The Heights",
@@ -24,6 +25,7 @@ return {
     },
     Maps = {
         ["Dead Ahead"] = "strategies/fallen/late/dead_ahead.lua",
+        ["Lay By"] = "strategies/fallen/late/lay_by.lua",
         ["Construction Crazy"] = "strategies/fallen/late/construction_crazy.lua",
         ["The Heights"] = "strategies/fallen/late/the_heights.lua",
         ["Retro The Heights"] = "strategies/fallen/late/retro_the_heights.lua",
