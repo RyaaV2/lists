@@ -7,8 +7,9 @@ return {
         "Assassin"
     },
     Priority = {
+        "Dead Ahead",
+        "Lay By",
         "Mason Arch",
-        "Dead Ahead"
     },
     Maps = {
         ["Mason Arch"] = "strategies/casual/mason_arch.lua",
