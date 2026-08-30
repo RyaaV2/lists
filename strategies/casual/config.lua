@@ -7,9 +7,11 @@ return {
         "Assassin"
     },
     Priority = {
-        "Mason Arch"
+        "Mason Arch",
+        "Dead Ahead"
     },
     Maps = {
         ["Mason Arch"] = "strategies/casual/mason_arch.lua",
+        ["Dead Ahead"] = "strategies/casual/dead_ahead.lua"
     }
 }
