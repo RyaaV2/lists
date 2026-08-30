@@ -126,7 +126,14 @@ return {
                     {ProgressionMode = "AutoMax", MinLevel = 175, Route = "Fallen.Starter", FarmBehavior = "RepeatUntilAffordable"},
                 }
             },
-            ["Commander"] = {Type = "Currency", Currency = "Coins", Price = 4000},
+            ["Commander"] = {
+                Type = "Currency",
+                Currency = "Coins",
+                Price = 4000,
+                GrindRules = {
+                    {ProgressionMode = "Win", Route = "Easy.Win", FarmBehavior = "RepeatUntilAffordable"},
+                }
+            },            
             ["Tesla"] = {Type = "Currency", Currency = "Coins", Price = 6000},
             ["Mortar"] = {Type = "Level", Level = 75},
             ["Minigunner"] = {Type = "Currency", Currency = "Coins", Price = 8000},
@@ -170,12 +177,26 @@ return {
                 }
             },
             ["Medic"] = {Type = "Currency", Currency = "Coins", Price = 2000},
-            ["Assassin"] = {Type = "Currency", Currency = "Coins", Price = 800},
+            ["Assassin"] = {
+                Type = "Currency",
+                Currency = "Coins",
+                Price = 800,
+                GrindRules = {
+                    {ProgressionMode = "Win", Route = "Easy.Win", FarmBehavior = "RepeatUntilAffordable"},
+                }                
+            },
             ["Farm"] = {Type = "Currency", Currency = "Coins", Price = 2000},
             ["Ace Pilot"] = {Type = "Currency", Currency = "Coins", Price = 1500},
             ["Freezer"] = {Type = "Currency", Currency = "Coins", Price = 650},
             ["Military Base"] = {Type = "Currency", Currency = "Coins", Price = 4000},
-            ["Militant"] = {Type = "Currency", Currency = "Coins", Price = 800},
+            ["Militant"] = {
+                Type = "Currency", 
+                Currency = "Coins",
+                Price = 800,
+                GrindRules = {
+                    {ProgressionMode = "Win", Route = "Easy.Win", FarmBehavior = "RepeatUntilAffordable"},
+                }
+            }, 
             ["Paintballer"] = {Type = "Currency", Currency = "Coins", Price = 100},
             ["Scout"] = {Type = "Free"},
             ["Soldier"] = {
