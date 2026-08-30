@@ -10,6 +10,7 @@ return {
 
         Win = {
             RoutePriority = {
+                "Casual",
                 "Easy.Win",
                 "Easy.Starter"
             },
