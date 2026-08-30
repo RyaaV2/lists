@@ -4,7 +4,7 @@
 return {
         FarmRoutes = {
             Gems = {Route = "Hardcore", FarmBehavior = "RepeatUntilAffordable"},
-            Coins = {Route = "Fallen.Late", FarmBehavior = "RepeatUntilAffordable"}
+            Coins = {Route = "Molten", FarmBehavior = "RepeatUntilAffordable"}
         },
 
         Automation = {
