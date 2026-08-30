@@ -25,13 +25,11 @@ return {
         RequiredTowers = {"Soldier"},
         Priority = {
             "Black Spot Exchange",
-            "Gilded Path",
             "Dead Ahead",
             "Lay By"
         },
         Maps = {
             ["Black Spot Exchange"] = "strategies/easy/win/black_spot_exchange.lua",
-            ["Gilded Path"] = "strategies/easy/win/gilded_path.lua",
             ["Dead Ahead"] = "strategies/easy/win/dead_ahead.lua",
             ["Lay By"] = "strategies/easy/win/lay_by.lua"
         }
