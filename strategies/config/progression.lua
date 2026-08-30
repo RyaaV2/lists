@@ -16,6 +16,10 @@ return {
             },
             GrindRules = {
                 {
+                    Route = "Casual",
+                    RequiredTowers = {"Assassin", "Commander", "Militant"}
+                },
+                {
                     Route = "Easy.Win",
                     RequiredTowers = {"Soldier"}
                 }
