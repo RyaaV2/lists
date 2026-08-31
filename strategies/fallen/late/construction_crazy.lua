@@ -48,6 +48,15 @@ TDS:UpgradeTimes(7, 3)
 TDS:UpgradeTimes(6, 2)
 
 TDS:Place("Mercenary Base", -41.209049224853516, 0.255012869834900, -1.575437545776367, true)
+
+TDS:UpgradeTimes(8, 6)
+
+TDS:Upgrade(7)
+TDS:Upgrade(7, 2)
+
+TDS:UpgradeTimes(6, 2)
+
+TDS:Place("Mercenary Base", -41.209049224853516, 0.255012869834900, -1.575437545776367, true)
 TDS:UpgradeTimes(9, 6)
 
 TDS:UpgradeTimes(5, 2)
