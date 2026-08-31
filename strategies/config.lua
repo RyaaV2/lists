@@ -73,7 +73,7 @@ return {
         LoadConfig("config/towers.lua"),
 
     SkillTree =
-        LoadConfig("config/skilltree.lua"),
+        LoadConfig("config/skilltree1.lua"),
 
     AutoFarmUntilGatling =
         progression.AutoFarmUntilGatling or {},
