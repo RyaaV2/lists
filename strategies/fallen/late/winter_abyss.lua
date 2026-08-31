@@ -57,6 +57,7 @@ TDS:Upgrade(7, 2)
 TDS:UpgradeTimes(6, 2)
 
 TDS:Place("Mercenary Base", 3.702454805374146, 4.970402240753174, -43.507446289062500, true)
+TDS:UpgradeTimes(9, 6)
 
 TDS:UpgradeTimes(5, 2)
 TDS:SetOption(5, "Trap", "Bear Traps")
@@ -68,8 +69,12 @@ TDS:UpgradeTimes(3, 3)
 TDS:SetOption(3, "Trap", "Bear Traps")
 
 TDS:UpgradeTimes(2, 3)
+TDS:SetOption(2, "Trap", "Bear Traps")
+
+TDS:Place("Mercenary Base", 3.702454805374146, 4.970402240753174, -43.507446289062500, true)
+TDS:UpgradeTimes(10, 6)
 
 TDS:LoopAbility(7, "Hologram Tower", {
-    towerPosition = Vector3.new(3.702454805374146, 29.970402240753174, -43.507446289062500),
+    towerPosition = Vector3.new(3.702454805374146, 4.970402240753174, -43.507446289062500),
     towerToClone = 6
 })
