@@ -6,18 +6,59 @@ local ROOT =
     "https://raw.githubusercontent.com/RyaaV2/lists/refs/heads/main/strategies/"
 
 local function LoadConfig(path)
-    local ok, result =
-        pcall(function()
-            return loadstring(
-                game:HttpGet(ROOT .. path)
-            )()
+    local url = ROOT .. path
+    local lastError
+
+    for attempt = 1, 3 do
+        local ok, result = pcall(function()
+            local source = game:HttpGet(
+                url
+                .. "?cache="
+                .. tostring(os.time())
+                .. "_"
+                .. tostring(attempt)
+            )
+
+            if type(source) ~= "string" or #source == 0 then
+                error("empty HTTP response")
+            end
+
+            local chunk, compileError = loadstring(source)
+
+            if not chunk then
+                error(
+                    "compile error: "
+                    .. tostring(compileError)
+                )
+            end
+
+            local loaded = chunk()
+
+            if type(loaded) ~= "table" then
+                error(
+                    "config returned "
+                    .. type(loaded)
+                    .. " instead of table"
+                )
+            end
+
+            return loaded
         end)
 
-    if ok and type(result) == "table" then
-        return result
+        if ok then
+            return result
+        end
+
+        lastError = result
+        task.wait(0.5)
     end
 
-    warn("[RYA CONFIG] Failed to load:", path, result)
+    warn(
+        "[RYA CONFIG] Failed to load:",
+        path,
+        lastError
+    )
+
     return {}
 end
 
