@@ -1,4 +1,4 @@
-TDS:Loadout("Hacker", "Gatling Gun", "Mercenary Base", "DJ Booth", "Trapper")
+TDS:Loadout("Hacker", "Gatling Gun", "Mercenary Base", "Trapper")
 
 TDS:Mode("Fallen")
 
@@ -30,10 +30,10 @@ TDS:UpgradeTimes(5, 2)
 TDS:SetOption(5, "Trap", "Landmine")
 TDS:SetTarget(5, "Strongest")
 
-TDS:UpgradeTimes(4, 2)
-TDS:SetOption(4, "Trap", "Landmine")
+TDS:UpgradeTimes(1, 2)
+TDS:SetOption(1, "Trap", "Landmine")
 
-TDS:Upgrade(1)
+TDS:Upgrade(4)
 TDS:Upgrade(2)
 TDS:Upgrade(3)
 
@@ -45,17 +45,11 @@ TDS:Place("Hacker", -5.715780735015869, 1.062506079673767, 21.403209686279297, t
 
 TDS:UpgradeTimes(7, 3)
 
-TDS:Place("DJ Booth", -12.654920578002930, 1.562506079673767, -29.426273345947266, true)
-
-TDS:UpgradeTimes(8, 3)
-TDS:SetOption(8, "Track", "Green")
-
 TDS:UpgradeTimes(6, 2)
-TDS:UpgradeTimes(8, 2)
 
 TDS:Place("Mercenary Base", -12.654920578002930, 1.562506079673767, -29.426273345947266, true)
 
-TDS:UpgradeTimes(9, 6)
+TDS:UpgradeTimes(8, 6)
 
 TDS:Upgrade(7)
 TDS:Upgrade(7, 2)
@@ -67,15 +61,13 @@ TDS:Place("Mercenary Base", -12.654920578002930, 1.562506079673767, -29.42627334
 TDS:UpgradeTimes(5, 2)
 TDS:SetOption(5, "Trap", "Bear Traps")
 
-TDS:UpgradeTimes(1, 3)
-TDS:SetOption(1, "Trap", "Bear Traps")
+TDS:UpgradeTimes(4, 3)
+TDS:SetOption(4, "Trap", "Bear Traps")
 
 TDS:UpgradeTimes(3, 3)
 TDS:SetOption(3, "Trap", "Bear Traps")
 
 TDS:UpgradeTimes(2, 3)
-
-TDS:SetOption(8, "Track", "Red")
 
 TDS:LoopAbility(7, "Hologram Tower", {
     towerPosition = Vector3.new(-12.654920578002930, 26.562506079673767, -29.426273345947266),
