@@ -26,12 +26,22 @@ return {
         Priority = {
             "Black Spot Exchange",
             "Dead Ahead",
-            "Lay By"
+            "Lay By",
+            "Construction Crazy",
+            "The Heights",
+            "Retro The Heights",
+            "Forgetten Docks",
+            "Winter Abyss"
         },
         Maps = {
             ["Black Spot Exchange"] = "strategies/easy/win/black_spot_exchange.lua",
             ["Dead Ahead"] = "strategies/easy/win/dead_ahead.lua",
-            ["Lay By"] = "strategies/easy/win/lay_by.lua"
+            ["Lay By"] = "strategies/easy/win/lay_by.lua",
+            ["Construction Crazy"] = "strategies/easy/win/construction_crazy.lua",
+            ["The Heights"] = "strategies/easy/win/the_heights.lua",
+            ["Retro The Heights"] = "strategies/easy/win/retro_the_heights.lua",
+            ["Forgetten Docks"] = "strategies/easy/win/forgetten_docks.lua",
+            ["Winter Abyss"] = "strategies/easy/win/winter_abyss.lua"
         }
     },
 
