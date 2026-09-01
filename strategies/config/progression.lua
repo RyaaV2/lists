@@ -84,7 +84,6 @@ return {
                     "Gatling Gun",
                     "Hacker",
                     "Trapper",
-                    "DJ Booth",
                     "Mercenary Base"
                 }
             }
