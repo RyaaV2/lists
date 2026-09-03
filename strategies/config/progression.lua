@@ -55,6 +55,24 @@ return {
         }
     },
 
+    AutoBuyAllTowers = {
+        Win = {
+            GemRoute = "Hardcore",
+            CoinRoutes = {
+                "Casual",
+                "Easy.Win",
+                "Easy.Starter"
+            }
+        },
+
+        Lose = {
+            GemRoute = "Hardcore",
+            CoinRoutes = {
+                "Molten"
+            }
+        }
+    },
+
     AutoMaxAccount = {
         GrindRules = {
             {
