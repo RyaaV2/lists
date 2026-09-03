@@ -78,6 +78,9 @@ return {
     AutoFarmUntilGatling =
         progression.AutoFarmUntilGatling or {},
 
+    AutoBuyAllTowers =
+        progression.AutoBuyAllTowers or {},
+
     AutoMaxAccount =
         progression.AutoMaxAccount or {},
 
