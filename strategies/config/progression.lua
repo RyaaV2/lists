@@ -1,5 +1,5 @@
 -- Level/progression routing only.
--- Keep map lists out of this file.
+-- Keep map lists and route requirements out of this file.
 
 return {
     MatchTimeoutMinutes = 15,
@@ -13,23 +13,6 @@ return {
                 "Casual",
                 "Easy.Win",
                 "Easy.Starter"
-            },
-
-            GrindRules = {
-                {
-                    Route = "Casual",
-                    RequiredTowers = {
-                        "Assassin",
-                        "Commander",
-                        "Militant"
-                    }
-                },
-                {
-                    Route = "Easy.Win",
-                    RequiredTowers = {
-                        "Soldier"
-                    }
-                }
             }
         },
 
@@ -44,20 +27,13 @@ return {
                     MinLevel = 15,
                     MaxLevel = 49,
                     Route = "Molten",
-                    TargetLevel = 50,
-                    RequiredTowers = {
-                        "Soldier"
-                    }
+                    TargetLevel = 50
                 },
                 {
                     MinLevel = 50,
                     MaxLevel = 174,
                     Route = "Hardcore",
-                    TargetLevel = 175,
-                    RequiredTowers = {
-                        "Pyromancer",
-                        "Hunter"
-                    }
+                    TargetLevel = 175
                 },
                 {
                     MinLevel = 175,
@@ -84,39 +60,23 @@ return {
             {
                 MaxLevel = 14,
                 Route = "Easy.Lose",
-                TargetLevel = 15,
-                RequiredTowers = {
-                    "Soldier"
-                }
+                TargetLevel = 15
             },
             {
                 MinLevel = 15,
                 MaxLevel = 49,
                 Route = "Molten",
-                TargetLevel = 50,
-                RequiredTowers = {
-                    "Soldier"
-                }
+                TargetLevel = 50
             },
             {
                 MinLevel = 50,
                 MaxLevel = 174,
                 Route = "Hardcore",
-                TargetLevel = 175,
-                RequiredTowers = {
-                    "Pyromancer",
-                    "Hunter"
-                }
+                TargetLevel = 175
             },
             {
                 MinLevel = 175,
-                Route = "LateGrind",
-                RequiredTowers = {
-                    "Gatling Gun",
-                    "Hacker",
-                    "Trapper",
-                    "Mercenary Base"
-                }
+                Route = "LateGrind"
             }
         }
     }
