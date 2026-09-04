@@ -14,14 +14,21 @@ return {
                 "Easy.Win",
                 "Easy.Starter"
             },
+
             GrindRules = {
                 {
                     Route = "Casual",
-                    RequiredTowers = {"Assassin", "Commander", "Militant"}
+                    RequiredTowers = {
+                        "Assassin",
+                        "Commander",
+                        "Militant"
+                    }
                 },
                 {
                     Route = "Easy.Win",
-                    RequiredTowers = {"Soldier"}
+                    RequiredTowers = {
+                        "Soldier"
+                    }
                 }
             }
         },
@@ -38,14 +45,19 @@ return {
                     MaxLevel = 49,
                     Route = "Molten",
                     TargetLevel = 50,
-                    RequiredTowers = {"Soldier"}
+                    RequiredTowers = {
+                        "Soldier"
+                    }
                 },
                 {
                     MinLevel = 50,
                     MaxLevel = 174,
                     Route = "Hardcore",
                     TargetLevel = 175,
-                    RequiredTowers = {"Pyromancer", "Hunter"}
+                    RequiredTowers = {
+                        "Pyromancer",
+                        "Hunter"
+                    }
                 },
                 {
                     MinLevel = 175,
@@ -57,19 +69,13 @@ return {
 
     AutoBuyAllTowers = {
         Win = {
-            GemRoute = "Hardcore",
-            CoinRoutes = {
-                "Casual",
-                "Easy.Win",
-                "Easy.Starter"
-            }
+            UseWinRoutePriority = true,
+            GemRoute = "Hardcore"
         },
 
         Lose = {
-            GemRoute = "Hardcore",
-            CoinRoutes = {
-                "Molten"
-            }
+            CoinRoute = "Molten",
+            GemRoute = "Hardcore"
         }
     },
 
@@ -79,21 +85,28 @@ return {
                 MaxLevel = 14,
                 Route = "Easy.Lose",
                 TargetLevel = 15,
-                RequiredTowers = {"Soldier"}
+                RequiredTowers = {
+                    "Soldier"
+                }
             },
             {
                 MinLevel = 15,
                 MaxLevel = 49,
                 Route = "Molten",
                 TargetLevel = 50,
-                RequiredTowers = {"Soldier"}
+                RequiredTowers = {
+                    "Soldier"
+                }
             },
             {
                 MinLevel = 50,
                 MaxLevel = 174,
                 Route = "Hardcore",
                 TargetLevel = 175,
-                RequiredTowers = {"Pyromancer", "Hunter"}
+                RequiredTowers = {
+                    "Pyromancer",
+                    "Hunter"
+                }
             },
             {
                 MinLevel = 175,
