@@ -5,7 +5,7 @@ return {
     MatchTimeoutMinutes = 10,
 
     CountLoseGameOver = true,
-    CompletionBehavior = "ReturnToLobby",
+    MilestoneBehavior = "ReturnToLobby",
 
         Matchmaking = {Difficulty = "Easy", Type = "hardcore", ExpectedDifficulty = "Hardcore"},
         RequiredTowers = {"Pyromancer", "Hunter"},
