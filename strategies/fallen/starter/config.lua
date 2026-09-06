@@ -4,7 +4,6 @@ return {
     MatchTimeoutMinutes = 20,
     UseAutoGutlin = true,
     DisableMatchTimeout = true,
-    CompletionBehavior = "ReturnToLobby",
 
     Matchmaking = {Difficulty = "Fallen", Type = "survival"},
     RequiredTowers = {
