@@ -107,8 +107,7 @@ return {
         "Scout", 
         "Crook Boss", 
         "Pyromancer", 
-        "Minigunner",
-        "Snowballer"
+        "Minigunner"
     }, 
  
     Info = { 
@@ -154,7 +153,7 @@ return {
             Price = 35000, 
             Level = 175, 
             GrindRules = { 
-                {MinLevel = 175, Route = "Molten", FarmBehavior = "RepeatUntilAffordable"} 
+                {ProgressionMode = "AutoMax", Route = "Molten", FarmBehavior = "RepeatUntilAffordable"} 
             } 
         }, 
         ["Hunter"] = { 
