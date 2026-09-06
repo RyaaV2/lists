@@ -107,7 +107,8 @@ return {
         "Scout", 
         "Crook Boss", 
         "Pyromancer", 
-        "Minigunner" 
+        "Minigunner",
+        "Snowballer"
     }, 
  
     Info = { 
