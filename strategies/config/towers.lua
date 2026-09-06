@@ -153,7 +153,7 @@ return {
             Price = 35000, 
             Level = 175, 
             GrindRules = { 
-                {ProgressionMode = "AutoMax", Route = "Molten", FarmBehavior = "RepeatUntilAffordable"} 
+                {MinLevel = 175, Route = "Molten", FarmBehavior = "RepeatUntilAffordable"} 
             } 
         }, 
         ["Hunter"] = { 
