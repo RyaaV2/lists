@@ -4,7 +4,6 @@ TDS:Mode("Fallen")
 
 TDS:GameInfo("The Heights", {
     "HiddenEnemies",
-    "Glass",
     "ExplodingEnemies",
     "Limitation",
     "Committed",
