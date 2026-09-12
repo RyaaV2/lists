@@ -4,7 +4,6 @@ TDS:Mode("Fallen")
 
 TDS:GameInfo("Sacred Mountains", {
     "HiddenEnemies",
-    "Glass",
     "ExplodingEnemies",
     "Limitation",
     "Committed",
