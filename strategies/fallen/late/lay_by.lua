@@ -4,7 +4,6 @@ TDS:Mode("Fallen")
 
 TDS:GameInfo("Lay By", {
     "HiddenEnemies",
-    "Glass",
     "ExplodingEnemies",
     "Limitation",
     "Committed",
