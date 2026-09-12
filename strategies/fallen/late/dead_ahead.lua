@@ -4,7 +4,6 @@ TDS:Mode("Fallen")
 
 TDS:GameInfo("Dead Ahead", {
     "HiddenEnemies",
-    "Glass",
     "ExplodingEnemies",
     "Limitation",
     "Committed",
