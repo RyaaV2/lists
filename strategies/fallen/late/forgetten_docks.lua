@@ -4,7 +4,6 @@ TDS:Mode("Fallen")
 
 TDS:GameInfo("Forgetten Docks", {
     "HiddenEnemies",
-    "Glass",
     "ExplodingEnemies",
     "Limitation",
     "Committed",
