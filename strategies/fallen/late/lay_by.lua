@@ -11,7 +11,9 @@ TDS:GameInfo("Lay By", {
     "Fog"
 })
 
-TDS:VoteSkip()
+TDS:VoteSkip(1,10)
+TDS:VoteSkip(13,30)
+TDS:VoteSkip(32,36)
 
 TDS:Mercenary(140, 1)
 
