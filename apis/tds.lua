@@ -37,11 +37,38 @@ return function(Context)
     local DirectWaitForWave = Context.DirectWaitForWave
     local DirectSetTarget = Context.DirectSetTarget
 
+    local MarketplaceService = game:GetService("MarketplaceService")
+    local VIP_GAMEPASS_ID = 10518590
+
+    local HasVIP = Context.HasVIP
+
+    if HasVIP == nil then
+        HasVIP = false
+
+        pcall(function()
+            HasVIP = MarketplaceService:UserOwnsGamePassAsync(
+                plr.UserId,
+                VIP_GAMEPASS_ID
+            ) == true
+        end)
+    end
+
+    TDS.HasVIP = HasVIP
+
+    local VoteSkipWaves = {}
+    local VoteSkipAll = false
+    local VoteSkipConfigured = false
+    local VIPVoteSkipWorkerRunning = false
+    local NormalVoteSkipWorkerRunning = false
+
     function TDS:ResetIndex()
         self.PlacedTowers = {}
         self.placed_towers = self.PlacedTowers
         self.StackCounts = {}
 
+        table.clear(VoteSkipWaves)
+        VoteSkipAll = false
+        VoteSkipConfigured = false
     end
 
     function TDS:Place(towerName, x, y, z, ...)
@@ -223,25 +250,225 @@ return function(Context)
         )
     end
 
-    function TDS:VoteSkip(startWave, endWave)
-        startWave =
-            tonumber(startWave)
+    local function GetAutoSkipButton()
+        local playerGui = plr:FindFirstChild("PlayerGui")
+        local settings = playerGui and playerGui:FindFirstChild("ReactUniversalSettings")
+        local window = settings and settings:FindFirstChild("window")
+        local scrollingFrame = window and window:FindFirstChild("scrollingFrame")
+        local unknown = scrollingFrame and scrollingFrame:FindFirstChild("Unknown")
+        local autoSkip = unknown and unknown:FindFirstChild("Auto Skip")
+        local button = autoSkip and autoSkip:FindFirstChild("button")
+        local toggle = button and button:FindFirstChild("toggle")
 
-        endWave =
-            tonumber(endWave)
+        return toggle and toggle:FindFirstChild("imageButton")
+    end
 
-        if startWave and endWave then
-            local waves = {}
+    local function GetAutoSkipState()
+        local button = GetAutoSkipButton()
 
-            for wave = startWave, endWave do
-                waves[wave] = true
+        if not button then
+            return nil
+        end
+
+        local contentText = button:FindFirstChild("contentText")
+
+        if not contentText then
+            return nil
+        end
+
+        local text = tostring(contentText.Text):lower()
+
+        if text == "enabled" then
+            return true
+        end
+
+        if text == "disabled" then
+            return false
+        end
+
+        return nil
+    end
+
+    local function ToggleAutoSkip()
+        local button = GetAutoSkipButton()
+
+        if not button or type(getconnections) ~= "function" then
+            return false
+        end
+
+        for _, connection in ipairs(getconnections(button.MouseButton1Down)) do
+            pcall(function()
+                connection.Function()
+            end)
+        end
+
+        task.wait(0.05)
+
+        for _, connection in ipairs(getconnections(button.MouseButton1Up)) do
+            pcall(function()
+                connection.Function()
+            end)
+        end
+
+        return true
+    end
+
+    local function SetAutoSkip(enabled)
+        local current = GetAutoSkipState()
+
+        if current == nil then
+            return false
+        end
+
+        if current == enabled then
+            return true
+        end
+
+        return ToggleAutoSkip()
+    end
+
+    local function GetCurrentWaveNoWait()
+        local playerGui = plr:FindFirstChild("PlayerGui")
+        local gui = playerGui and playerGui:FindFirstChild("ReactGameTopGameDisplay")
+        local frame = gui and gui:FindFirstChild("Frame")
+        local wave = frame and frame:FindFirstChild("wave")
+        local container = wave and wave:FindFirstChild("container")
+        local value = container and container:FindFirstChild("value")
+
+        if not value then
+            return nil
+        end
+
+        return tonumber(tostring(value.Text):match("(%d+)"))
+    end
+
+    local function GetNormalVoteButton()
+        local playerGui = plr:FindFirstChild("PlayerGui")
+        local voteGui = playerGui and playerGui:FindFirstChild("ReactOverridesVote")
+        local frameObject = voteGui and voteGui:FindFirstChild("Frame")
+        local votes = frameObject and frameObject:FindFirstChild("votes")
+
+        return votes and votes:FindFirstChild("vote")
+    end
+
+    local function UpdateVIPAutoSkip()
+        if not VoteSkipConfigured then
+            return
+        end
+
+        if VoteSkipAll then
+            SetAutoSkip(true)
+            return
+        end
+
+        local currentWave = GetCurrentWaveNoWait()
+
+        if currentWave then
+            SetAutoSkip(VoteSkipWaves[currentWave] == true)
+        else
+            SetAutoSkip(VoteSkipWaves[1] == true)
+        end
+    end
+
+    local function StartVIPVoteSkip()
+        if VIPVoteSkipWorkerRunning then
+            return
+        end
+
+        VIPVoteSkipWorkerRunning = true
+
+        task.spawn(function()
+            while IsStrategyRuntimeEnabled() do
+                UpdateVIPAutoSkip()
+                task.wait(0.1)
             end
 
-            StartDirectSelectiveSkip(
-                waves
-            )
+            VIPVoteSkipWorkerRunning = false
+        end)
+    end
+
+    local function StartNormalVoteSkip()
+        if NormalVoteSkipWorkerRunning then
+            return
+        end
+
+        NormalVoteSkipWorkerRunning = true
+
+        task.spawn(function()
+            while IsStrategyRuntimeEnabled() do
+                local gameStateReplicator = GetDirectGameStateReplicator()
+
+                if not gameStateReplicator
+                    or gameStateReplicator:GetAttribute("GameOver") == true then
+
+                    task.wait(0.2)
+                    continue
+                end
+
+                local currentWave = GetCurrentWaveNoWait()
+
+                if currentWave and VoteSkipWaves[currentWave] then
+                    local voteButton = GetNormalVoteButton()
+
+                    if voteButton
+                        and voteButton.Position == UDim2.new(0.5, 0, 0.5, 0) then
+
+                        pcall(function()
+                            rf:InvokeServer("Voting", "Skip")
+                        end)
+
+                        task.wait(0.2)
+                    else
+                        task.wait(0.1)
+                    end
+                else
+                    task.wait(0.1)
+                end
+            end
+
+            NormalVoteSkipWorkerRunning = false
+        end)
+    end
+
+    function TDS:VoteSkip(startWave, endWave)
+        VoteSkipConfigured = true
+
+        if startWave == nil and endWave == nil then
+            VoteSkipAll = true
+
+            if HasVIP then
+                SetAutoSkip(true)
+                StartVIPVoteSkip()
+            else
+                StartDirectAutoSkip()
+            end
+
+            return true
+        end
+
+        startWave = tonumber(startWave)
+        endWave = tonumber(endWave)
+
+        if not startWave or not endWave then
+            return false
+        end
+
+        startWave = math.floor(startWave)
+        endWave = math.floor(endWave)
+
+        if endWave < startWave then
+            startWave, endWave = endWave, startWave
+        end
+
+        for wave = startWave, endWave do
+            VoteSkipWaves[wave] = true
+        end
+
+        if HasVIP then
+            UpdateVIPAutoSkip()
+            StartVIPVoteSkip()
         else
-            StartDirectAutoSkip()
+            StartNormalVoteSkip()
         end
 
         return true
