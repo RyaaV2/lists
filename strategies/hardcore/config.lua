@@ -4,7 +4,7 @@
 return {
     MatchTimeoutMinutes = 10,
 
-    CountLoseGameOver = true,
+    CountLoseGameOver = false,
     MilestoneBehavior = "ReturnToLobby",
 
         Matchmaking = {Difficulty = "Easy", Type = "hardcore", ExpectedDifficulty = "Hardcore"},
