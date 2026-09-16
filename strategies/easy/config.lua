@@ -47,6 +47,7 @@ return {
 
     Lose = {
         CountLoseGameOver = true,
+        GameOverCount = 10,
         MilestoneBehavior = "ReturnToLobby",
         Matchmaking = {Difficulty = "Easy", Type = "survival"},
         RequiredTowers = {"Scout"},
