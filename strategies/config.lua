@@ -71,6 +71,9 @@ return {
 
     Towers =
         LoadConfig("config/towers.lua"),
+    
+    TowerXP =
+        LoadConfig("config/towerxp.lua"),
 
     SkillTree =
         LoadConfig("config/skilltree1.lua"),
