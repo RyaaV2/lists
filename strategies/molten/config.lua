@@ -5,7 +5,7 @@ return {
     MatchTimeoutMinutes = 15,
     MilestoneBehavior = "ReturnToLobby",
 
-    CountLoseGameOver = true,
+    CountLoseGameOver = false,
 
         Matchmaking = {Difficulty = "Molten", Type = "survival"},
         RequiredTowers = {"Soldier"},
