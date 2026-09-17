@@ -1,4 +1,6 @@
 return {
+    MinimumLevel = 50,
+    
     Towers = {
         {
             Name = "Scout",
