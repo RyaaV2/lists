@@ -1,7 +1,7 @@
 return {
     MinimumLevel = 50,
 
-    Strategy = "towerxp.lua",
+    Strategy = "strategies/towerxp.lua",
 
     Matchmaking = {
         Difficulty = "Easy",
