@@ -25,7 +25,7 @@ return {
         RequiredTowers = {"Soldier"},
         Priority = {
             "Black Spot Exchange",
-            "Dead Ahead",
+            "Dead Ahea",
             "Lay By",
             "Construction Crazy",
             "The Heights",
@@ -35,7 +35,7 @@ return {
         },
         Maps = {
             ["Black Spot Exchange"] = "strategies/easy/win/black_spot_exchange.lua",
-            ["Dead Ahead"] = "strategies/easy/win/dead_ahead.lua",
+            ["Dead Ahea"] = "strategies/easy/win/dead_ahead.lua",
             ["Lay By"] = "strategies/easy/win/lay_by.lua",
             ["Construction Crazy"] = "strategies/easy/win/construction_crazy.lua",
             ["The Heights"] = "strategies/easy/win/the_heights.lua",
