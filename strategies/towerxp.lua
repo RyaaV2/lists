@@ -13,8 +13,8 @@ return function(TDS, selectedTower)
     TDS:Ready()
     TDS:UpgradeTimes(1, 4)
     for _ = 1, 4 do TDS:Place("Hunter", 2.679039716720581, 1.341203212738037, 21.30302619934082, true) end
-    TDS:WaitForWave(22)
-    for i = 1, 5 do TDS:Sell(i) end
+    TDS:WaitForWave(20)
+    TDS:Sell(1)
     TDS:Place(selectedTower, 2.679039716720581, 1.341203212738037, 21.30302619934082, true)
 
     return true
