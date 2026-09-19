@@ -1002,25 +1002,75 @@ return function(Context)
 
         RestartInProgress = true
 
+        local gameOverRep =
+            GetGameStateReplicator()
+
+        local health =
+            gameOverRep
+            and tonumber(
+                gameOverRep:GetAttribute(
+                    "Health"
+                )
+            )
+            or 0
+
+        local won =
+            health > 0
+
         UpdateMainStatus(
-            "Status: Rematching..."
+            won
+            and "Status: Rematching..."
+            or "Status: Restarting Match..."
         )
 
         local ok, result =
             pcall(function()
-                local rematchEvent =
-                    ReplicatedStorage
-                        :WaitForChild("Network")
-                        :WaitForChild("GameManager")
-                        :WaitForChild("RE:Rematch")
+                if won then
+                    -- Win/Triumph: use RE:Rematch once.
+                    local rematchEvent =
+                        ReplicatedStorage
+                            :WaitForChild("Network")
+                            :WaitForChild("GameManager")
+                            :WaitForChild("RE:Rematch")
 
-                -- Fire Rematch ONCE.
-                -- Do not spam Voting/Skip here because once the next
-                -- Ready? vote appears, Voting/Skip would press Ready early.
-                rematchEvent:FireServer()
+                    rematchEvent:FireServer()
+
+                    local timeoutAt =
+                        os.clock() + 30
+
+                    repeat
+                        if Saved.AutoRestartStrategy ~= true
+                            or Globals.__RyaAutoStrategyEnabled ~= true then
+
+                            return false
+                        end
+
+                        local rep =
+                            GetGameStateReplicator()
+
+                        if rep
+                            and rep:GetAttribute(
+                                "GameOver"
+                            ) == false then
+
+                            return true
+                        end
+
+                        task.wait(0.1)
+                    until os.clock() >= timeoutAt
+
+                    return false
+                end
+
+                -- Loss: match the main Auto Progress logic.
+                -- Use Voting/Skip only until GameOver becomes false.
+                local remoteFunction =
+                    ReplicatedStorage:WaitForChild(
+                        "RemoteFunction"
+                    )
 
                 local timeoutAt =
-                    os.clock() + 30
+                    os.clock() + 15
 
                 repeat
                     if Saved.AutoRestartStrategy ~= true
@@ -1029,21 +1079,40 @@ return function(Context)
                         return false
                     end
 
-                    local rep =
-                        GetGameStateReplicator()
+                    pcall(function()
+                        remoteFunction:InvokeServer(
+                            "Voting",
+                            "Skip"
+                        )
+                    end)
 
-                    if rep
-                        and rep:GetAttribute(
-                            "GameOver"
-                        ) == false then
+                    local waitUntil =
+                        os.clock() + 0.75
 
-                        return true
-                    end
+                    repeat
+                        task.wait(0.1)
 
-                    task.wait(0.1)
+                        local rep =
+                            GetGameStateReplicator()
+
+                        if rep
+                            and rep:GetAttribute(
+                                "GameOver"
+                            ) == false then
+
+                            return true
+                        end
+                    until os.clock() >= waitUntil
                 until os.clock() >= timeoutAt
 
-                return false
+                local rep =
+                    GetGameStateReplicator()
+
+                return rep
+                    and rep:GetAttribute(
+                        "GameOver"
+                    ) == false
+                    or false
             end)
 
         if not ok
