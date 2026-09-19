@@ -355,7 +355,7 @@ local function WaitForRequestedMapWithFallback(
         )
 
     -- Let the boards finish populating first.
-    task.wait(3)
+    task.wait(1)
 
     local selectedMap =
         FindRequestedMap(
@@ -378,7 +378,7 @@ local function WaitForRequestedMapWithFallback(
         "Veto"
     )
 
-    task.wait(2)
+    task.wait(0.5)
 
     selectedMap =
         FindRequestedMap(
@@ -410,7 +410,7 @@ local function DirectSelectMap(mapName)
             )
         end)
 
-        task.wait(3)
+        task.wait(1)
     end
 
     re:FireServer(
@@ -420,7 +420,7 @@ local function DirectSelectMap(mapName)
         MAP_VOTE_POSITION
     )
 
-    task.wait(0.5)
+    task.wait(0.2)
 
     re:FireServer(
         "LobbyVoting",
