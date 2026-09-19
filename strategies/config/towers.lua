@@ -215,7 +215,10 @@ return {
             GrindRules = { 
                 {ProgressionMode = "Win", MaxLevel = 49, Route = "Easy.Starter", FarmBehavior = "RepeatUntilAffordable"}, 
                 {ProgressionMode = "Lose", MaxLevel = 49, Route = "Easy.Lose", FarmBehavior = "RepeatUntilAffordable"}, 
-                {ProgressionMode = "AutoMax", MaxLevel = 49, Route = "Easy.Lose", FarmBehavior = "RepeatUntilAffordable"} 
+                {ProgressionMode = "AutoMax", MaxLevel = 49, Route = "Easy.Lose", FarmBehavior = "RepeatUntilAffordable"}, 
+                {ProgressionMode = "Win", MinLevel = 50, Route = "Easy.Starter", FarmBehavior = "RepeatUntilAffordable"}, 
+                {ProgressionMode = "Lose", MinLevel = 50, Route = "Easy.Lose", FarmBehavior = "RepeatUntilAffordable"}, 
+                {ProgressionMode = "AutoMax", MinLevel = 50, Route = "Easy.Lose", FarmBehavior = "RepeatUntilAffordable"} 
             } 
         }, 
         ["Boomerang"] = {Type = "Currency", Currency = "Coins", Price = 300}, 
