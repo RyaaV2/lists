@@ -18,7 +18,14 @@ local re = ReplicatedStorage:WaitForChild("RemoteEvent")
 
 local TDS = {
     PlacedTowers = {},
-    StackCounts = {}
+    StackCounts = {},
+    MatchmakingMap = {
+        ["PizzaParty"] = "halloween",
+        ["Badlands"] = "badlands",
+        ["PollutedWasteland"] = "polluted",
+        ["DuckyEasy"] = "ducky2025",
+        ["DuckyHard"] = "ducky2025"
+    }
 }
 
 TDS.placed_towers = TDS.PlacedTowers
@@ -983,11 +990,178 @@ function TDS:Loadout(...)
     return DirectSetLoadout(...)
 end
 
-function TDS:Mode(_mode)
-    return true
+function TDS:Mode(difficulty)
+    difficulty =
+        tostring(
+            difficulty or ""
+        )
+
+    self.SavedDifficulty =
+        difficulty
+
+    local lobbyHud =
+        PlayerGui:FindFirstChild(
+            "ReactLobbyHud"
+        )
+
+    local hotbar =
+        PlayerGui:FindFirstChild(
+            "ReactUniversalHotbar"
+        )
+
+    -- In a match, Mode only remembers the selected mode.
+    -- The strategy will continue into GameInfo().
+    if not lobbyHud
+        and hotbar then
+
+        return false
+    end
+
+    if difficulty == "" then
+        return false
+    end
+
+    if difficulty == "Trial" then
+        local ok, result =
+            pcall(function()
+                return rf:InvokeServer(
+                    "Multiplayer",
+                    "v2:start",
+                    {
+                        count = 1,
+                        mode = "Trials"
+                    }
+                )
+            end)
+
+        return ok
+            and result ~= false
+    end
+
+    local frame =
+        lobbyHud
+        and lobbyHud:FindFirstChild(
+            "Frame"
+        )
+
+    local matchmaking =
+        frame
+        and frame:FindFirstChild(
+            "matchmaking"
+        )
+
+    if not matchmaking then
+        return false
+    end
+
+    while true do
+        local ok, result =
+            pcall(function()
+                local mappedMode =
+                    self.MatchmakingMap[
+                        difficulty
+                    ]
+
+                local payload
+
+                if difficulty == "Hardcore" then
+                    payload = {
+                        mode = "hardcore",
+                        difficulty = "Easy",
+                        count = 1
+                    }
+
+                elseif difficulty == "Voidcore" then
+                    payload = {
+                        mode = "hardcore",
+                        difficulty = "Hard",
+                        count = 1
+                    }
+
+                elseif mappedMode then
+                    payload = {
+                        mode = mappedMode,
+                        count = 1
+                    }
+
+                    if difficulty:match(
+                        "^Ducky"
+                    ) then
+
+                        payload.difficulty =
+                            difficulty:gsub(
+                                "^Ducky",
+                                ""
+                            )
+                    end
+
+                else
+                    payload = {
+                        difficulty = difficulty,
+                        mode = "survival",
+                        count = 1
+                    }
+                end
+
+                return rf:InvokeServer(
+                    "Multiplayer",
+                    "v2:start",
+                    payload
+                )
+            end)
+
+        if ok
+            and DirectResponseOK(result) then
+
+            return true
+        end
+
+        -- Stop retrying once Roblox has already moved us
+        -- out of the lobby.
+        if not PlayerGui:FindFirstChild(
+            "ReactLobbyHud"
+        ) then
+
+            return true
+        end
+
+        task.wait(0.5)
+    end
 end
 
 function TDS:GameInfo(mapName, modifiers)
+    -- Same strategy file can run in lobby and in-match.
+    -- Do nothing here while matchmaking is still in the lobby.
+    if PlayerGui:FindFirstChild(
+        "ReactLobbyHud"
+    )
+        and not PlayerGui:FindFirstChild(
+            "ReactUniversalHotbar"
+        ) then
+
+        return false
+    end
+
+    local voteGui =
+        PlayerGui:WaitForChild(
+            "ReactGameIntermission",
+            30
+        )
+
+    if not voteGui then
+        return false
+    end
+
+    local frame =
+        voteGui:WaitForChild(
+            "Frame",
+            5
+        )
+
+    if not frame then
+        return false
+    end
+
     if type(modifiers) == "table"
         and #modifiers > 0 then
 
@@ -996,8 +1170,9 @@ function TDS:GameInfo(mapName, modifiers)
         for _, modifierName in ipairs(
             modifiers
         ) do
-            votes[tostring(modifierName)] =
-                true
+            votes[
+                tostring(modifierName)
+            ] = true
         end
 
         pcall(function()
@@ -1248,30 +1423,39 @@ function TDS:Mercenary(dist, pathName)
     return true
 end
 
-function TDS:LoopAbility(index, abilityName, data)
+function TDS:Ability(index, abilityName, data, loop)
     index =
         tonumber(index)
+
+    if type(data) == "boolean" then
+        loop = data
+        data = nil
+    end
 
     data =
         type(data) == "table"
         and data
-        or {}
+        or nil
 
-    task.spawn(function()
+    local function Activate()
         while IsStrategyRuntimeEnabled() do
             local tower =
                 TDS.PlacedTowers[
                     index
                 ]
 
-            if tower
-                and tower.Parent then
+            if not tower
+                or not tower.Parent then
 
-                local payload =
-                    table.clone(
-                        data
-                    )
+                return false
+            end
 
+            local payload =
+                data
+                and table.clone(data)
+                or nil
+
+            if payload then
                 if type(
                     payload.towerToClone
                 ) == "number" then
@@ -1282,8 +1466,33 @@ function TDS:LoopAbility(index, abilityName, data)
                         ]
                 end
 
+                if type(
+                    payload.towerTarget
+                ) == "number" then
+
+                    payload.towerTarget =
+                        TDS.PlacedTowers[
+                            payload.towerTarget
+                        ]
+                end
+
+                if type(
+                    payload.towerPosition
+                ) == "table"
+                    and #payload.towerPosition > 0 then
+
+                    payload.towerPosition =
+                        payload.towerPosition[
+                            math.random(
+                                #payload.towerPosition
+                            )
+                        ]
+                end
+            end
+
+            local ok, result =
                 pcall(function()
-                    rf:InvokeServer(
+                    return rf:InvokeServer(
                         "Troops",
                         "Abilities",
                         "Activate",
@@ -1294,24 +1503,46 @@ function TDS:LoopAbility(index, abilityName, data)
                         }
                     )
                 end)
+
+            if ok
+                and DirectResponseOK(result) then
+
+                return true
             end
 
-            local rep =
-                GetDirectGameStateReplicator()
-
-            if rep
-                and rep:GetAttribute(
-                    "GameOver"
-                ) == true then
-
-                return
-            end
-
-            task.wait(0.5)
+            task.wait(0.25)
         end
-    end)
 
-    return true
+        return false
+    end
+
+    if loop == true then
+        local active = true
+
+        task.spawn(function()
+            while active
+                and IsStrategyRuntimeEnabled() do
+
+                Activate()
+                task.wait(1)
+            end
+        end)
+
+        return function()
+            active = false
+        end
+    end
+
+    return Activate()
+end
+
+function TDS:LoopAbility(index, abilityName, data)
+    return TDS:Ability(
+        index,
+        abilityName,
+        data,
+        true
+    )
 end
 
 
