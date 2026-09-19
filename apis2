@@ -1347,7 +1347,7 @@ end
 function TDS:Mercenary(dist, pathName)
     dist =
         tonumber(dist)
-        or 140
+        or 300
 
     pathName =
         tonumber(pathName)
