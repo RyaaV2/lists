@@ -1124,6 +1124,9 @@ return function(Context)
         Start = Start,
         Stop = Stop,
         Refresh = RefreshFiles,
+        IsEnabled = function()
+            return Saved.Enabled == true
+        end,
         GetSelectedFile = function()
             return SelectedStrategyFile
         end
