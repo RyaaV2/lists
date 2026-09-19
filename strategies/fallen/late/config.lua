@@ -15,7 +15,7 @@ return {
         "Trapper"
     },
     Priority = {
-        "Dead Ahead",
+        "Retro The Heights",
         "Lay By",
         "Construction Crazy",
         "The Heights",
