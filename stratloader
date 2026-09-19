@@ -79,7 +79,7 @@ return function(Context)
         })
 
     AutoStrategy:Section({
-        Title = "Workspace Strategy"
+        Title = "Auto Strategy"
     })
 
     local StatusLabel =
@@ -505,10 +505,6 @@ return function(Context)
         Title = "Refresh Files",
         Desc = "Rescans workspace/AutoStrategy.",
         Callback = RefreshFiles
-    })
-
-    AutoStrategy:Section({
-        Title = "Auto Strategy"
     })
 
     local function SetToggleVisual(value)
