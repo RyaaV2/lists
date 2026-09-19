@@ -894,6 +894,19 @@ return function(Context)
             )
     end
 
+    local function GetVoteReplicator()
+        local stateReplicators =
+            ReplicatedStorage:FindFirstChild(
+                "StateReplicators"
+            )
+
+        return
+            stateReplicators
+            and stateReplicators:FindFirstChild(
+                "VoteReplicator"
+            )
+    end
+
     local function ReturnToLobbyForStrategyChange()
         if ReturnToLobbyInProgress
             or PendingStrategyChange ~= true
@@ -1058,6 +1071,13 @@ return function(Context)
         local readyDeadline =
             os.clock() + 45
 
+        UpdateMainStatus(
+            "Status: Waiting for Ready..."
+        )
+
+        local readyReached =
+            false
+
         repeat
             if Saved.AutoRestartStrategy ~= true
                 or Globals.__RyaAutoStrategyEnabled ~= true then
@@ -1069,31 +1089,41 @@ return function(Context)
             local rep =
                 GetGameStateReplicator()
 
+            local voteRep =
+                GetVoteReplicator()
+
             if rep
                 and rep:GetAttribute(
-                    "GameOver"
-                ) == false then
+                    "GameStarted"
+                ) == true then
 
+                readyReached = true
+                break
+            end
+
+            if voteRep
+                and voteRep:GetAttribute(
+                    "Enabled"
+                ) == true
+                and voteRep:GetAttribute(
+                    "Title"
+                ) == "Ready?" then
+
+                readyReached = true
                 break
             end
 
             task.wait(0.1)
         until os.clock() >= readyDeadline
 
-        local rep =
-            GetGameStateReplicator()
-
-        if not rep
-            or rep:GetAttribute(
-                "GameOver"
-            ) ~= false then
-
+        if not readyReached then
             RestartInProgress = false
             return false
         end
 
-        task.wait(2)
-
+        -- Do NOT press Ready here. Start the strategy only once the
+        -- Ready? prompt exists so the strategy's own TDS:Ready()
+        -- handles the prompt at the correct point in the file.
         if Saved.AutoRestartStrategy == true
             and Globals.__RyaAutoStrategyEnabled == true then
 
