@@ -4,6 +4,9 @@ return function(Context)
     local Window = Context.Window
     local Library = Context.Library
     local Globals = Context.Globals or getgenv()
+    local CanEnable = Context.CanEnable
+    local SetMainStatus = Context.SetMainStatus
+    local BackToLobby = Context.BackToLobby
     local Players = game:GetService("Players")
     local HttpService = game:GetService("HttpService")
     local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -80,6 +83,9 @@ return function(Context)
     local AutoStrategyToggle = nil
     local AutoRestartStrategyToggle = nil
     local RestartInProgress = false
+    local ReturnToLobbyInProgress = false
+    local RunningStrategyFile = nil
+    local PendingStrategyChange = false
 
     local AutoStrategy =
         Window:Tab({
@@ -93,6 +99,15 @@ return function(Context)
 
     local function SetStatus(_text)
         -- Status UI removed.
+    end
+
+    local function UpdateMainStatus(text)
+        if type(SetMainStatus) == "function" then
+            pcall(
+                SetMainStatus,
+                tostring(text)
+            )
+        end
     end
 
     local function Notify(content, duration)
@@ -383,6 +398,24 @@ return function(Context)
 
                         Save()
 
+                        if Globals.__RyaAutoStrategyEnabled == true
+                            and RunningStrategyFile then
+
+                            PendingStrategyChange =
+                                SelectedStrategyFile
+                                ~= RunningStrategyFile
+
+                            if PendingStrategyChange then
+                                UpdateMainStatus(
+                                    "Status: Strategy Changed Waiting Game to finish"
+                                )
+                            else
+                                UpdateMainStatus(
+                                    "Status: Running Auto Strategy"
+                                )
+                            end
+                        end
+
                         SetStatus(
                             "Selected "
                             .. fileName
@@ -556,7 +589,13 @@ return function(Context)
     local function Stop()
         Globals.__RyaAutoStrategyEnabled = false
         Saved.Enabled = false
+        PendingStrategyChange = false
+        RunningStrategyFile = nil
         Save()
+
+        UpdateMainStatus(
+            "Status: Idle"
+        )
 
         if AutoStrategyThread then
             pcall(function()
@@ -576,6 +615,27 @@ return function(Context)
     end
 
     local function Start()
+        if type(CanEnable) == "function" then
+            local ok, allowed, message =
+                pcall(
+                    CanEnable
+                )
+
+            if not ok
+                or allowed == false then
+
+                Notify(
+                    tostring(
+                        message
+                        or "Turn off the other automation mode first."
+                    ),
+                    5
+                )
+
+                return false
+            end
+        end
+
         local path =
             SelectedStrategyFile
 
@@ -664,7 +724,13 @@ return function(Context)
         Globals.__RyaAutoStrategyEnabled = true
         Saved.Enabled = true
         Saved.SelectedFile = path
+        RunningStrategyFile = path
+        PendingStrategyChange = false
         Save()
+
+        UpdateMainStatus(
+            "Status: Running Auto Strategy"
+        )
 
         local fileName =
             GetFileName(
@@ -743,6 +809,55 @@ return function(Context)
             and stateReplicators:FindFirstChild(
                 "GameStateReplicator"
             )
+    end
+
+    local function ReturnToLobbyForStrategyChange()
+        if ReturnToLobbyInProgress
+            or PendingStrategyChange ~= true
+            or Globals.__RyaAutoStrategyEnabled ~= true then
+
+            return false
+        end
+
+        ReturnToLobbyInProgress = true
+
+        UpdateMainStatus(
+            "Status: Returning to Lobby..."
+        )
+
+        if AutoStrategyThread then
+            pcall(function()
+                task.cancel(
+                    AutoStrategyThread
+                )
+            end)
+
+            AutoStrategyThread = nil
+        end
+
+        local ok, result =
+            pcall(function()
+                if type(BackToLobby) ~= "function" then
+                    return false
+                end
+
+                return BackToLobby()
+            end)
+
+        if not ok
+            or result == false then
+
+            ReturnToLobbyInProgress = false
+
+            Notify(
+                "Failed to return to lobby after strategy change.",
+                5
+            )
+
+            return false
+        end
+
+        return true
     end
 
     local function RematchAndRerun()
@@ -874,6 +989,30 @@ return function(Context)
         local lastRep = nil
         local lastGameOver = nil
 
+        local function HandleGameOver()
+            if Globals.__RyaAutoStrategyEnabled ~= true then
+                return
+            end
+
+            if PendingStrategyChange == true then
+                if not ReturnToLobbyInProgress then
+                    task.spawn(
+                        ReturnToLobbyForStrategyChange
+                    )
+                end
+
+                return
+            end
+
+            if Saved.AutoRestartStrategy == true
+                and not RestartInProgress then
+
+                task.spawn(
+                    RematchAndRerun
+                )
+            end
+        end
+
         while true do
             task.wait(0.1)
 
@@ -890,14 +1029,8 @@ return function(Context)
                     ) == true
                     or nil
 
-                if lastGameOver == true
-                    and Saved.AutoRestartStrategy == true
-                    and Globals.__RyaAutoStrategyEnabled == true
-                    and not RestartInProgress then
-
-                    task.spawn(
-                        RematchAndRerun
-                    )
+                if lastGameOver == true then
+                    HandleGameOver()
                 end
 
             elseif rep then
@@ -907,14 +1040,9 @@ return function(Context)
                     ) == true
 
                 if isGameOver == true
-                    and lastGameOver ~= true
-                    and Saved.AutoRestartStrategy == true
-                    and Globals.__RyaAutoStrategyEnabled == true
-                    and not RestartInProgress then
+                    and lastGameOver ~= true then
 
-                    task.spawn(
-                        RematchAndRerun
-                    )
+                    HandleGameOver()
                 end
 
                 lastGameOver =
