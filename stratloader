@@ -912,27 +912,19 @@ return function(Context)
         -- is always ready, so give it a brief moment first.
         task.wait(0.2)
 
-        local ok, result =
-            pcall(function()
-                if type(BackToLobby) ~= "function" then
-                    return false
-                end
-
-                return BackToLobby()
-            end)
-
-        if not ok
-            or result == false then
-
+        if type(BackToLobby) ~= "function" then
             ReturnToLobbyInProgress = false
-
-            Notify(
-                "Failed to return to lobby after strategy change.",
-                5
-            )
-
             return false
         end
+
+        -- Match Tower XP behavior exactly:
+        -- call the lobby-return handler and do not treat its return value
+        -- as a failure signal.
+        task.spawn(function()
+            pcall(
+                BackToLobby
+            )
+        end)
 
         return true
     end
