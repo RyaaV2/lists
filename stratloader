@@ -896,6 +896,11 @@ return function(Context)
             AutoStrategyThread = nil
         end
 
+        -- Match the working Auto Progress / Tower XP return timing.
+        -- GameOver becomes true slightly before the end-screen lobby action
+        -- is always ready, so give it a brief moment first.
+        task.wait(0.2)
+
         local ok, result =
             pcall(function()
                 if type(BackToLobby) ~= "function" then
