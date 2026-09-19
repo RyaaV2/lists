@@ -104,11 +104,24 @@ return function(Context)
     local function UpdateMainStatus(text)
         text = tostring(text)
 
-        Globals.__RyaAutoStrategyStatus =
+        local cleanText =
             text:gsub(
                 "^Status:%s*",
                 ""
             )
+
+        Globals.__RyaAutoStrategyStatus =
+            cleanText
+
+        if AutoStrategy
+            and AutoStrategy.SetStatus then
+
+            pcall(function()
+                AutoStrategy:SetStatus(
+                    cleanText
+                )
+            end)
+        end
 
         if type(SetMainStatus) == "function" then
             pcall(
