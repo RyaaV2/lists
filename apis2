@@ -1,6 +1,4 @@
--- Standalone TDS Strategy API
--- Usage:
--- local TDS = loadstring(game:HttpGet("YOUR_RAW_URL"))()
+
 
 if not game:IsLoaded() then
     game.Loaded:Wait()
@@ -15,6 +13,8 @@ local plr = Players.LocalPlayer or Players.PlayerAdded:Wait()
 local PlayerGui = plr:WaitForChild("PlayerGui")
 local rf = ReplicatedStorage:WaitForChild("RemoteFunction")
 local re = ReplicatedStorage:WaitForChild("RemoteEvent")
+
+local LOBBY_PLACE_ID = 3260590327
 
 local TDS = {
     PlacedTowers = {},
@@ -987,6 +987,10 @@ function TDS:Place(towerName, x, y, z, ...)
 end
 
 function TDS:Loadout(...)
+    if game.PlaceId == LOBBY_PLACE_ID then
+        return false
+    end
+
     return DirectSetLoadout(...)
 end
 
@@ -1347,7 +1351,7 @@ end
 function TDS:Mercenary(dist, pathName)
     dist =
         tonumber(dist)
-        or 300
+        or 140
 
     pathName =
         tonumber(pathName)
