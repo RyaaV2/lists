@@ -6,6 +6,7 @@ return function(Context)
     local Globals = Context.Globals or getgenv()
     local Players = game:GetService("Players")
     local HttpService = game:GetService("HttpService")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
     local LocalPlayer = Players.LocalPlayer or Players.PlayerAdded:Wait()
 
     if not Window or not Library then
@@ -24,6 +25,7 @@ return function(Context)
 
     local Saved = {
         Enabled = false,
+        AutoRestartStrategy = false,
         SelectedFile = ""
     }
 
@@ -44,6 +46,11 @@ return function(Context)
             if type(data) == "table" then
                 if type(data.Enabled) == "boolean" then
                     Saved.Enabled = data.Enabled
+                end
+
+                if type(data.AutoRestartStrategy) == "boolean" then
+                    Saved.AutoRestartStrategy =
+                        data.AutoRestartStrategy
                 end
 
                 if type(data.SelectedFile) == "string" then
@@ -71,6 +78,8 @@ return function(Context)
     local SelectedStrategyFile = nil
     local AutoStrategyThread = nil
     local AutoStrategyToggle = nil
+    local AutoRestartStrategyToggle = nil
+    local RestartInProgress = false
 
     local AutoStrategy =
         Window:Tab({
@@ -723,10 +732,203 @@ return function(Context)
         end
     end)
 
+    local function GetGameStateReplicator()
+        local stateReplicators =
+            ReplicatedStorage:FindFirstChild(
+                "StateReplicators"
+            )
+
+        return
+            stateReplicators
+            and stateReplicators:FindFirstChild(
+                "GameStateReplicator"
+            )
+    end
+
+    local function RematchAndRerun()
+        if RestartInProgress
+            or Saved.AutoRestartStrategy ~= true
+            or Globals.__RyaAutoStrategyEnabled ~= true then
+
+            return false
+        end
+
+        RestartInProgress = true
+
+        local ok, result =
+            pcall(function()
+                local rematchEvent =
+                    ReplicatedStorage
+                        :WaitForChild("Network")
+                        :WaitForChild("GameManager")
+                        :WaitForChild("RE:Rematch")
+
+                rematchEvent:FireServer()
+
+                local remoteFunction =
+                    ReplicatedStorage:WaitForChild(
+                        "RemoteFunction"
+                    )
+
+                local timeoutAt =
+                    os.clock() + 15
+
+                repeat
+                    if Saved.AutoRestartStrategy ~= true
+                        or Globals.__RyaAutoStrategyEnabled ~= true then
+
+                        return false
+                    end
+
+                    pcall(function()
+                        remoteFunction:InvokeServer(
+                            "Voting",
+                            "Skip"
+                        )
+                    end)
+
+                    local rep =
+                        GetGameStateReplicator()
+
+                    if rep
+                        and rep:GetAttribute(
+                            "GameOver"
+                        ) == false then
+
+                        return true
+                    end
+
+                    task.wait(0.75)
+                until os.clock() >= timeoutAt
+
+                return false
+            end)
+
+        if not ok
+            or result ~= true then
+
+            RestartInProgress = false
+
+            if Globals.__RyaAutoStrategyEnabled == true
+                and Saved.AutoRestartStrategy == true then
+
+                Notify(
+                    "Auto Restart Strategy failed.",
+                    5
+                )
+            end
+
+            return false
+        end
+
+        local readyDeadline =
+            os.clock() + 45
+
+        repeat
+            if Saved.AutoRestartStrategy ~= true
+                or Globals.__RyaAutoStrategyEnabled ~= true then
+
+                RestartInProgress = false
+                return false
+            end
+
+            local rep =
+                GetGameStateReplicator()
+
+            if rep
+                and rep:GetAttribute(
+                    "GameOver"
+                ) == false then
+
+                break
+            end
+
+            task.wait(0.1)
+        until os.clock() >= readyDeadline
+
+        local rep =
+            GetGameStateReplicator()
+
+        if not rep
+            or rep:GetAttribute(
+                "GameOver"
+            ) ~= false then
+
+            RestartInProgress = false
+            return false
+        end
+
+        task.wait(2)
+
+        if Saved.AutoRestartStrategy == true
+            and Globals.__RyaAutoStrategyEnabled == true then
+
+            Start()
+        end
+
+        RestartInProgress = false
+        return true
+    end
+
+    task.spawn(function()
+        local lastRep = nil
+        local lastGameOver = nil
+
+        while true do
+            task.wait(0.1)
+
+            local rep =
+                GetGameStateReplicator()
+
+            if rep ~= lastRep then
+                lastRep = rep
+
+                lastGameOver =
+                    rep
+                    and rep:GetAttribute(
+                        "GameOver"
+                    ) == true
+                    or nil
+
+                if lastGameOver == true
+                    and Saved.AutoRestartStrategy == true
+                    and Globals.__RyaAutoStrategyEnabled == true
+                    and not RestartInProgress then
+
+                    task.spawn(
+                        RematchAndRerun
+                    )
+                end
+
+            elseif rep then
+                local isGameOver =
+                    rep:GetAttribute(
+                        "GameOver"
+                    ) == true
+
+                if isGameOver == true
+                    and lastGameOver ~= true
+                    and Saved.AutoRestartStrategy == true
+                    and Globals.__RyaAutoStrategyEnabled == true
+                    and not RestartInProgress then
+
+                    task.spawn(
+                        RematchAndRerun
+                    )
+                end
+
+                lastGameOver =
+                    isGameOver
+            else
+                lastGameOver = nil
+            end
+        end
+    end)
+
     AutoStrategyToggle =
         AutoStrategy:Toggle({
             Title = "Enable Auto Strategy",
-            Desc = "Automatically runs the selected workspace strategy.",
+            Desc = "Automatically runs the selected strategy file.",
             Value = Saved.Enabled == true,
             Callback = function(value)
                 if value then
@@ -746,6 +948,20 @@ return function(Context)
                 end
             end
         })
+
+    AutoRestartStrategyToggle =
+        AutoStrategy:Toggle({
+            Title = "Auto Restart Strategy",
+            Desc = "Rematches and reruns the selected strategy after Triumph or Loss.",
+            Value = Saved.AutoRestartStrategy == true,
+            Callback = function(value)
+                Saved.AutoRestartStrategy =
+                    value == true
+
+                Save()
+            end
+        })
+
 
     if SelectedStrategyFile then
         SetStatus(
