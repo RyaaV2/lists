@@ -1002,6 +1002,10 @@ return function(Context)
 
         RestartInProgress = true
 
+        UpdateMainStatus(
+            "Status: Rematching..."
+        )
+
         local ok, result =
             pcall(function()
                 local rematchEvent =
@@ -1010,15 +1014,13 @@ return function(Context)
                         :WaitForChild("GameManager")
                         :WaitForChild("RE:Rematch")
 
+                -- Fire Rematch ONCE.
+                -- Do not spam Voting/Skip here because once the next
+                -- Ready? vote appears, Voting/Skip would press Ready early.
                 rematchEvent:FireServer()
 
-                local remoteFunction =
-                    ReplicatedStorage:WaitForChild(
-                        "RemoteFunction"
-                    )
-
                 local timeoutAt =
-                    os.clock() + 15
+                    os.clock() + 30
 
                 repeat
                     if Saved.AutoRestartStrategy ~= true
@@ -1026,13 +1028,6 @@ return function(Context)
 
                         return false
                     end
-
-                    pcall(function()
-                        remoteFunction:InvokeServer(
-                            "Voting",
-                            "Skip"
-                        )
-                    end)
 
                     local rep =
                         GetGameStateReplicator()
@@ -1045,7 +1040,7 @@ return function(Context)
                         return true
                     end
 
-                    task.wait(0.75)
+                    task.wait(0.1)
                 until os.clock() >= timeoutAt
 
                 return false
