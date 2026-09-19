@@ -1,1 +1,763 @@
 
+return function(Context)
+    Context = type(Context) == "table" and Context or {}
+
+    local Window = Context.Window
+    local Library = Context.Library
+    local Globals = Context.Globals or getgenv()
+    local Players = game:GetService("Players")
+    local HttpService = game:GetService("HttpService")
+    local LocalPlayer = Players.LocalPlayer or Players.PlayerAdded:Wait()
+
+    if not Window or not Library then
+        return nil
+    end
+
+    local WORKSPACE_FOLDER = "AutoProgress"
+    local SETTINGS_FILE =
+        "AutoStrategy_" .. tostring(LocalPlayer.Name) .. ".json"
+
+    local ORIGINAL_TDS_LIBRARY =
+        "https://f.spacehub.wtf/Scripts/TDS/Recorders/Library.lua"
+
+    local AUTO_PROGRESS_TDS_LIBRARY =
+        "https://raw.githubusercontent.com/RyaaV2/lists/refs/heads/main/apis2"
+
+    local Saved = {
+        Enabled = false,
+        SelectedFile = ""
+    }
+
+    local function LoadSaved()
+        if type(isfile) ~= "function"
+            or type(readfile) ~= "function"
+            or not isfile(SETTINGS_FILE) then
+
+            return
+        end
+
+        pcall(function()
+            local data =
+                HttpService:JSONDecode(
+                    readfile(SETTINGS_FILE)
+                )
+
+            if type(data) == "table" then
+                if type(data.Enabled) == "boolean" then
+                    Saved.Enabled = data.Enabled
+                end
+
+                if type(data.SelectedFile) == "string" then
+                    Saved.SelectedFile = data.SelectedFile
+                end
+            end
+        end)
+    end
+
+    local function Save()
+        if type(writefile) ~= "function" then
+            return
+        end
+
+        pcall(function()
+            writefile(
+                SETTINGS_FILE,
+                HttpService:JSONEncode(Saved)
+            )
+        end)
+    end
+
+    LoadSaved()
+
+    local SelectedStrategyFile = nil
+    local AutoStrategyThread = nil
+    local AutoStrategyToggle = nil
+
+    local AutoStrategy =
+        Window:Tab({
+            Title = "Auto Strategy",
+            Icon = "bot"
+        })
+
+    AutoStrategy:Section({
+        Title = "Workspace Strategy"
+    })
+
+    local StatusLabel =
+        AutoStrategy:Label({
+            Title = "Status: Ready",
+            Desc = "Loads strategy files from workspace/AutoProgress."
+        })
+
+    local function SetStatus(text)
+        if StatusLabel
+            and StatusLabel.SetTitle then
+
+            StatusLabel:SetTitle(
+                "Status: " .. tostring(text)
+            )
+        end
+    end
+
+    local function Notify(content, duration)
+        Library:Notify({
+            Title = "Auto Strategy",
+            Content = tostring(content),
+            Duration = duration or 3
+        })
+    end
+
+    local function IsSupportedFile(path)
+        path =
+            tostring(
+                path or ""
+            ):lower()
+
+        return
+            path:sub(-4) == ".lua"
+            or path:sub(-5) == ".luau"
+            or path:sub(-4) == ".txt"
+    end
+
+    local function GetFileName(path)
+        path =
+            tostring(
+                path or ""
+            )
+
+        return
+            path:match(
+                "([^/\\]+)$"
+            )
+            or path
+    end
+
+    local function TransformStrategySource(source)
+        source =
+            tostring(
+                source or ""
+            )
+
+        local output = {}
+
+        for line in (
+            source .. "\n"
+        ):gmatch("(.-)\r?\n") do
+            local trimmed =
+                line:match(
+                    "^%s*(.-)%s*$"
+                )
+                or line
+
+            local isGlobalAssignment =
+                trimmed:match(
+                    "^_G%.[%w_]+%s*="
+                ) ~= nil
+
+            if not isGlobalAssignment then
+                output[#output + 1] =
+                    line
+            end
+        end
+
+        source =
+            table.concat(
+                output,
+                "\n"
+            )
+
+        source =
+            source:gsub(
+                ORIGINAL_TDS_LIBRARY,
+                AUTO_PROGRESS_TDS_LIBRARY
+            )
+
+        return source
+    end
+
+    local function EnsureFolder()
+        if type(isfolder) == "function" then
+            local ok, exists =
+                pcall(
+                    isfolder,
+                    WORKSPACE_FOLDER
+                )
+
+            if ok
+                and exists then
+
+                return true
+            end
+        end
+
+        if type(makefolder) == "function" then
+            local ok =
+                pcall(
+                    makefolder,
+                    WORKSPACE_FOLDER
+                )
+
+            if ok then
+                return true
+            end
+        end
+
+        return false
+    end
+
+    local function ScanFiles()
+        if type(listfiles) ~= "function" then
+            return nil,
+                "listfiles is not supported by this executor"
+        end
+
+        EnsureFolder()
+
+        local ok, files =
+            pcall(function()
+                return listfiles(
+                    WORKSPACE_FOLDER
+                )
+            end)
+
+        if not ok
+            or type(files) ~= "table" then
+
+            return nil,
+                tostring(files)
+        end
+
+        local results = {}
+
+        for _, path in ipairs(files) do
+            local isFile = true
+
+            if type(isfile) == "function" then
+                local fileOk, fileResult =
+                    pcall(
+                        isfile,
+                        path
+                    )
+
+                isFile =
+                    fileOk
+                    and fileResult == true
+
+            elseif type(isfolder) == "function" then
+                local folderOk, folderResult =
+                    pcall(
+                        isfolder,
+                        path
+                    )
+
+                if folderOk
+                    and folderResult == true then
+
+                    isFile = false
+                end
+            end
+
+            if isFile
+                and IsSupportedFile(path) then
+
+                results[#results + 1] =
+                    tostring(path)
+            end
+        end
+
+        table.sort(
+            results,
+            function(a, b)
+                return
+                    string.lower(a)
+                    < string.lower(b)
+            end
+        )
+
+        return results
+    end
+
+    local FilePathByName = {}
+
+    local function BuildDisplayFiles(files)
+        for key in pairs(
+            FilePathByName
+        ) do
+            FilePathByName[key] = nil
+        end
+
+        local displayFiles = {}
+
+        for _, path in ipairs(
+            files or {}
+        ) do
+            local fileName =
+                GetFileName(path)
+
+            FilePathByName[fileName] =
+                tostring(path)
+
+            displayFiles[
+                #displayFiles + 1
+            ] = fileName
+        end
+
+        return displayFiles
+    end
+
+    local InitialFiles =
+        ScanFiles()
+
+    local InitialDisplayFiles =
+        type(InitialFiles) == "table"
+        and BuildDisplayFiles(
+            InitialFiles
+        )
+        or nil
+
+    if type(InitialFiles) == "table"
+        and #InitialFiles > 0 then
+
+        local savedPath =
+            tostring(
+                Saved.SelectedFile or ""
+            )
+
+        if savedPath ~= ""
+            and type(isfile) == "function"
+            and isfile(savedPath)
+            and IsSupportedFile(savedPath) then
+
+            SelectedStrategyFile =
+                savedPath
+        else
+            SelectedStrategyFile =
+                InitialFiles[1]
+
+            Saved.SelectedFile =
+                SelectedStrategyFile
+
+            Save()
+        end
+    end
+
+    local selectedDisplayValue = nil
+
+    if SelectedStrategyFile then
+        selectedDisplayValue =
+            GetFileName(
+                SelectedStrategyFile
+            )
+    end
+
+    local StrategyDropdown =
+        AutoStrategy:Dropdown({
+            Title = "Strategy File",
+            Desc = "Select a strategy from the AutoProgress folder.",
+            List =
+                type(InitialDisplayFiles) == "table"
+                and #InitialDisplayFiles > 0
+                and InitialDisplayFiles
+                or {
+                    "<no files found>"
+                },
+            Value =
+                selectedDisplayValue,
+            Searchable = true,
+            Callback = function(value)
+                local selected =
+                    type(value) == "table"
+                    and value[1]
+                    or value
+
+                if selected
+                    and selected ~= "<no files found>" then
+
+                    local fileName =
+                        tostring(selected)
+
+                    SelectedStrategyFile =
+                        FilePathByName[
+                            fileName
+                        ]
+
+                    if SelectedStrategyFile then
+                        Saved.SelectedFile =
+                            SelectedStrategyFile
+
+                        Save()
+
+                        SetStatus(
+                            "Selected "
+                            .. fileName
+                        )
+                    end
+                else
+                    SelectedStrategyFile = nil
+                end
+            end
+        })
+
+    local function SetDropdownValues(values)
+        if StrategyDropdown.SetValues then
+            StrategyDropdown:SetValues(
+                values
+            )
+        elseif StrategyDropdown.SetList then
+            StrategyDropdown:SetList(
+                values
+            )
+        end
+    end
+
+    local function SetDropdownValue(value)
+        if StrategyDropdown.SetValue then
+            StrategyDropdown:SetValue(
+                value
+            )
+        elseif StrategyDropdown.Set then
+            StrategyDropdown:Set(
+                value
+            )
+        end
+    end
+
+    local function RefreshFiles()
+        SetStatus(
+            "Scanning workspace..."
+        )
+
+        local files, err =
+            ScanFiles()
+
+        if not files then
+            SetStatus(
+                "Scan failed"
+            )
+
+            Notify(
+                "Workspace scan failed: "
+                .. tostring(err),
+                5
+            )
+
+            return false
+        end
+
+        if #files == 0 then
+            SelectedStrategyFile = nil
+            Saved.SelectedFile = ""
+            Save()
+
+            SetDropdownValues({
+                "<no files found>"
+            })
+
+            SetStatus(
+                "No supported files found"
+            )
+
+            return false
+        end
+
+        local displayFiles =
+            BuildDisplayFiles(
+                files
+            )
+
+        SetDropdownValues(
+            displayFiles
+        )
+
+        local keepCurrent =
+            SelectedStrategyFile
+            and type(isfile) == "function"
+            and isfile(
+                SelectedStrategyFile
+            )
+
+        if not keepCurrent then
+            SelectedStrategyFile =
+                files[1]
+        end
+
+        Saved.SelectedFile =
+            SelectedStrategyFile
+
+        Save()
+
+        SetDropdownValue(
+            GetFileName(
+                SelectedStrategyFile
+            )
+        )
+
+        SetStatus(
+            "Selected "
+            .. GetFileName(
+                SelectedStrategyFile
+            )
+        )
+
+        return true
+    end
+
+    AutoStrategy:Button({
+        Title = "Refresh Files",
+        Desc = "Rescans workspace/AutoProgress.",
+        Callback = RefreshFiles
+    })
+
+    AutoStrategy:Section({
+        Title = "Auto Strategy"
+    })
+
+    local function SetToggleVisual(value)
+        if not AutoStrategyToggle then
+            return
+        end
+
+        pcall(function()
+            if AutoStrategyToggle.SetValue then
+                AutoStrategyToggle:SetValue(
+                    value
+                )
+            elseif AutoStrategyToggle.Set then
+                AutoStrategyToggle:Set(
+                    value
+                )
+            end
+        end)
+    end
+
+    local function Stop()
+        Globals.__RyaAutoStrategyEnabled = false
+        Saved.Enabled = false
+        Save()
+
+        if AutoStrategyThread then
+            pcall(function()
+                task.cancel(
+                    AutoStrategyThread
+                )
+            end)
+
+            AutoStrategyThread = nil
+        end
+
+        SetStatus(
+            "Stopped"
+        )
+
+        return true
+    end
+
+    local function Start()
+        local path =
+            SelectedStrategyFile
+
+        if not path
+            or path == "" then
+
+            SetStatus(
+                "Select a file first"
+            )
+
+            Notify(
+                "Select a strategy file first."
+            )
+
+            return false
+        end
+
+        if type(readfile) ~= "function" then
+            SetStatus(
+                "readfile unsupported"
+            )
+
+            Notify(
+                "readfile is not supported by this executor.",
+                5
+            )
+
+            return false
+        end
+
+        local readOk, source =
+            pcall(
+                readfile,
+                path
+            )
+
+        if not readOk then
+            SetStatus(
+                "Read failed"
+            )
+
+            Notify(
+                "Failed to read file: "
+                .. tostring(source),
+                6
+            )
+
+            return false
+        end
+
+        source =
+            TransformStrategySource(
+                source
+            )
+
+        local chunk, compileError =
+            loadstring(
+                source,
+                "=" .. path
+            )
+
+        if not chunk then
+            SetStatus(
+                "Compile error"
+            )
+
+            Notify(
+                "Compile error: "
+                .. tostring(compileError),
+                8
+            )
+
+            return false
+        end
+
+        if AutoStrategyThread then
+            pcall(function()
+                task.cancel(
+                    AutoStrategyThread
+                )
+            end)
+
+            AutoStrategyThread = nil
+        end
+
+        Globals.__RyaAutoStrategyEnabled = true
+        Saved.Enabled = true
+        Saved.SelectedFile = path
+        Save()
+
+        local fileName =
+            GetFileName(
+                path
+            )
+
+        SetStatus(
+            "Running "
+            .. fileName
+        )
+
+        AutoStrategyThread =
+            task.spawn(function()
+                local runOk, runError =
+                    pcall(
+                        chunk
+                    )
+
+                AutoStrategyThread = nil
+
+                if Globals.__RyaAutoStrategyEnabled ~= true then
+                    return
+                end
+
+                if not runOk then
+                    Globals.__RyaAutoStrategyEnabled = false
+                    Saved.Enabled = false
+                    Save()
+
+                    SetStatus(
+                        "Runtime error"
+                    )
+
+                    Notify(
+                        "Runtime error: "
+                        .. tostring(runError),
+                        8
+                    )
+
+                    task.defer(function()
+                        SetToggleVisual(
+                            false
+                        )
+                    end)
+
+                    return
+                end
+
+                SetStatus(
+                    "Loaded "
+                    .. fileName
+                )
+            end)
+
+        return true
+    end
+
+    AutoStrategyToggle =
+        AutoStrategy:Toggle({
+            Title = "Enable Auto Strategy",
+            Desc = "Automatically runs the selected workspace strategy.",
+            Value = Saved.Enabled == true,
+            Callback = function(value)
+                if value then
+                    if not Start() then
+                        Globals.__RyaAutoStrategyEnabled = false
+                        Saved.Enabled = false
+                        Save()
+
+                        task.defer(function()
+                            SetToggleVisual(
+                                false
+                            )
+                        end)
+                    end
+                else
+                    Stop()
+                end
+            end
+        })
+
+    if SelectedStrategyFile then
+        SetStatus(
+            "Selected "
+            .. GetFileName(
+                SelectedStrategyFile
+            )
+        )
+    elseif type(listfiles) ~= "function" then
+        SetStatus(
+            "listfiles unsupported"
+        )
+    else
+        SetStatus(
+            "No supported files found"
+        )
+    end
+
+    if Saved.Enabled == true
+        and SelectedStrategyFile then
+
+        task.defer(function()
+            task.wait(0.1)
+
+            if Globals.__RyaAutoStrategyEnabled ~= true then
+                Start()
+            end
+        end)
+    end
+
+    return {
+        Start = Start,
+        Stop = Stop,
+        Refresh = RefreshFiles,
+        GetSelectedFile = function()
+            return SelectedStrategyFile
+        end
+    }
+end
