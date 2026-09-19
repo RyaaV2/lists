@@ -117,7 +117,7 @@ return function(Context)
         end
     end
 
-    local function Save()    local function Save()
+    local function Save()
         if type(writefile) ~= "function" then
             return
         end
