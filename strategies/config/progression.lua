@@ -1,6 +1,3 @@
--- Level/progression routing only.
--- Keep map lists and route requirements out of this file.
-
 return {
     MatchTimeoutMinutes = 15,
     GameOverStuckMinutes = 5,
@@ -56,6 +53,8 @@ return {
     },
 
     AutoMaxAccount = {
+        TowerCoinStep = 10000,
+
         GrindRules = {
             {
                 MaxLevel = 14,
