@@ -17,6 +17,7 @@ return function(Context)
     end
 
     local WORKSPACE_FOLDER = "AutoStrategy"
+    local LOBBY_PLACE_ID = 3260590327
     local SETTINGS_FILE =
         "AutoProgress_" .. tostring(LocalPlayer.Name) .. ".json"
 
@@ -459,18 +460,28 @@ return function(Context)
                         if Globals.__RyaAutoStrategyEnabled == true
                             and RunningStrategyFile then
 
-                            PendingStrategyChange =
-                                SelectedStrategyFile
-                                ~= RunningStrategyFile
+                            if game.PlaceId == LOBBY_PLACE_ID then
+                                PendingStrategyChange = false
+                                RunningStrategyFile =
+                                    SelectedStrategyFile
 
-                            if PendingStrategyChange then
-                                UpdateMainStatus(
-                                    "Status: Strategy Changed Waiting Game to finish"
-                                )
-                            else
                                 UpdateMainStatus(
                                     "Status: Running Auto Strategy"
                                 )
+                            else
+                                PendingStrategyChange =
+                                    SelectedStrategyFile
+                                    ~= RunningStrategyFile
+
+                                if PendingStrategyChange then
+                                    UpdateMainStatus(
+                                        "Status: Strategy Changed Waiting Game to finish"
+                                    )
+                                else
+                                    UpdateMainStatus(
+                                        "Status: Running Auto Strategy"
+                                    )
+                                end
                             end
                         end
 
