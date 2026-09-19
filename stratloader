@@ -18,6 +18,9 @@ return function(Context)
 
     local WORKSPACE_FOLDER = "AutoStrategy"
     local SETTINGS_FILE =
+        "AutoProgress_" .. tostring(LocalPlayer.Name) .. ".json"
+
+    local LEGACY_SETTINGS_FILE =
         "AutoStrategy_" .. tostring(LocalPlayer.Name) .. ".json"
 
     local ORIGINAL_TDS_LIBRARY =
@@ -33,45 +36,127 @@ return function(Context)
     }
 
     local function LoadSaved()
-        if type(isfile) ~= "function"
-            or type(readfile) ~= "function"
-            or not isfile(SETTINGS_FILE) then
+        local function ReadSettings(path)
+            if type(isfile) ~= "function"
+                or type(readfile) ~= "function"
+                or not isfile(path) then
 
+                return nil
+            end
+
+            local ok, data =
+                pcall(function()
+                    return HttpService:JSONDecode(
+                        readfile(path)
+                    )
+                end)
+
+            return
+                ok
+                and type(data) == "table"
+                and data
+                or nil
+        end
+
+        local data =
+            ReadSettings(
+                SETTINGS_FILE
+            )
+
+        local hasAutoStrategySettings =
+            type(data) == "table"
+            and (
+                data.AutoStrategyEnabled ~= nil
+                or data.AutoRestartStrategy ~= nil
+                or data.AutoStrategySelectedFile ~= nil
+            )
+
+        if not hasAutoStrategySettings then
+            local legacy =
+                ReadSettings(
+                    LEGACY_SETTINGS_FILE
+                )
+
+            if type(legacy) == "table" then
+                data = data or {}
+
+                if legacy.Enabled ~= nil then
+                    data.AutoStrategyEnabled =
+                        legacy.Enabled
+                end
+
+                if legacy.AutoRestartStrategy ~= nil then
+                    data.AutoRestartStrategy =
+                        legacy.AutoRestartStrategy
+                end
+
+                if legacy.SelectedFile ~= nil then
+                    data.AutoStrategySelectedFile =
+                        legacy.SelectedFile
+                end
+            end
+        end
+
+        if type(data) ~= "table" then
             return
         end
 
-        pcall(function()
-            local data =
-                HttpService:JSONDecode(
-                    readfile(SETTINGS_FILE)
-                )
+        if type(data.AutoStrategyEnabled) == "boolean" then
+            Saved.Enabled =
+                data.AutoStrategyEnabled
+        end
 
-            if type(data) == "table" then
-                if type(data.Enabled) == "boolean" then
-                    Saved.Enabled = data.Enabled
-                end
+        if type(data.AutoRestartStrategy) == "boolean" then
+            Saved.AutoRestartStrategy =
+                data.AutoRestartStrategy
+        end
 
-                if type(data.AutoRestartStrategy) == "boolean" then
-                    Saved.AutoRestartStrategy =
-                        data.AutoRestartStrategy
-                end
-
-                if type(data.SelectedFile) == "string" then
-                    Saved.SelectedFile = data.SelectedFile
-                end
-            end
-        end)
+        if type(data.AutoStrategySelectedFile) == "string" then
+            Saved.SelectedFile =
+                data.AutoStrategySelectedFile
+        end
     end
 
-    local function Save()
+    local function Save()    local function Save()
         if type(writefile) ~= "function" then
             return
         end
 
         pcall(function()
+            local data = {}
+
+            if type(isfile) == "function"
+                and type(readfile) == "function"
+                and isfile(SETTINGS_FILE) then
+
+                local ok, existing =
+                    pcall(function()
+                        return HttpService:JSONDecode(
+                            readfile(SETTINGS_FILE)
+                        )
+                    end)
+
+                if ok
+                    and type(existing) == "table" then
+
+                    data = existing
+                end
+            end
+
+            data.AutoStrategyEnabled =
+                Saved.Enabled == true
+
+            data.AutoRestartStrategy =
+                Saved.AutoRestartStrategy == true
+
+            data.AutoStrategySelectedFile =
+                tostring(
+                    Saved.SelectedFile or ""
+                )
+
             writefile(
                 SETTINGS_FILE,
-                HttpService:JSONEncode(Saved)
+                HttpService:JSONEncode(data)
             )
         end)
     end
