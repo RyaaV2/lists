@@ -907,26 +907,42 @@ return function(Context)
             AutoStrategyThread = nil
         end
 
-        -- Match the working Auto Progress / Tower XP return timing.
-        -- GameOver becomes true slightly before the end-screen lobby action
-        -- is always ready, so give it a brief moment first.
-        task.wait(0.2)
+        -- Tower XP does some post-GameOver work before returning,
+        -- so give the end screen a moment to become ready.
+        task.wait(0.5)
 
-        if type(BackToLobby) ~= "function" then
-            ReturnToLobbyInProgress = false
-            return false
+        local farm =
+            type(shared) == "table"
+            and shared.AutoProgress
+            or nil
+
+        -- Match the working Tower XP path exactly:
+        -- farm.ReturnToLobby() -> backend BackToLobby().
+        if type(farm) == "table"
+            and type(farm.ReturnToLobby) == "function" then
+
+            task.spawn(function()
+                pcall(function()
+                    farm.ReturnToLobby()
+                end)
+            end)
+
+            return true
         end
 
-        -- Match Tower XP behavior exactly:
-        -- call the lobby-return handler and do not treat its return value
-        -- as a failure signal.
-        task.spawn(function()
-            pcall(
-                BackToLobby
-            )
-        end)
+        -- Fallback only if the shared Auto Progress backend is unavailable.
+        if type(BackToLobby) == "function" then
+            task.spawn(function()
+                pcall(
+                    BackToLobby
+                )
+            end)
 
-        return true
+            return true
+        end
+
+        ReturnToLobbyInProgress = false
+        return false
     end
 
     local function RematchAndRerun()
