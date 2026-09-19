@@ -82,20 +82,8 @@ return function(Context)
         Title = "Auto Strategy"
     })
 
-    local StatusLabel =
-        AutoStrategy:Label({
-            Title = "Status: Ready",
-            Desc = "Loads strategy files from workspace/AutoStrategy."
-        })
-
-    local function SetStatus(text)
-        if StatusLabel
-            and StatusLabel.SetTitle then
-
-            StatusLabel:SetTitle(
-                "Status: " .. tostring(text)
-            )
-        end
+    local function SetStatus(_text)
+        -- Status UI removed.
     end
 
     local function Notify(content, duration)
@@ -352,7 +340,7 @@ return function(Context)
     local StrategyDropdown =
         AutoStrategy:Dropdown({
             Title = "Strategy File",
-            Desc = "Select a strategy from the AutoStrategy folder.",
+            Desc = "Select a strategy file from Workspace/Auto Strategy",
             List =
                 type(InitialDisplayFiles) == "table"
                 and #InitialDisplayFiles > 0
@@ -421,91 +409,122 @@ return function(Context)
         end
     end
 
+    local RefreshingFiles = false
+    local LastDisplaySignature = ""
+
     local function RefreshFiles()
-        SetStatus(
-            "Scanning workspace..."
-        )
-
-        local files, err =
-            ScanFiles()
-
-        if not files then
-            SetStatus(
-                "Scan failed"
-            )
-
-            Notify(
-                "Workspace scan failed: "
-                .. tostring(err),
-                5
-            )
-
+        if RefreshingFiles then
             return false
         end
 
-        if #files == 0 then
-            SelectedStrategyFile = nil
-            Saved.SelectedFile = ""
+        RefreshingFiles = true
+
+        task.spawn(function()
+            local files, err =
+                ScanFiles()
+
+            if not files then
+                Notify(
+                    "Workspace scan failed: "
+                    .. tostring(err),
+                    5
+                )
+
+                RefreshingFiles = false
+                return
+            end
+
+            if #files == 0 then
+                SelectedStrategyFile = nil
+                Saved.SelectedFile = ""
+                Save()
+
+                local signature =
+                    "<no files found>"
+
+                if signature ~= LastDisplaySignature then
+                    SetDropdownValues({
+                        "<no files found>"
+                    })
+
+                    LastDisplaySignature =
+                        signature
+                end
+
+                RefreshingFiles = false
+                return
+            end
+
+            local displayFiles =
+                BuildDisplayFiles(
+                    files
+                )
+
+            local signature =
+                table.concat(
+                    displayFiles,
+                    "\0"
+                )
+
+            if signature ~= LastDisplaySignature then
+                SetDropdownValues(
+                    displayFiles
+                )
+
+                LastDisplaySignature =
+                    signature
+            end
+
+            local running =
+                Globals.__RyaAutoStrategyEnabled == true
+
+            local keepCurrent =
+                SelectedStrategyFile
+                and (
+                    running
+                    or (
+                        type(isfile) == "function"
+                        and isfile(
+                            SelectedStrategyFile
+                        )
+                    )
+                )
+
+            if not keepCurrent then
+                SelectedStrategyFile =
+                    files[1]
+            end
+
+            Saved.SelectedFile =
+                SelectedStrategyFile
+
             Save()
 
-            SetDropdownValues({
-                "<no files found>"
-            })
+            -- While a strategy is running, refresh only the list.
+            -- Never auto-switch the selected/running strategy.
+            if not running then
+                SetDropdownValue(
+                    GetFileName(
+                        SelectedStrategyFile
+                    )
+                )
+            end
 
-            SetStatus(
-                "No supported files found"
-            )
-
-            return false
-        end
-
-        local displayFiles =
-            BuildDisplayFiles(
-                files
-            )
-
-        SetDropdownValues(
-            displayFiles
-        )
-
-        local keepCurrent =
-            SelectedStrategyFile
-            and type(isfile) == "function"
-            and isfile(
-                SelectedStrategyFile
-            )
-
-        if not keepCurrent then
-            SelectedStrategyFile =
-                files[1]
-        end
-
-        Saved.SelectedFile =
-            SelectedStrategyFile
-
-        Save()
-
-        SetDropdownValue(
-            GetFileName(
-                SelectedStrategyFile
-            )
-        )
-
-        SetStatus(
-            "Selected "
-            .. GetFileName(
-                SelectedStrategyFile
-            )
-        )
+            RefreshingFiles = false
+        end)
 
         return true
     end
 
-    AutoStrategy:Button({
-        Title = "Refresh Files",
-        Desc = "Rescans workspace/AutoStrategy.",
-        Callback = RefreshFiles
-    })
+    -- Seed signature so the first manual refresh does not rebuild
+    -- the dropdown when nothing changed.
+    if type(InitialDisplayFiles) == "table" then
+        LastDisplaySignature =
+            table.concat(
+                InitialDisplayFiles,
+                "\0"
+            )
+    end
 
     local function SetToggleVisual(value)
         if not AutoStrategyToggle then
@@ -693,6 +712,16 @@ return function(Context)
 
         return true
     end
+
+    task.spawn(function()
+        while true do
+            task.wait(2)
+
+            if not RefreshingFiles then
+                RefreshFiles()
+            end
+        end
+    end)
 
     AutoStrategyToggle =
         AutoStrategy:Toggle({
