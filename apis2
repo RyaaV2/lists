@@ -1,5 +1,4 @@
 
-
 if not game:IsLoaded() then
     game.Loaded:Wait()
 end
@@ -227,6 +226,178 @@ local function CanOverrideMap()
             "IsPrivateServer"
         ) == true
         or false
+end
+
+local function GetLobbyBoardMaps()
+    local boards
+
+    local normalLobby =
+        workspace:FindFirstChild(
+            "IntermissionLobby"
+        )
+
+    if normalLobby then
+        boards =
+            normalLobby:FindFirstChild(
+                "Boards"
+            )
+    end
+
+    if not boards then
+        local hardcoreLobby =
+            workspace:FindFirstChild(
+                "HardcoreIntermissionLobby"
+            )
+
+        if hardcoreLobby then
+            boards =
+                hardcoreLobby:FindFirstChild(
+                    "Boards"
+                )
+        end
+    end
+
+    if not boards then
+        return {}
+    end
+
+    local maps = {}
+
+    for i = 1, 4 do
+        local board =
+            boards:FindFirstChild(
+                "Board" .. i
+            )
+
+        if board then
+            local hitboxes =
+                board:FindFirstChild(
+                    "Hitboxes"
+                )
+
+            local bottom =
+                hitboxes
+                and hitboxes:FindFirstChild(
+                    "Bottom"
+                )
+
+            local mapDisplay =
+                bottom
+                and bottom:FindFirstChild(
+                    "MapDisplay"
+                )
+
+            local title =
+                mapDisplay
+                and mapDisplay:FindFirstChild(
+                    "Title"
+                )
+
+            if title then
+                maps[i] =
+                    tostring(title.Text)
+            end
+        end
+    end
+
+    return maps
+end
+
+local function FindRequestedMap(mapName)
+    mapName =
+        tostring(
+            mapName or ""
+        )
+
+    for _, currentMap in pairs(
+        GetLobbyBoardMaps()
+    ) do
+        if tostring(currentMap) == mapName then
+            return mapName
+        end
+    end
+
+    return nil
+end
+
+local function StartMatchmakingPayload(payload)
+    if type(payload) ~= "table" then
+        return false
+    end
+
+    while true do
+        local ok, result =
+            pcall(function()
+                return rf:InvokeServer(
+                    "Multiplayer",
+                    "v2:start",
+                    table.clone(payload)
+                )
+            end)
+
+        if ok
+            and result ~= false then
+
+            return true
+        end
+
+        task.wait(0.5)
+    end
+end
+
+local function WaitForRequestedMapWithFallback(
+    mapName,
+    matchmaking
+)
+    mapName =
+        tostring(
+            mapName or ""
+        )
+
+    -- Let the boards finish populating first.
+    task.wait(3)
+
+    local selectedMap =
+        FindRequestedMap(
+            mapName
+        )
+
+    if selectedMap then
+        return selectedMap, false
+    end
+
+    -- VIP/private servers can directly override to the requested map.
+    if CanOverrideMap() then
+        return mapName, false
+    end
+
+    -- Requested map is not on the boards:
+    -- veto once and check the refreshed boards again.
+    re:FireServer(
+        "LobbyVoting",
+        "Veto"
+    )
+
+    task.wait(2)
+
+    selectedMap =
+        FindRequestedMap(
+            mapName
+        )
+
+    if selectedMap then
+        return selectedMap, false
+    end
+
+    -- Still missing after the veto, so matchmake again
+    -- using the mode saved by TDS:Mode().
+    if StartMatchmakingPayload(
+        matchmaking
+    ) then
+        return nil, true
+    end
+
+    return nil, false
 end
 
 local function DirectSelectMap(mapName)
@@ -994,6 +1165,68 @@ function TDS:Loadout(...)
     return DirectSetLoadout(...)
 end
 
+local function BuildMatchmakingPayload(
+    difficulty
+)
+    difficulty =
+        tostring(
+            difficulty or ""
+        )
+
+    if difficulty == "Trial" then
+        return {
+            count = 1,
+            mode = "Trials"
+        }
+    end
+
+    local mappedMode =
+        TDS.MatchmakingMap[
+            difficulty
+        ]
+
+    if difficulty == "Hardcore" then
+        return {
+            mode = "hardcore",
+            difficulty = "Easy",
+            count = 1
+        }
+    end
+
+    if difficulty == "Voidcore" then
+        return {
+            mode = "hardcore",
+            difficulty = "Hard",
+            count = 1
+        }
+    end
+
+    if mappedMode then
+        local payload = {
+            mode = mappedMode,
+            count = 1
+        }
+
+        if difficulty:match(
+            "^Ducky"
+        ) then
+            payload.difficulty =
+                difficulty:gsub(
+                    "^Ducky",
+                    ""
+                )
+        end
+
+        return payload
+    end
+
+    return {
+        difficulty = difficulty,
+        mode = "survival",
+        count = 1
+    }
+end
+
 function TDS:Mode(difficulty)
     difficulty =
         tostring(
@@ -1002,6 +1235,11 @@ function TDS:Mode(difficulty)
 
     self.SavedDifficulty =
         difficulty
+
+    self.SavedMatchmaking =
+        BuildMatchmakingPayload(
+            difficulty
+        )
 
     local lobbyHud =
         PlayerGui:FindFirstChild(
@@ -1031,10 +1269,9 @@ function TDS:Mode(difficulty)
                 return rf:InvokeServer(
                     "Multiplayer",
                     "v2:start",
-                    {
-                        count = 1,
-                        mode = "Trials"
-                    }
+                    table.clone(
+                        self.SavedMatchmaking
+                    )
                 )
             end)
 
@@ -1061,56 +1298,12 @@ function TDS:Mode(difficulty)
     while true do
         local ok, result =
             pcall(function()
-                local mappedMode =
-                    self.MatchmakingMap[
-                        difficulty
-                    ]
-
-                local payload
-
-                if difficulty == "Hardcore" then
-                    payload = {
-                        mode = "hardcore",
-                        difficulty = "Easy",
-                        count = 1
-                    }
-
-                elseif difficulty == "Voidcore" then
-                    payload = {
-                        mode = "hardcore",
-                        difficulty = "Hard",
-                        count = 1
-                    }
-
-                elseif mappedMode then
-                    payload = {
-                        mode = mappedMode,
-                        count = 1
-                    }
-
-                    if difficulty:match(
-                        "^Ducky"
-                    ) then
-
-                        payload.difficulty =
-                            difficulty:gsub(
-                                "^Ducky",
-                                ""
-                            )
-                    end
-
-                else
-                    payload = {
-                        difficulty = difficulty,
-                        mode = "survival",
-                        count = 1
-                    }
-                end
-
                 return rf:InvokeServer(
                     "Multiplayer",
                     "v2:start",
-                    payload
+                    table.clone(
+                        self.SavedMatchmaking
+                    )
                 )
             end)
 
@@ -1166,6 +1359,30 @@ function TDS:GameInfo(mapName, modifiers)
         return false
     end
 
+    mapName =
+        tostring(
+            mapName or ""
+        )
+
+    local selectedMap,
+        rematching =
+        WaitForRequestedMapWithFallback(
+            mapName,
+            self.SavedMatchmaking
+        )
+
+    if rematching then
+        -- Prevent the rest of the strategy from running
+        -- in the wrong server/map while matchmaking moves us.
+        while true do
+            task.wait(1)
+        end
+    end
+
+    if not selectedMap then
+        return false
+    end
+
     if type(modifiers) == "table"
         and #modifiers > 0 then
 
@@ -1191,7 +1408,7 @@ function TDS:GameInfo(mapName, modifiers)
     end
 
     return DirectSelectMap(
-        tostring(mapName)
+        selectedMap
     )
 end
 
