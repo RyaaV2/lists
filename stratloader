@@ -17,9 +17,20 @@ return function(Context)
     end
 
     local WORKSPACE_FOLDER = "AutoStrategy"
-    local LOBBY_PLACE_ID = 3260590327
     local SETTINGS_FILE =
         "AutoProgress_" .. tostring(LocalPlayer.Name) .. ".json"
+
+    local function IsLobby()
+        local playerGui =
+            LocalPlayer:FindFirstChild(
+                "PlayerGui"
+            )
+
+        return playerGui
+            and playerGui:FindFirstChild(
+                "ReactLobbyHud"
+            ) ~= nil
+    end
 
     local ORIGINAL_TDS_LIBRARY =
         "https://f.spacehub.wtf/Scripts/TDS/Recorders/Library.lua"
@@ -460,7 +471,7 @@ return function(Context)
                         if Globals.__RyaAutoStrategyEnabled == true
                             and RunningStrategyFile then
 
-                            if game.PlaceId == LOBBY_PLACE_ID then
+                            if IsLobby() then
                                 PendingStrategyChange = false
                                 RunningStrategyFile =
                                     SelectedStrategyFile
@@ -907,42 +918,65 @@ return function(Context)
             AutoStrategyThread = nil
         end
 
-        -- Tower XP does some post-GameOver work before returning,
-        -- so give the end screen a moment to become ready.
-        task.wait(0.5)
+        -- The main BackToLobby() uses FindFirstChild(), so if this runs
+        -- before the end-screen Teleport remote exists it can silently miss it.
+        -- Tower XP naturally waits longer because it refreshes the tower level
+        -- before returning. Wait for the exact same BackToLobby remote here.
+        local deadline =
+            os.clock() + 10
 
-        local farm =
-            type(shared) == "table"
-            and shared.AutoProgress
-            or nil
+        local backToLobbyRemote = nil
 
-        -- Match the working Tower XP path exactly:
-        -- farm.ReturnToLobby() -> backend BackToLobby().
-        if type(farm) == "table"
-            and type(farm.ReturnToLobby) == "function" then
-
-            task.spawn(function()
-                pcall(function()
-                    farm.ReturnToLobby()
-                end)
-            end)
-
-            return true
-        end
-
-        -- Fallback only if the shared Auto Progress backend is unavailable.
-        if type(BackToLobby) == "function" then
-            task.spawn(function()
-                pcall(
-                    BackToLobby
+        repeat
+            local network =
+                ReplicatedStorage:FindFirstChild(
+                    "Network"
                 )
-            end)
 
-            return true
+            local teleportFolder =
+                network
+                and network:FindFirstChild(
+                    "Teleport"
+                )
+
+            backToLobbyRemote =
+                teleportFolder
+                and teleportFolder:FindFirstChild(
+                    "RE:backToLobby"
+                )
+
+            if backToLobbyRemote then
+                break
+            end
+
+            task.wait(0.1)
+        until os.clock() >= deadline
+
+        if not backToLobbyRemote then
+            ReturnToLobbyInProgress = false
+            return false
         end
 
-        ReturnToLobbyInProgress = false
-        return false
+        task.spawn(function()
+            local fireDeadline =
+                os.clock() + 8
+
+            repeat
+                pcall(function()
+                    backToLobbyRemote:FireServer()
+                end)
+
+                task.wait(0.75)
+
+                if IsLobby() then
+                    return
+                end
+            until os.clock() >= fireDeadline
+
+            ReturnToLobbyInProgress = false
+        end)
+
+        return true
     end
 
     local function RematchAndRerun()
