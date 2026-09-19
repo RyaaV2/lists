@@ -1,4 +1,3 @@
-
 if not game:IsLoaded() then
     game.Loaded:Wait()
 end
@@ -1327,6 +1326,13 @@ function TDS:Mode(difficulty)
 end
 
 function TDS:GameInfo(mapName, modifiers)
+    -- Trial mode has no map voting.
+    -- Matchmaking already puts us into the Trial server, so skip
+    -- ReactGameIntermission / map lookup / map vote completely.
+    if self.SavedDifficulty == "Trial" then
+        return true
+    end
+
     -- Same strategy file can run in lobby and in-match.
     -- Do nothing here while matchmaking is still in the lobby.
     if PlayerGui:FindFirstChild(
