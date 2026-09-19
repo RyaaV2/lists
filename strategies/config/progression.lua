@@ -30,7 +30,9 @@ return {
                     MinLevel = 50,
                     MaxLevel = 174,
                     Route = "Hardcore",
-                    TargetLevel = 175
+                    TargetLevel = 175,
+                    RequiredCoins = 35000,
+                    CoinFarmRoute = "Molten"
                 },
                 {
                     MinLevel = 175,
@@ -71,7 +73,9 @@ return {
                 MinLevel = 50,
                 MaxLevel = 174,
                 Route = "Hardcore",
-                TargetLevel = 175
+                TargetLevel = 175,
+                RequiredCoins = 35000,
+                CoinFarmRoute = "Molten"
             },
             {
                 MinLevel = 175,
