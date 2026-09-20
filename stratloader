@@ -36,6 +36,9 @@ return function(Context)
     local ORIGINAL_TDS_LIBRARY =
         "https://f.spacehub.wtf/Scripts/TDS/Recorders/Library.lua"
 
+    local DUXIIT_TDS_LIBRARY =
+        "https://raw.githubusercontent.com/DuxiiT/auto-strat/refs/heads/main/Library.lua"
+
     local AUTO_PROGRESS_TDS_LIBRARY =
         "https://raw.githubusercontent.com/RyaaV2/lists/refs/heads/main/apis2"
 
@@ -261,6 +264,12 @@ return function(Context)
         source =
             source:gsub(
                 ORIGINAL_TDS_LIBRARY,
+                AUTO_PROGRESS_TDS_LIBRARY
+            )
+
+        source =
+            source:gsub(
+                DUXIIT_TDS_LIBRARY,
                 AUTO_PROGRESS_TDS_LIBRARY
             )
 
@@ -1583,7 +1592,7 @@ return function(Context)
     AutoSkipStrategyToggle =
         AutoStrategy:Toggle({
             Title = "Auto Skip",
-            Desc = "Automatically skips waves using VIP or non-VIP logic.",
+            Desc = "Automatically skip waves",
             Value = Saved.AutoSkipStrategy == true,
             Callback = function(value)
                 Saved.AutoSkipStrategy =
