@@ -34,7 +34,9 @@ return function(Context)
     end
 
     local ORIGINAL_TDS_LIBRARY =
-        "https://f.spacehub.wtf/Scripts/TDS/Recorders/Library.lua"
+        "https://f.spacehub.wtf/Scripts/TDS/Recorders/Library.lua",
+        "https://raw.githubusercontent.com/DuxiiT/auto-strat/refs/heads/main/Library.lua",
+        "https://raw.githubusercontent.com/DuxiiT/auto-strat/main/Library.lua"
 
     local DUXIIT_TDS_LIBRARIES = {
         "https://raw.githubusercontent.com/DuxiiT/auto-strat/refs/heads/main/Library.lua",
