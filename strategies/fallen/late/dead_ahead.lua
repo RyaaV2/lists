@@ -1,3 +1,12 @@
+local loadAutoGatling =
+    getgenv().__RyaLoadAutoGatling
+
+if type(loadAutoGatling) == "function" then
+    task.spawn(
+        loadAutoGatling
+    )
+end
+
 TDS:Loadout("Hacker", "Gatling Gun", "Mercenary Base", "Trapper")
 
 TDS:Mode("Fallen")

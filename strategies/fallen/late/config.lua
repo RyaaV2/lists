@@ -4,7 +4,6 @@
 
 return {
     MatchTimeoutMinutes = 20,
-    UseAutoGutlin = true,
     DisableMatchTimeout = true,
 
     Matchmaking = {Difficulty = "Fallen", Type = "survival"},

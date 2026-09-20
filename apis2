@@ -1157,80 +1157,10 @@ function TDS:Place(towerName, x, y, z, ...)
 end
 
 local GatlingAutoLoadStarted = false
-local GatlingReservationToken = {}
 
 local GatlingGlobalEnv =
     (getgenv and getgenv())
     or _G
-
-local GATLING_AUTO_RAILGUN =
-    "Railgun"
-
-local GATLING_AUTO_GATLIFY =
-    "Gatlify"
-
-local GATLING_AUTO_URLS = {
-    [GATLING_AUTO_RAILGUN] =
-        "https://raw.githubusercontent.com/avtryxz/autogutlin/refs/heads/main/autogutlin.lua",
-
-    [GATLING_AUTO_GATLIFY] =
-        "https://raw.githubusercontent.com/avtryxz/Gatlify/refs/heads/main/Gatlify.lua"
-}
-
-local function GetSelectedGatlingAutoMode()
-    if tostring(
-        GatlingGlobalEnv.AutoGatlingMode
-        or ""
-    ) == GATLING_AUTO_GATLIFY then
-
-        return GATLING_AUTO_GATLIFY
-    end
-
-    return GATLING_AUTO_RAILGUN
-end
-
-local function GetSelectedGatlingAutoURL()
-    local mode =
-        GetSelectedGatlingAutoMode()
-
-    return
-        GATLING_AUTO_URLS[mode],
-        mode
-end
-
-local function IsGatlingAutoLoaded()
-    return GatlingGlobalEnv.__RyaAutoGatlingLoaded == true
-end
-
-local function OwnsGatlingReservation()
-    return GatlingGlobalEnv.__RyaAutoGatlingOwner
-        == GatlingReservationToken
-end
-
-local function ReserveGatlingLoader()
-    if IsGatlingAutoLoaded() then
-        return false
-    end
-
-    if GatlingGlobalEnv.__RyaAutoGatlingLoading == true
-        and not OwnsGatlingReservation() then
-
-        return false
-    end
-
-    GatlingGlobalEnv.__RyaAutoGatlingLoading = true
-    GatlingGlobalEnv.__RyaAutoGatlingOwner =
-        GatlingReservationToken
-
-    return true
-end
-
-local function ReleaseGatlingLoader()
-    if OwnsGatlingReservation() then
-        GatlingGlobalEnv.__RyaAutoGatlingLoading = false
-        GatlingGlobalEnv.__RyaAutoGatlingOwner = nil
-    end
-end
 
 local function HasGatlingGun(loadout)
     for _, towerName in ipairs(loadout) do
@@ -1244,74 +1174,25 @@ end
 
 local function StartGatlingAutoLoadWatcher()
     if GatlingAutoLoadStarted
-        or IsGatlingAutoLoaded()
         or TDS.HasGatlingGun ~= true then
 
         return
     end
 
-    -- Reserve the loader IMMEDIATELY.
-    -- Any standalone wrapper using the same shared guard will now
-    -- see __RyaAutoGatlingLoading == true and refuse to load early.
-    if not ReserveGatlingLoader() then
+    local loadAutoGatling =
+        GatlingGlobalEnv.__RyaLoadAutoGatling
+
+    if type(loadAutoGatling) ~= "function" then
         return
     end
 
     GatlingAutoLoadStarted = true
 
     task.spawn(function()
-        while TDS.HasGatlingGun == true
-            and not IsGatlingAutoLoaded() do
+        pcall(
+            loadAutoGatling
+        )
 
-            local gameStateReplicator =
-                GetDirectGameStateReplicator()
-
-            if gameStateReplicator then
-                if gameStateReplicator:GetAttribute(
-                    "GameOver"
-                ) == true then
-
-                    ReleaseGatlingLoader()
-                    GatlingAutoLoadStarted = false
-                    return
-                end
-
-                if gameStateReplicator:GetAttribute(
-                    "GameStarted"
-                ) == true then
-
-                    local autoGatlingURL,
-                        autoGatlingMode =
-                        GetSelectedGatlingAutoURL()
-
-                    GatlingGlobalEnv.__RyaAutoGatlingMode =
-                        autoGatlingMode
-
-                    local ok =
-                        pcall(function()
-                            loadstring(
-                                game:HttpGet(
-                                    autoGatlingURL
-                                )
-                            )()
-                        end)
-
-                    if ok then
-                        GatlingGlobalEnv.__RyaAutoGatlingLoaded = true
-                        GatlingGlobalEnv.__RyaAutoGatlingLoadedMode =
-                            autoGatlingMode
-                    end
-
-                    ReleaseGatlingLoader()
-                    GatlingAutoLoadStarted = false
-                    return
-                end
-            end
-
-            task.wait(0.1)
-        end
-
-        ReleaseGatlingLoader()
         GatlingAutoLoadStarted = false
     end)
 end

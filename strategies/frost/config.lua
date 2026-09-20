@@ -3,7 +3,6 @@
 
 return {
     MatchTimeoutMinutes = 20,
-    UseAutoGutlin = true,
 
         Matchmaking = {Difficulty = "Frost", Type = "survival"},
         RequiredTowers = {
