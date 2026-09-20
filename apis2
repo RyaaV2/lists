@@ -1,3 +1,4 @@
+
 if not game:IsLoaded() then
     game.Loaded:Wait()
 end
@@ -1366,6 +1367,10 @@ function TDS:Mode(difficulty)
         tostring(
             difficulty or ""
         )
+
+    if difficulty == "Hardcore Easy" then
+        difficulty = "Hardcore"
+    end
 
     self.SavedDifficulty =
         difficulty
