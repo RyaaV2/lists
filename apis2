@@ -1,4 +1,3 @@
-
 if not game:IsLoaded() then
     game.Loaded:Wait()
 end
@@ -1157,15 +1156,47 @@ function TDS:Place(towerName, x, y, z, ...)
     return #TDS.PlacedTowers
 end
 
-local GATLING_AUTO_URL =
-    "https://raw.githubusercontent.com/avtryxz/autogutlin/refs/heads/main/autogutlin.lua"
-
 local GatlingAutoLoadStarted = false
 local GatlingReservationToken = {}
 
 local GatlingGlobalEnv =
     (getgenv and getgenv())
     or _G
+
+local GATLING_AUTO_RAILGUN =
+    "Railgun"
+
+local GATLING_AUTO_GATLIFY =
+    "Gatlify"
+
+local GATLING_AUTO_URLS = {
+    [GATLING_AUTO_RAILGUN] =
+        "https://raw.githubusercontent.com/avtryxz/autogutlin/refs/heads/main/autogutlin.lua",
+
+    [GATLING_AUTO_GATLIFY] =
+        "https://raw.githubusercontent.com/avtryxz/Gatlify/refs/heads/main/Gatlify.lua"
+}
+
+local function GetSelectedGatlingAutoMode()
+    if tostring(
+        GatlingGlobalEnv.AutoGatlingMode
+        or ""
+    ) == GATLING_AUTO_GATLIFY then
+
+        return GATLING_AUTO_GATLIFY
+    end
+
+    return GATLING_AUTO_RAILGUN
+end
+
+local function GetSelectedGatlingAutoURL()
+    local mode =
+        GetSelectedGatlingAutoMode()
+
+    return
+        GATLING_AUTO_URLS[mode],
+        mode
+end
 
 local function IsGatlingAutoLoaded()
     return GatlingGlobalEnv.__RyaAutoGatlingLoaded == true
@@ -1249,17 +1280,26 @@ local function StartGatlingAutoLoadWatcher()
                     "GameStarted"
                 ) == true then
 
+                    local autoGatlingURL,
+                        autoGatlingMode =
+                        GetSelectedGatlingAutoURL()
+
+                    GatlingGlobalEnv.__RyaAutoGatlingMode =
+                        autoGatlingMode
+
                     local ok =
                         pcall(function()
                             loadstring(
                                 game:HttpGet(
-                                    GATLING_AUTO_URL
+                                    autoGatlingURL
                                 )
                             )()
                         end)
 
                     if ok then
                         GatlingGlobalEnv.__RyaAutoGatlingLoaded = true
+                        GatlingGlobalEnv.__RyaAutoGatlingLoadedMode =
+                            autoGatlingMode
                     end
 
                     ReleaseGatlingLoader()
