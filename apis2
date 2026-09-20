@@ -1491,7 +1491,12 @@ function TDS:VoteSkip(startWave, endWave)
     end
 
     startWave = tonumber(startWave)
-    endWave = tonumber(endWave)
+
+    if endWave == nil then
+        endWave = startWave
+    else
+        endWave = tonumber(endWave)
+    end
 
     if not startWave or not endWave then
         return false
