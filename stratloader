@@ -36,8 +36,10 @@ return function(Context)
     local ORIGINAL_TDS_LIBRARY =
         "https://f.spacehub.wtf/Scripts/TDS/Recorders/Library.lua"
 
-    local DUXIIT_TDS_LIBRARY =
-        "https://raw.githubusercontent.com/DuxiiT/auto-strat/refs/heads/main/Library.lua"
+    local DUXIIT_TDS_LIBRARIES = {
+        "https://raw.githubusercontent.com/DuxiiT/auto-strat/refs/heads/main/Library.lua",
+        "https://raw.githubusercontent.com/DuxiiT/auto-strat/main/Library.lua"
+    }
 
     local AUTO_PROGRESS_TDS_LIBRARY =
         "https://raw.githubusercontent.com/RyaaV2/lists/refs/heads/main/apis2"
@@ -261,17 +263,57 @@ return function(Context)
                 "\n"
             )
 
+        local function ReplacePlain(text, oldValue, newValue)
+            local startIndex =
+                string.find(
+                    text,
+                    oldValue,
+                    1,
+                    true
+                )
+
+            while startIndex do
+                text =
+                    text:sub(
+                        1,
+                        startIndex - 1
+                    )
+                    .. newValue
+                    .. text:sub(
+                        startIndex
+                        + #oldValue
+                    )
+
+                startIndex =
+                    string.find(
+                        text,
+                        oldValue,
+                        startIndex
+                        + #newValue,
+                        true
+                    )
+            end
+
+            return text
+        end
+
         source =
-            source:gsub(
+            ReplacePlain(
+                source,
                 ORIGINAL_TDS_LIBRARY,
                 AUTO_PROGRESS_TDS_LIBRARY
             )
 
-        source =
-            source:gsub(
-                DUXIIT_TDS_LIBRARY,
-                AUTO_PROGRESS_TDS_LIBRARY
-            )
+        for _, libraryUrl in ipairs(
+            DUXIIT_TDS_LIBRARIES
+        ) do
+            source =
+                ReplacePlain(
+                    source,
+                    libraryUrl,
+                    AUTO_PROGRESS_TDS_LIBRARY
+                )
+        end
 
         return source
     end
