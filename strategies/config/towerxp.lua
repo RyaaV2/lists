@@ -9,13 +9,13 @@ return {
     },
 
     Towers = {
-        {Name = "Scout", GameName = "Scout"},
-        {Name = "Operator", GameName = "EvolvedOperator"},
-        {Name = "Minigunner", GameName = "Minigunner"},
-        {Name = "Juggernaut", GameName = "EvolvedJuggernaut"},
-        {Name = "Crook Boss", GameName = "Crook Boss"},
-        {Name = "Kingpin", GameName = "EvolvedKingpin"},
-        {Name = "Shotgunner", GameName = "Shotgunner"},
-        {Name = "Enforcer", GameName = "EvolvedEnforcer"}
+        {Name = "Scout", GameName = "Scout", OwnershipName = "Scout"},
+        {Name = "Operator", GameName = "EvolvedOperator", OwnershipName = "EvolvedOperator"},
+        {Name = "Minigunner", GameName = "Minigunner", OwnershipName = "Minigunner"},
+        {Name = "Juggernaut", GameName = "EvolvedJuggernaut", OwnershipName = "EvolvedJuggernaut"},
+        {Name = "Crook Boss", GameName = "Crook Boss", OwnershipName = "Crook Boss"},
+        {Name = "Kingpin", GameName = "EvolvedKingpin", OwnershipName = "EvolvedKingpin"},
+        {Name = "Shotgunner", GameName = "Shotgunner", OwnershipName = "Shotgunner"},
+        {Name = "Enforcer", GameName = "EvolvedEnforcer", OwnershipName = "EvolvedEnforcer"}
     }
 }
