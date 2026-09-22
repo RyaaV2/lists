@@ -1197,6 +1197,407 @@ local function StartGatlingAutoLoadWatcher()
     end)
 end
 
+local SupportAutomationRunning = {
+    AutoChain = false,
+    AutoDJ = false,
+    AutoMercenary = false
+}
+
+local MercenaryAutomationData = {
+    Dist = 195,
+    PathName = 1
+}
+
+local function HasLoadoutTower(
+    loadout,
+    wantedTower
+)
+    wantedTower =
+        tostring(
+            wantedTower or ""
+        )
+
+    for _, towerName in ipairs(loadout) do
+        if tostring(towerName) == wantedTower then
+            return true
+        end
+    end
+
+    return false
+end
+
+local function GetSupportAutomationConfig(
+    automationName
+)
+    local automation =
+        type(StrategyConfig) == "table"
+        and type(StrategyConfig.Towers) == "table"
+        and type(StrategyConfig.Towers.Automation) == "table"
+        and StrategyConfig.Towers.Automation
+        or {}
+
+    local config =
+        automation[
+            automationName
+        ]
+
+    return type(config) == "table"
+        and config
+        or {}
+end
+
+local function GetSupportTowers(
+    towerName,
+    minUpgrade
+)
+    local result = {}
+    local towersFolder =
+        workspace:FindFirstChild(
+            "Towers"
+        )
+
+    if not towersFolder then
+        return result
+    end
+
+    for _, towerRep in ipairs(
+        towersFolder:GetDescendants()
+    ) do
+        if towerRep:IsA("Folder")
+            and towerRep.Name == "TowerReplicator"
+            and towerRep:GetAttribute("Name") == towerName
+            and towerRep:GetAttribute("OwnerId") == plr.UserId
+            and (
+                tonumber(
+                    towerRep:GetAttribute(
+                        "Upgrade"
+                    )
+                )
+                or 0
+            ) >= minUpgrade then
+
+            result[
+                #result + 1
+            ] = towerRep.Parent
+        end
+    end
+
+    return result
+end
+
+local function GetCommanderChainDelay(
+    interval
+)
+    local hotbar =
+        PlayerGui:FindFirstChild(
+            "ReactUniversalHotbar"
+        )
+
+    local frame =
+        hotbar
+        and hotbar:FindFirstChild(
+            "Frame"
+        )
+
+    local timescale =
+        frame
+        and frame:FindFirstChild(
+            "timescale"
+        )
+
+    if timescale
+        and timescale.Visible
+        and not timescale:FindFirstChild(
+            "Lock"
+        ) then
+
+        return interval / 2
+    end
+
+    return interval
+end
+
+local function StartAutoCommanderChain()
+    if SupportAutomationRunning.AutoChain
+        or TDS.HasCommander ~= true then
+
+        return
+    end
+
+    local config =
+        GetSupportAutomationConfig(
+            "AutoChain"
+        )
+
+    local towerName =
+        tostring(
+            config.Tower
+            or "Commander"
+        )
+
+    local abilityName =
+        tostring(
+            config.Ability
+            or "Call Of Arms"
+        )
+
+    local minUpgrade =
+        tonumber(
+            config.MinUpgrade
+        )
+        or 2
+
+    local interval =
+        tonumber(
+            config.Interval
+        )
+        or 10.5
+
+    SupportAutomationRunning.AutoChain = true
+
+    task.spawn(function()
+        local index = 1
+
+        while IsStrategyRuntimeEnabled()
+            and TDS.HasCommander == true do
+
+            local commanders =
+                GetSupportTowers(
+                    towerName,
+                    minUpgrade
+                )
+
+            if #commanders >= 3 then
+                if index > #commanders then
+                    index = 1
+                end
+
+                local commander =
+                    commanders[index]
+
+                local ok, result =
+                    pcall(function()
+                        return rf:InvokeServer(
+                            "Troops",
+                            "Abilities",
+                            "Activate",
+                            {
+                                Troop = commander,
+                                Name = abilityName,
+                                Data = {}
+                            }
+                        )
+                    end)
+
+                if ok
+                    and DirectResponseOK(
+                        result
+                    ) then
+
+                    index += 1
+
+                    task.wait(
+                        GetCommanderChainDelay(
+                            interval
+                        )
+                    )
+                else
+                    task.wait(0.5)
+                end
+            else
+                task.wait(0.5)
+            end
+        end
+
+        SupportAutomationRunning.AutoChain = false
+    end)
+end
+
+local function StartAutoDJ()
+    if SupportAutomationRunning.AutoDJ
+        or TDS.HasDJBooth ~= true then
+
+        return
+    end
+
+    local config =
+        GetSupportAutomationConfig(
+            "AutoDJ"
+        )
+
+    local towerName =
+        tostring(
+            config.Tower
+            or "DJ Booth"
+        )
+
+    local abilityName =
+        tostring(
+            config.Ability
+            or "Drop The Beat"
+        )
+
+    local minUpgrade =
+        tonumber(
+            config.MinUpgrade
+        )
+        or 3
+
+    local interval =
+        tonumber(
+            config.Interval
+        )
+        or 1
+
+    SupportAutomationRunning.AutoDJ = true
+
+    task.spawn(function()
+        while IsStrategyRuntimeEnabled()
+            and TDS.HasDJBooth == true do
+
+            local DJs =
+                GetSupportTowers(
+                    towerName,
+                    minUpgrade
+                )
+
+            local DJ =
+                DJs[#DJs]
+
+            if DJ then
+                pcall(function()
+                    rf:InvokeServer(
+                        "Troops",
+                        "Abilities",
+                        "Activate",
+                        {
+                            Troop = DJ,
+                            Name = abilityName,
+                            Data = {}
+                        }
+                    )
+                end)
+            end
+
+            task.wait(interval)
+        end
+
+        SupportAutomationRunning.AutoDJ = false
+    end)
+end
+
+local function StartAutoMercenary()
+    if SupportAutomationRunning.AutoMercenary
+        or TDS.HasMercenaryBase ~= true then
+
+        return
+    end
+
+    local config =
+        GetSupportAutomationConfig(
+            "Mercenary"
+        )
+
+    local towerName =
+        tostring(
+            config.Tower
+            or "Mercenary Base"
+        )
+
+    local abilityName =
+        tostring(
+            config.Ability
+            or "Air-Drop"
+        )
+
+    local minUpgrade =
+        tonumber(
+            config.MinUpgrade
+        )
+        or 5
+
+    local interval =
+        tonumber(
+            config.Interval
+        )
+        or 0.5
+
+    SupportAutomationRunning.AutoMercenary = true
+
+    task.spawn(function()
+        while IsStrategyRuntimeEnabled()
+            and TDS.HasMercenaryBase == true do
+
+            local mercenaryBases =
+                GetSupportTowers(
+                    towerName,
+                    minUpgrade
+                )
+
+            for _, mercenaryBase in ipairs(
+                mercenaryBases
+            ) do
+                pcall(function()
+                    rf:InvokeServer(
+                        "Troops",
+                        "Abilities",
+                        "Activate",
+                        {
+                            Troop =
+                                mercenaryBase,
+                            Name =
+                                abilityName,
+                            Data = {
+                                pathName =
+                                    MercenaryAutomationData.PathName,
+                                directionCFrame =
+                                    CFrame.new(),
+                                dist =
+                                    MercenaryAutomationData.Dist
+                            }
+                        }
+                    )
+                end)
+
+                task.wait(interval)
+            end
+
+            task.wait(interval)
+        end
+
+        SupportAutomationRunning.AutoMercenary = false
+    end)
+end
+
+function TDS:AutoChain()
+    self.HasCommander = true
+    StartAutoCommanderChain()
+    return true
+end
+
+function TDS:AutoDJ()
+    self.HasDJBooth = true
+    StartAutoDJ()
+    return true
+end
+
+function TDS:AutoMercenary(
+    dist,
+    pathName
+)
+    MercenaryAutomationData.Dist =
+        tonumber(dist)
+        or MercenaryAutomationData.Dist
+
+    MercenaryAutomationData.PathName =
+        tonumber(pathName)
+        or MercenaryAutomationData.PathName
+
+    self.HasMercenaryBase = true
+    StartAutoMercenary()
+    return true
+end
+
 function TDS:Loadout(...)
     local requested =
         {...}
@@ -1206,12 +1607,42 @@ function TDS:Loadout(...)
             requested
         )
 
+    self.HasCommander =
+        HasLoadoutTower(
+            requested,
+            "Commander"
+        )
+
+    self.HasDJBooth =
+        HasLoadoutTower(
+            requested,
+            "DJ Booth"
+        )
+
+    self.HasMercenaryBase =
+        HasLoadoutTower(
+            requested,
+            "Mercenary Base"
+        )
+
     if self.HasGatlingGun then
         StartGatlingAutoLoadWatcher()
     end
 
     if game.PlaceId == LOBBY_PLACE_ID then
         return false
+    end
+
+    if self.HasCommander then
+        StartAutoCommanderChain()
+    end
+
+    if self.HasDJBooth then
+        StartAutoDJ()
+    end
+
+    if self.HasMercenaryBase then
+        StartAutoMercenary()
     end
 
     return DirectSetLoadout(
@@ -1638,82 +2069,10 @@ function TDS:StackPosition(x, y, z, offset)
 end
 
 function TDS:Mercenary(dist, pathName)
-    dist =
-        tonumber(dist)
-        or 140
-
-    pathName =
-        tonumber(pathName)
-        or 1
-
-    local towerConfig =
-        type(StrategyConfig) == "table"
-        and type(StrategyConfig.Towers) == "table"
-        and type(StrategyConfig.Towers.Automation) == "table"
-        and StrategyConfig.Towers.Automation.Mercenary
-        or nil
-    local towerName = type(towerConfig) == "table" and tostring(towerConfig.Tower or "") or ""
-    local abilityName = type(towerConfig) == "table" and tostring(towerConfig.Ability or "") or ""
-    local minUpgrade = type(towerConfig) == "table" and tonumber(towerConfig.MinUpgrade) or 0
-    local interval = type(towerConfig) == "table" and tonumber(towerConfig.Interval) or 0.5
-
-    task.spawn(function()
-        while IsStrategyRuntimeEnabled() do
-            local towersFolder =
-                workspace:FindFirstChild(
-                    "Towers"
-                )
-
-            if towersFolder then
-                for _, towerRep in ipairs(
-                    towersFolder:GetDescendants()
-                ) do
-                    if towerRep:IsA("Folder")
-                        and towerRep.Name
-                            == "TowerReplicator"
-                        and towerRep:GetAttribute(
-                            "Name"
-                        ) == towerName
-                        and towerRep:GetAttribute(
-                            "OwnerId"
-                        ) == plr.UserId
-                        and (
-                            towerRep:GetAttribute(
-                                "Upgrade"
-                            )
-                            or 0
-                        ) >= minUpgrade then
-
-                        pcall(function()
-                            rf:InvokeServer(
-                                "Troops",
-                                "Abilities",
-                                "Activate",
-                                {
-                                    Troop =
-                                        towerRep.Parent,
-                                    Name =
-                                        abilityName,
-                                    Data = {
-                                        pathName =
-                                            pathName,
-                                        directionCFrame =
-                                            CFrame.new(),
-                                        dist =
-                                            dist
-                                    }
-                                }
-                            )
-                        end)
-                    end
-                end
-            end
-
-            task.wait(interval)
-        end
-    end)
-
-    return true
+    return self:AutoMercenary(
+        dist,
+        pathName
+    )
 end
 
 function TDS:Ability(index, abilityName, data, loop)
