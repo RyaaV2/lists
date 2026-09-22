@@ -5,7 +5,18 @@ return function(TDS, selectedTower)
         return false
     end
 
-    TDS:Loadout("Pyromancer", "Hunter", selectedTower, "None", "None")
+    local EvolvedLoadoutNames = {
+        Operator = "EvolvedOperator",
+        Juggernaut = "EvolvedJuggernaut",
+        Kingpin = "EvolvedKingpin",
+        Enforcer = "EvolvedEnforcer"
+    }
+
+    local loadoutTower =
+        EvolvedLoadoutNames[selectedTower]
+        or selectedTower
+
+    TDS:Loadout("Pyromancer", "Hunter", loadoutTower, "None", "None")
     TDS:Mode("Hardcore")
     TDS:GameInfo("Wretched Front")
     TDS:VoteSkip()
@@ -15,7 +26,7 @@ return function(TDS, selectedTower)
     for _ = 1, 4 do TDS:Place("Hunter", 2.679039716720581, 1.341203212738037, 21.30302619934082, true) end
     TDS:WaitForWave(20)
     TDS:Sell(1)
-    TDS:Place(selectedTower, 2.679039716720581, 1.341203212738037, 21.30302619934082, true)
+    TDS:Place(loadoutTower, 2.679039716720581, 1.341203212738037, 21.30302619934082, true)
 
     return true
 end
