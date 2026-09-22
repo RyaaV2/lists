@@ -1367,7 +1367,7 @@ local function StartAutoCommanderChain()
                     minUpgrade
                 )
 
-            if #commanders >= 3 then
+            if #commanders >= 1 then
                 if index > #commanders then
                     index = 1
                 end
