@@ -1727,6 +1727,13 @@ function TDS:Mode(difficulty)
     self.SavedDifficulty =
         difficulty
 
+    local globalEnv =
+        (getgenv and getgenv())
+        or _G
+
+    globalEnv.__RyaAutoStrategyMode =
+        difficulty
+
     self.SavedMatchmaking =
         BuildMatchmakingPayload(
             difficulty
