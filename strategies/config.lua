@@ -90,6 +90,9 @@ return {
     LateGrind =
         LoadConfig("lategrind.lua"),
 
+    CurrencyFarm =
+        LoadConfig("currency/config.lua"),
+
     Easy =
         LoadConfig("easy/config.lua"),
 
