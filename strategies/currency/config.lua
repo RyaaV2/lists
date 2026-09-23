@@ -48,7 +48,6 @@ return {
         Lose = {
             MatchTimeoutMinutes = 15,
             CountLoseGameOver = true,
-            MilestoneBehavior = "ReturnToLobby",
 
             Matchmaking = {
                 Difficulty = "Molten",
@@ -86,7 +85,6 @@ return {
         Lose = {
             MatchTimeoutMinutes = 10,
             CountLoseGameOver = true,
-            MilestoneBehavior = "ReturnToLobby",
 
             Matchmaking = {
                 Difficulty = "Easy",
