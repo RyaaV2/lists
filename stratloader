@@ -42,6 +42,65 @@ return function(Context)
     local AUTO_PROGRESS_TDS_LIBRARY =
         "https://raw.githubusercontent.com/RyaaV2/lists/refs/heads/main/apis2"
 
+    local PROGRESS_WEBHOOK_URL =
+        "https://raw.githubusercontent.com/Ceepizz/WEBHOOKSOURCE/refs/heads/main/doakes"
+
+    local function StartProgressWebhook()
+        local webhook =
+            type(shared.ProgressWebhook) == "table"
+            and shared.ProgressWebhook
+            or nil
+
+        if not webhook then
+            local ok, result =
+                pcall(function()
+                    return loadstring(
+                        game:HttpGet(
+                            PROGRESS_WEBHOOK_URL
+                        )
+                    )()
+                end)
+
+            if ok
+                and type(result) == "table" then
+
+                webhook = result
+            elseif type(shared.ProgressWebhook) == "table" then
+                webhook = shared.ProgressWebhook
+            end
+        end
+
+        if not webhook then
+            return false
+        end
+
+        local url =
+            tostring(
+                Globals.Webhook
+                or Globals.WebhookURL
+                or ""
+            )
+
+        if url ~= ""
+            and webhook.SetWebhook then
+
+            pcall(function()
+                webhook.SetWebhook(url)
+            end)
+        end
+
+        if webhook.Start then
+            local ok, result =
+                pcall(function()
+                    return webhook.Start()
+                end)
+
+            return ok and result ~= false
+        end
+
+        return false
+    end
+
     local Saved = {
         Enabled = false,
         AutoRestartStrategy = false,
@@ -863,6 +922,8 @@ return function(Context)
         RunningStrategyFile = path
         PendingStrategyChange = false
         Save()
+
+        StartProgressWebhook()
 
         UpdateMainStatus(
             "Status: Running Auto Strategy"
