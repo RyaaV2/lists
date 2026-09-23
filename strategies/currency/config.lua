@@ -6,6 +6,7 @@
 return {
     Coins = {
         Win = {
+            MinimumLevel = 15,
             MatchTimeoutMinutes = 15,
             Matchmaking = {
                 Difficulty = "Casual",
@@ -46,6 +47,7 @@ return {
         },
 
         Lose = {
+            MinimumLevel = 0,
             MatchTimeoutMinutes = 15,
             CountLoseGameOver = true,
 
@@ -83,6 +85,7 @@ return {
 
     Gems = {
         Lose = {
+            MinimumLevel = 50,
             MatchTimeoutMinutes = 10,
             CountLoseGameOver = true,
 
