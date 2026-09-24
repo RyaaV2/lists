@@ -407,10 +407,13 @@ return function(Context)
                 if currentWave ~= lastWave
                     or desired ~= lastDesired then
 
-                    SetAutoSkip(desired)
+                    local applied =
+                        SetAutoSkip(desired)
 
-                    lastWave = currentWave
-                    lastDesired = desired
+                    if applied then
+                        lastWave = currentWave
+                        lastDesired = desired
+                    end
                 end
 
                 task.wait(0.1)
