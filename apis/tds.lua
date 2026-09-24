@@ -289,22 +289,21 @@ return function(Context)
         return nil
     end
 
-    local function ToggleAutoSkip()
-        local button = GetAutoSkipButton()
+    local AutoSkipPendingState = nil
+    local AutoSkipLastClickAt = 0
 
-        if not button or type(getconnections) ~= "function" then
+    local function RunAutoSkipConnections(signal)
+        if type(getconnections) ~= "function" then
             return false
         end
 
-        for _, connection in ipairs(getconnections(button.MouseButton1Down)) do
-            pcall(function()
-                connection.Function()
-            end)
+        local connections = getconnections(signal)
+
+        if #connections <= 0 then
+            return false
         end
 
-        task.wait(0.05)
-
-        for _, connection in ipairs(getconnections(button.MouseButton1Up)) do
+        for _, connection in ipairs(connections) do
             pcall(function()
                 connection.Function()
             end)
@@ -313,7 +312,27 @@ return function(Context)
         return true
     end
 
+    local function ToggleAutoSkip()
+        local button = GetAutoSkipButton()
+
+        if not button then
+            return false
+        end
+
+        if RunAutoSkipConnections(button.MouseButton1Click) then
+            return true
+        end
+
+        if RunAutoSkipConnections(button.MouseButton1Down) then
+            return true
+        end
+
+        return RunAutoSkipConnections(button.MouseButton1Up)
+    end
+
     local function SetAutoSkip(enabled)
+        enabled = enabled == true
+
         local current = GetAutoSkipState()
 
         if current == nil then
@@ -321,10 +340,34 @@ return function(Context)
         end
 
         if current == enabled then
+            AutoSkipPendingState = nil
             return true
         end
 
-        return ToggleAutoSkip()
+        if AutoSkipPendingState == enabled
+            and os.clock() - AutoSkipLastClickAt < 0.5 then
+
+            return false
+        end
+
+        AutoSkipPendingState = enabled
+        AutoSkipLastClickAt = os.clock()
+
+        if not ToggleAutoSkip() then
+            AutoSkipPendingState = nil
+            return false
+        end
+
+        task.wait(0.1)
+
+        current = GetAutoSkipState()
+
+        if current == enabled then
+            AutoSkipPendingState = nil
+            return true
+        end
+
+        return false
     end
 
     local function GetCurrentWaveNoWait()
@@ -437,7 +480,7 @@ return function(Context)
             VoteSkipAll = true
 
             if HasVIP then
-                SetAutoSkip(true)
+                UpdateVIPAutoSkip()
                 StartVIPVoteSkip()
             else
                 StartDirectAutoSkip()
@@ -447,10 +490,19 @@ return function(Context)
         end
 
         startWave = tonumber(startWave)
-        endWave = tonumber(endWave)
 
-        if not startWave or not endWave then
+        if not startWave then
             return false
+        end
+
+        if endWave == nil then
+            endWave = startWave
+        else
+            endWave = tonumber(endWave)
+
+            if not endWave then
+                return false
+            end
         end
 
         startWave = math.floor(startWave)
