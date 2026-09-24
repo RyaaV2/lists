@@ -5,6 +5,7 @@ return function(Context)
     local Library = Context.Library
     local Globals = Context.Globals or getgenv()
     local CanEnable = Context.CanEnable
+    local RequestDisable = Context.RequestDisable
     local SetMainStatus = Context.SetMainStatus
     local BackToLobby = Context.BackToLobby
     local Players = game:GetService("Players")
@@ -1594,6 +1595,10 @@ return function(Context)
                 return
             end
 
+            if Globals.__RyaAutoFarmTransitionTarget ~= nil then
+                return
+            end
+
             if PendingStrategyChange == true then
                 if not ReturnToLobbyInProgress then
                     task.spawn(
@@ -1672,6 +1677,25 @@ return function(Context)
                         end)
                     end
                 else
+                    if type(RequestDisable) == "function" then
+                        local ok, handled =
+                            pcall(
+                                RequestDisable
+                            )
+
+                        if ok
+                            and handled == true then
+
+                            task.defer(function()
+                                SetToggleVisual(
+                                    true
+                                )
+                            end)
+
+                            return
+                        end
+                    end
+
                     Stop()
                 end
             end
