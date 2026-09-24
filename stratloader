@@ -1232,9 +1232,16 @@ return function(Context)
         while true do
             task.wait(0.1)
 
+            local autoStrategyEnabled =
+                Globals.__RyaAutoStrategyEnabled == true
+
+            if not autoStrategyEnabled then
+                vipApplied = false
+                continue
+            end
+
             local enabled =
                 Saved.AutoSkipStrategy == true
-                and Globals.__RyaAutoStrategyEnabled == true
 
             if HasVIP then
                 if enabled then
