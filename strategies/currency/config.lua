@@ -9,6 +9,7 @@ return {
             RouteKey = "Currency.Coins.Win",
             MinimumLevel = 0,
             MatchTimeoutMinutes = 15,
+            GameOverAction = "Rematch",
             Matchmaking = {
                 Difficulty = "Casual",
                 Type = "survival"
@@ -52,6 +53,7 @@ return {
             MinimumLevel = 0,
             MatchTimeoutMinutes = 15,
             CountLoseGameOver = true,
+            GameOverAction = "Restart",
 
             Matchmaking = {
                 Difficulty = "Molten",
@@ -91,6 +93,7 @@ return {
             MinimumLevel = 50,
             MatchTimeoutMinutes = 10,
             CountLoseGameOver = true,
+            GameOverAction = "Restart",
 
             Matchmaking = {
                 Difficulty = "Easy",
