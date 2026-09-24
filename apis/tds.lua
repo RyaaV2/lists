@@ -413,11 +413,12 @@ return function(Context)
 
         local currentWave = GetCurrentWaveNoWait()
 
-        if currentWave then
-            SetAutoSkip(VoteSkipWaves[currentWave] == true)
-        else
+        if not currentWave or currentWave <= 0 then
             SetAutoSkip(VoteSkipWaves[1] == true)
+            return
         end
+
+        SetAutoSkip(VoteSkipWaves[currentWave] == true)
     end
 
     local function StartVIPVoteSkip()
