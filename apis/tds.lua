@@ -378,44 +378,8 @@ return function(Context)
         VIPVoteSkipWorkerRunning = true
 
         task.spawn(function()
-            local lastWave = nil
-            local lastDesired = nil
-
             while IsStrategyRuntimeEnabled() do
-                if not VoteSkipConfigured then
-                    lastWave = nil
-                    lastDesired = nil
-                    task.wait(0.1)
-                    continue
-                end
-
-                local currentWave =
-                    GetCurrentWaveNoWait()
-
-                local desired
-
-                if VoteSkipAll then
-                    desired = true
-                elseif currentWave then
-                    desired =
-                        VoteSkipWaves[currentWave] == true
-                else
-                    desired =
-                        VoteSkipWaves[1] == true
-                end
-
-                if currentWave ~= lastWave
-                    or desired ~= lastDesired then
-
-                    local applied =
-                        SetAutoSkip(desired)
-
-                    if applied then
-                        lastWave = currentWave
-                        lastDesired = desired
-                    end
-                end
-
+                UpdateVIPAutoSkip()
                 task.wait(0.1)
             end
 
