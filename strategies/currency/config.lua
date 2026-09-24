@@ -7,7 +7,7 @@ return {
     Coins = {
         Win = {
             RouteKey = "Currency.Coins.Win",
-            MinimumLevel = 15,
+            MinimumLevel = 0,
             MatchTimeoutMinutes = 15,
             Matchmaking = {
                 Difficulty = "Casual",
