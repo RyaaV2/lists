@@ -257,29 +257,30 @@ return function(Context)
         )
     end
 
-    local function GetAutoSkipButton()
+    local function GetAutoSkipRow()
         local playerGui = plr:FindFirstChild("PlayerGui")
         local settings = playerGui and playerGui:FindFirstChild("ReactUniversalSettings")
         local window = settings and settings:FindFirstChild("window")
         local scrollingFrame = window and window:FindFirstChild("scrollingFrame")
         local unknown = scrollingFrame and scrollingFrame:FindFirstChild("Unknown")
-        local autoSkip = unknown and unknown:FindFirstChild("Auto Skip")
-        local button = autoSkip and autoSkip:FindFirstChild("button")
-        local toggle = button and button:FindFirstChild("toggle")
 
-        return toggle and toggle:FindFirstChild("imageButton")
+        return unknown and unknown:FindFirstChild("Auto Skip")
     end
 
     local function GetAutoSkipState()
-        local button = GetAutoSkipButton()
+        local autoSkip = GetAutoSkipRow()
 
-        if not button then
+        if not autoSkip then
             return nil
         end
 
-        local contentText = button:FindFirstChild("contentText")
+        local contentText =
+            autoSkip:FindFirstChild("contentText", true)
 
-        if not contentText then
+        if not contentText
+            or not contentText:IsA("TextLabel")
+                and not contentText:IsA("TextButton") then
+
             return nil
         end
 
@@ -296,25 +297,94 @@ return function(Context)
         return nil
     end
 
+    local function HasSignalConnections(signal)
+        if type(getconnections) ~= "function" then
+            return nil
+        end
+
+        local ok, connections =
+            pcall(getconnections, signal)
+
+        return ok
+            and type(connections) == "table"
+            and #connections > 0
+            or false
+    end
+
+    local function GetAutoSkipButtonAndSignal()
+        local autoSkip = GetAutoSkipRow()
+
+        if not autoSkip then
+            return nil, nil
+        end
+
+        local preferred =
+            autoSkip:FindFirstChild("imageButton", true)
+
+        local candidates = {}
+
+        if preferred and preferred:IsA("GuiButton") then
+            table.insert(candidates, preferred)
+        end
+
+        for _, descendant in ipairs(autoSkip:GetDescendants()) do
+            if descendant:IsA("GuiButton")
+                and descendant ~= preferred then
+
+                table.insert(candidates, descendant)
+            end
+        end
+
+        local signalNames = {
+            "Activated",
+            "MouseButton1Click",
+            "MouseButton1Down",
+            "MouseButton1Up"
+        }
+
+        if type(getconnections) == "function" then
+            for _, button in ipairs(candidates) do
+                for _, signalName in ipairs(signalNames) do
+                    local signal = button[signalName]
+
+                    if signal
+                        and HasSignalConnections(signal) then
+
+                        return button, signal
+                    end
+                end
+            end
+        end
+
+        local button = candidates[1]
+
+        if not button then
+            return nil, nil
+        end
+
+        return button,
+            button.Activated
+                or button.MouseButton1Click
+    end
+
     local AutoSkipPendingState = nil
     local AutoSkipLastClickAt = 0
 
     local function ToggleAutoSkip()
-        local button = GetAutoSkipButton()
-
-        if not button
-            or type(firesignal) ~= "function" then
-
+        if type(firesignal) ~= "function" then
             return false
         end
 
-        local ok = pcall(function()
-            firesignal(
-                button.MouseButton1Click
-            )
-        end)
+        local button, signal =
+            GetAutoSkipButtonAndSignal()
 
-        return ok
+        if not button or not signal then
+            return false
+        end
+
+        return pcall(function()
+            firesignal(signal)
+        end)
     end
 
     local function SetAutoSkip(enabled)
@@ -345,7 +415,7 @@ return function(Context)
             return false
         end
 
-        task.wait(0.1)
+        task.wait(0.2)
 
         current = GetAutoSkipState()
 
