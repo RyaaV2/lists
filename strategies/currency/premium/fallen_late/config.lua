@@ -24,13 +24,13 @@ return {
         "Sacred Mountains"
     },
     Maps = {
-        ["Dead Ahead"] = "strategies/fallen/late/dead_ahead.lua",
-        ["Lay By"] = "strategies/fallen/late/lay_by.lua",
-        ["Construction Crazy"] = "strategies/fallen/late/construction_crazy.lua",
-        ["Winter Abyss"] = "strategies/fallen/late/winter_abyss.lua",
-        ["The Heights"] = "strategies/fallen/late/the_heights.lua",
-        ["Retro The Heights"] = "strategies/fallen/late/retro_the_heights.lua",
-        ["Forgetten Docks"] = "strategies/fallen/late/forgetten_docks.lua",
-        ["Sacred Mountains"] = "strategies/fallen/late/sacred_mountains.lua"
+        ["Dead Ahead"] = "strategies/currency/premium/fallen_late/dead_ahead.lua",
+        ["Lay By"] = "strategies/currency/premium/fallen_late/lay_by.lua",
+        ["Construction Crazy"] = "strategies/currency/premium/fallen_late/construction_crazy.lua",
+        ["Winter Abyss"] = "strategies/currency/premium/fallen_late/winter_abyss.lua",
+        ["The Heights"] = "strategies/currency/premium/fallen_late/the_heights.lua",
+        ["Retro The Heights"] = "strategies/currency/premium/fallen_late/retro_the_heights.lua",
+        ["Forgetten Docks"] = "strategies/currency/premium/fallen_late/forgetten_docks.lua",
+        ["Sacred Mountains"] = "strategies/currency/premium/fallen_late/sacred_mountains.lua"
     }
 }
