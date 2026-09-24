@@ -40,6 +40,13 @@ return function(Context)
     local MarketplaceService = game:GetService("MarketplaceService")
     local VIP_GAMEPASS_ID = 10518590
 
+    local RuntimeGlobals = getgenv()
+    RuntimeGlobals.__RyaVIPVoteSkipVersion =
+        (tonumber(RuntimeGlobals.__RyaVIPVoteSkipVersion) or 0) + 1
+
+    local VIPVoteSkipVersion =
+        RuntimeGlobals.__RyaVIPVoteSkipVersion
+
     local HasVIP = Context.HasVIP
 
     if HasVIP == nil then
@@ -421,7 +428,10 @@ return function(Context)
         VIPVoteSkipWorkerRunning = true
 
         task.spawn(function()
-            while IsStrategyRuntimeEnabled() do
+            while IsStrategyRuntimeEnabled()
+                and RuntimeGlobals.__RyaVIPVoteSkipVersion
+                    == VIPVoteSkipVersion do
+
                 UpdateVIPAutoSkip()
                 task.wait(0.1)
             end
