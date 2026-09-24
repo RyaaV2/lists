@@ -1653,6 +1653,14 @@ return function(Context)
         end
     end)
 
+    if Globals.CurrencyFarmEnabled == true
+        and Saved.Enabled == true then
+
+        Saved.Enabled = false
+        Globals.__RyaAutoStrategyEnabled = false
+        Save()
+    end
+
     AutoStrategyToggle =
         AutoStrategy:Toggle({
             Title = "Enable Auto Strategy",
