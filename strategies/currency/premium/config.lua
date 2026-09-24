@@ -7,6 +7,12 @@ return {
         ComingSoon = true,
 
         SupportedModifiersTrials = {
+            "HiddenEnemies",
+            "ExplodingEnemies",
+            "Limitation",
+            "Committed",
+            "Quarantine",
+            "Fog"
         },
 
         Requirements = {
