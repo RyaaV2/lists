@@ -93,6 +93,9 @@ return {
     CurrencyFarm =
         LoadConfig("currency/config.lua"),
 
+    PremiumCurrencyFarm =
+        LoadConfig("currency/premium/config.lua"),
+
     Easy =
         LoadConfig("easy/config.lua"),
 
