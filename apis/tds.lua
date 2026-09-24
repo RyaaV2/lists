@@ -300,21 +300,50 @@ return function(Context)
     local AutoSkipLastClickAt = 0
 
     local function ToggleAutoSkip()
-        local button = GetAutoSkipButton()
+        local button =
+            GetAutoSkipButton()
 
         if not button
-            or type(firesignal) ~= "function" then
+            or type(getconnections) ~= "function" then
 
             return false
         end
 
-        local ok = pcall(function()
-            firesignal(button.MouseButton1Down)
-            task.wait(0.05)
-            firesignal(button.MouseButton1Up)
-        end)
+        local downConnections =
+            getconnections(
+                button.MouseButton1Down
+            )
 
-        return ok
+        local upConnections =
+            getconnections(
+                button.MouseButton1Up
+            )
+
+        if #downConnections == 0
+            or #upConnections == 0 then
+
+            return false
+        end
+
+        for _, connection in ipairs(
+            downConnections
+        ) do
+            pcall(function()
+                connection.Function()
+            end)
+        end
+
+        task.wait(0.05)
+
+        for _, connection in ipairs(
+            upConnections
+        ) do
+            pcall(function()
+                connection.Function()
+            end)
+        end
+
+        return true
     end
 
     local function SetAutoSkip(enabled)
