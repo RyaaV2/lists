@@ -299,92 +299,22 @@ return function(Context)
     local AutoSkipPendingState = nil
     local AutoSkipLastClickAt = 0
 
-    local function FireAutoSkipSignal(signal)
-        if type(firesignal) == "function" then
-            local ok = pcall(function()
-                firesignal(signal)
-            end)
-
-            if ok then
-                return true
-            end
-        end
-
-        if type(getconnections) ~= "function" then
-            return false
-        end
-
-        local connections = getconnections(signal)
-
-        if #connections <= 0 then
-            return false
-        end
-
-        for _, connection in ipairs(connections) do
-            pcall(function()
-                connection.Function()
-            end)
-        end
-
-        return true
-    end
-
-    local function TryAutoSkipSignal(button, signalName, enabled)
-        local signal = button[signalName]
-
-        if not signal then
-            return false
-        end
-
-        if not FireAutoSkipSignal(signal) then
-            return false
-        end
-
-        task.wait(0.1)
-
-        return GetAutoSkipState() == enabled
-    end
-
-    local function ToggleAutoSkipToState(enabled)
+    local function ToggleAutoSkip()
         local button = GetAutoSkipButton()
 
-        if not button then
+        if not button
+            or type(firesignal) ~= "function" then
+
             return false
         end
 
-        if TryAutoSkipSignal(
-            button,
-            "MouseButton1Click",
-            enabled
-        ) then
-            return true
-        end
+        local ok = pcall(function()
+            firesignal(
+                button.MouseButton1Click
+            )
+        end)
 
-        if GetAutoSkipState() == enabled then
-            return true
-        end
-
-        if TryAutoSkipSignal(
-            button,
-            "MouseButton1Down",
-            enabled
-        ) then
-            return true
-        end
-
-        if GetAutoSkipState() == enabled then
-            return true
-        end
-
-        if TryAutoSkipSignal(
-            button,
-            "MouseButton1Up",
-            enabled
-        ) then
-            return true
-        end
-
-        return GetAutoSkipState() == enabled
+        return ok
     end
 
     local function SetAutoSkip(enabled)
@@ -410,10 +340,16 @@ return function(Context)
         AutoSkipPendingState = enabled
         AutoSkipLastClickAt = os.clock()
 
-        local changed =
-            ToggleAutoSkipToState(enabled)
+        if not ToggleAutoSkip() then
+            AutoSkipPendingState = nil
+            return false
+        end
 
-        if changed then
+        task.wait(0.1)
+
+        current = GetAutoSkipState()
+
+        if current == enabled then
             AutoSkipPendingState = nil
             return true
         end
