@@ -1653,14 +1653,6 @@ return function(Context)
         end
     end)
 
-    if Globals.CurrencyFarmEnabled == true
-        and Saved.Enabled == true then
-
-        Saved.Enabled = false
-        Globals.__RyaAutoStrategyEnabled = false
-        Save()
-    end
-
     AutoStrategyToggle =
         AutoStrategy:Toggle({
             Title = "Enable Auto Strategy",
@@ -1684,36 +1676,6 @@ return function(Context)
                 end
             end
         })
-
-    Globals.__RyaSetAutoStrategyToggleDisabled =
-        function(disabled)
-            if not AutoStrategyToggle then
-                return false
-            end
-
-            local ok =
-                pcall(function()
-                    if AutoStrategyToggle.SetDisabled then
-                        AutoStrategyToggle:SetDisabled(
-                            disabled == true
-                        )
-                    elseif AutoStrategyToggle.SetEnabled then
-                        AutoStrategyToggle:SetEnabled(
-                            disabled ~= true
-                        )
-                    elseif AutoStrategyToggle.SetLocked then
-                        AutoStrategyToggle:SetLocked(
-                            disabled == true
-                        )
-                    end
-                end)
-
-            return ok
-        end
-
-    Globals.__RyaSetAutoStrategyToggleDisabled(
-        Globals.CurrencyFarmEnabled == true
-    )
 
     AutoRestartStrategyToggle =
         AutoStrategy:Toggle({
