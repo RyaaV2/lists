@@ -16,8 +16,12 @@ return {
         },
 
         Requirements = {
-            MinimumLevel = 0,
+            MinimumLevel = 175,
             RequiredTowers = {
+                "Hacker",
+                "Gatling Gun",
+                "Mercenary Base",
+                "Trapper"
             }
         }
     },
