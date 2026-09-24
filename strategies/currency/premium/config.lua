@@ -5,6 +5,7 @@
 return {
     Coins = {
         ComingSoon = true,
+        Description = "Better rewards if modifiers owned",
 
         SupportedModifiersTrials = {
             "HiddenEnemies",
