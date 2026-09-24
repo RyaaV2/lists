@@ -7,7 +7,7 @@ return {
         Description = "Better rewards if modifiers owned",
         RouteKey = "PremiumCurrency.Coins",
         RouteConfigPath = "strategies/currency/premium/fallen_late/config.lua",
-        GameOverAction = "Restart",
+        GameOverAction = "Rematch",
 
         SupportedModifiersTrials = {
             "HiddenEnemies",
