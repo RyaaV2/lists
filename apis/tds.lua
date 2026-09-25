@@ -128,7 +128,7 @@ return function(Context)
     
             position = Vector3.new(
                 x,
-                baseY + 25 + ((stackNumber - 1) * 3.5),
+                baseY + 25,
                 z
             )
         end
