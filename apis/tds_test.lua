@@ -78,24 +78,50 @@ return function(Context)
         VoteSkipConfigured = false
     end
 
+    local function IsPlaceRuntimeEnabled()
+        local callbackOk, callbackEnabled =
+            pcall(IsStrategyRuntimeEnabled)
+
+        if callbackOk and callbackEnabled == true then
+            return true, callbackOk, callbackEnabled, "callback"
+        end
+
+        local fallbackEnabled =
+            RuntimeGlobals.AutoProgressEnabled == true
+            or RuntimeGlobals.AutoBuyAllTowersEnabled == true
+            or RuntimeGlobals.AutoMaxEnabled == true
+            or RuntimeGlobals.AutoFarmTowerXP == true
+            or RuntimeGlobals.CurrencyFarmEnabled == true
+            or RuntimeGlobals.StoryModeEnabled == true
+
+        return fallbackEnabled, callbackOk, callbackEnabled, "globals"
+    end
+
     function TDS:Place(towerName, x, y, z, ...)
         local args = {...}
 
-        local runtimeCallOk, runtimeState =
-            pcall(IsStrategyRuntimeEnabled)
+        local runtimeEnabled,
+            runtimeCallOk,
+            callbackRuntimeState,
+            runtimeSource =
+            IsPlaceRuntimeEnabled()
 
         RuntimeGlobals.__RyaLastPlaceDebug = {
             Stage = "PlaceEntered",
             Tower = tostring(towerName),
             RuntimeCallOk = runtimeCallOk,
-            RuntimeEnabled = runtimeState
+            CallbackRuntimeEnabled = callbackRuntimeState,
+            RuntimeEnabled = runtimeEnabled,
+            RuntimeSource = runtimeSource
         }
 
         warn(
             "[TDS TEST PLACE]",
             "tower =", towerName,
-            "runtime call ok =", runtimeCallOk,
-            "runtime =", runtimeState
+            "callback ok =", runtimeCallOk,
+            "callback runtime =", callbackRuntimeState,
+            "effective runtime =", runtimeEnabled,
+            "source =", runtimeSource
         )
         local isStacking =
             args[#args] == true
@@ -163,7 +189,7 @@ return function(Context)
         end
     
         
-        while IsStrategyRuntimeEnabled() do
+        while select(1, IsPlaceRuntimeEnabled()) do
             local gameStateReplicator = GetDirectGameStateReplicator()
     
             if gameStateReplicator
@@ -204,7 +230,7 @@ return function(Context)
             RuntimeGlobals.__RyaLastPlaceDebug = {
                 Stage = "PlaceInvoke",
                 Tower = tostring(towerName),
-                RuntimeEnabled = IsStrategyRuntimeEnabled(),
+                RuntimeEnabled = select(1, IsPlaceRuntimeEnabled()),
                 InvokeOk = ok,
                 Result = result,
                 ResponseCallOk = responseCallOk,
@@ -227,7 +253,7 @@ return function(Context)
             task.wait(0.25)
         end
     
-        if not IsStrategyRuntimeEnabled() then
+        if not select(1, IsPlaceRuntimeEnabled()) then
             return false
         end
     
