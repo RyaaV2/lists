@@ -410,6 +410,27 @@ return function(Context)
         return votes and votes:FindFirstChild("vote")
     end
 
+    local function CanNormalVoteSkip()
+        local stateReplicators =
+            ReplicatedStorage:FindFirstChild("StateReplicators")
+
+        local voteReplicator =
+            stateReplicators
+            and stateReplicators:FindFirstChild("VoteReplicator")
+
+        if voteReplicator
+            and voteReplicator:GetAttribute("Enabled") == true
+            and voteReplicator:GetAttribute("Title") == "Skip?" then
+
+            return true
+        end
+
+        local voteButton = GetNormalVoteButton()
+
+        return voteButton ~= nil
+            and voteButton.Position == UDim2.new(0.5, 0, 0.5, 0)
+    end
+
     local function UpdateVIPAutoSkip()
         if not VoteSkipConfigured then
             return
@@ -471,11 +492,7 @@ return function(Context)
                 local currentWave = GetCurrentWaveNoWait()
 
                 if currentWave and VoteSkipWaves[currentWave] then
-                    local voteButton = GetNormalVoteButton()
-
-                    if voteButton
-                        and voteButton.Position == UDim2.new(0.5, 0, 0.5, 0) then
-
+                    if CanNormalVoteSkip() then
                         pcall(function()
                             rf:InvokeServer("Voting", "Skip")
                         end)
@@ -558,19 +575,29 @@ return function(Context)
     end
 
     function TDS:UpgradeTimes(index, count, path)
+        index = tonumber(index)
         count =
             math.max(
-                tonumber(count) or 0,
+                math.floor(
+                    tonumber(count) or 0
+                ),
                 0
             )
+        path = tonumber(path) or 1
+
+        if not index then
+            return false
+        end
 
         for _ = 1, count do
-            if not TDS:Upgrade(
+            if not DirectUpgradeTower(
                 index,
                 path
             ) then
                 return false
             end
+
+            task.wait(0.15)
         end
 
         return true
