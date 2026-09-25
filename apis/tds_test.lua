@@ -189,14 +189,38 @@ return function(Context)
         end
     
         
+        local newTower
+
+        local function FindNewOwnedTower()
+            for _, tower in ipairs(towersFolder:GetChildren()) do
+                if not existing[tower] then
+                    local owner = tower:FindFirstChild("Owner")
+
+                    if owner and owner.Value == plr.UserId then
+                        return tower
+                    end
+                end
+            end
+
+            return nil
+        end
+
         while select(1, IsPlaceRuntimeEnabled()) do
             local gameStateReplicator = GetDirectGameStateReplicator()
-    
+
             if gameStateReplicator
                 and gameStateReplicator:GetAttribute("GameOver") == true then
                 return false
             end
-    
+
+            -- Never send another placement if the previous request already
+            -- created the tower but its response was not recognized.
+            newTower = FindNewOwnedTower()
+
+            if newTower then
+                break
+            end
+
             local ok, result = pcall(function()
                 if isStacking then
                     return rf:InvokeServer(
@@ -209,7 +233,7 @@ return function(Context)
                         towerName
                     )
                 end
-    
+
                 return rf:InvokeServer(
                     "Troops",
                     "Place",
@@ -221,7 +245,7 @@ return function(Context)
                     (table.unpack or unpack)(args)
                 )
             end)
-    
+
             local responseCallOk, responseOk =
                 pcall(function()
                     return DirectResponseOK(result)
@@ -249,35 +273,50 @@ return function(Context)
             if ok and responseCallOk and responseOk then
                 break
             end
-    
-            task.wait(0.25)
+
+            -- The protected callback can report a failed response even when
+            -- Roblox already accepted the placement. Give replication time to
+            -- create the owned tower before retrying the remote.
+            local confirmUntil = os.clock() + 1.5
+
+            repeat
+                newTower = FindNewOwnedTower()
+
+                if newTower then
+                    break
+                end
+
+                local rep = GetDirectGameStateReplicator()
+
+                if rep
+                    and rep:GetAttribute("GameOver") == true then
+                    return false
+                end
+
+                task.wait(0.05)
+            until os.clock() >= confirmUntil
+
+            if newTower then
+                break
+            end
+
+            task.wait(0.1)
         end
-    
+
         if not select(1, IsPlaceRuntimeEnabled()) then
             return false
         end
-    
-        local newTower
-    
+
         repeat
             local gameStateReplicator = GetDirectGameStateReplicator()
-    
+
             if gameStateReplicator
                 and gameStateReplicator:GetAttribute("GameOver") == true then
                 return false
             end
-    
-            for _, tower in ipairs(towersFolder:GetChildren()) do
-                if not existing[tower] then
-                    local owner = tower:FindFirstChild("Owner")
-    
-                    if owner and owner.Value == plr.UserId then
-                        newTower = tower
-                        break
-                    end
-                end
-            end
-    
+
+            newTower = newTower or FindNewOwnedTower()
+
             if not newTower then
                 task.wait(0.05)
             end
