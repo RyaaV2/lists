@@ -89,8 +89,6 @@ return function(Context)
         if isStacking then
             local baseY = tonumber(y) or 0
 
-            
-            
             if math.abs(baseY) < 0.001 then
                 local rayParams = RaycastParams.new()
                 rayParams.FilterType = Enum.RaycastFilterType.Exclude
@@ -122,8 +120,15 @@ return function(Context)
                 baseY = hit.Position.Y
             end
 
-            local stackKey = string.format("%.5f|%.5f", tonumber(x) or 0, tonumber(z) or 0)
-            local stackNumber = (self.StackCounts[stackKey] or 0) + 1
+            local stackKey = string.format(
+                "%.5f|%.5f",
+                tonumber(x) or 0,
+                tonumber(z) or 0
+            )
+
+            local stackNumber =
+                (self.StackCounts[stackKey] or 0) + 1
+
             self.StackCounts[stackKey] = stackNumber
 
             position = Vector3.new(
@@ -133,41 +138,49 @@ return function(Context)
             )
         end
 
-        local towersFolder = workspace:WaitForChild("Towers")
+        local towersFolder =
+            workspace:WaitForChild("Towers")
 
-        local existing = {}
+        local newTower = nil
+        local placeConnection = nil
 
-        for _, tower in ipairs(towersFolder:GetChildren()) do
-            existing[tower] = true
-        end
-
-        local newTower
-
-        local function FindPlacedTower()
-            local pendingTower
-
-            for _, tower in ipairs(towersFolder:GetChildren()) do
-                if not existing[tower] then
-                    local owner = tower:FindFirstChild("Owner")
-
-                    if owner then
-                        if owner.Value == plr.UserId then
-                            return tower, true
-                        end
-                    elseif not pendingTower then
-                        pendingTower = tower
-                    end
-                end
+        local function TryClaimTower(tower)
+            if newTower or not tower then
+                return
             end
 
-            return pendingTower, false
+            task.spawn(function()
+                local owner =
+                    tower:FindFirstChild("Owner")
+                    or tower:WaitForChild("Owner", 5)
+
+                if owner
+                    and owner.Value == plr.UserId
+                    and not newTower then
+
+                    newTower = tower
+                end
+            end)
         end
 
-        while IsStrategyRuntimeEnabled() do
-            local gameStateReplicator = GetDirectGameStateReplicator()
+        placeConnection =
+            towersFolder.ChildAdded:Connect(
+                TryClaimTower
+            )
+
+        while IsStrategyRuntimeEnabled()
+            and not newTower do
+
+            local gameStateReplicator =
+                GetDirectGameStateReplicator()
 
             if gameStateReplicator
                 and gameStateReplicator:GetAttribute("GameOver") == true then
+
+                if placeConnection then
+                    placeConnection:Disconnect()
+                end
+
                 return false
             end
 
@@ -196,26 +209,26 @@ return function(Context)
                 )
             end)
 
-            local confirmUntil = os.clock() + 5
+            if ok then
+                local resultIsTower = false
+
+                pcall(function()
+                    resultIsTower =
+                        result
+                        and result:IsA("Model")
+                end)
+
+                if resultIsTower then
+                    TryClaimTower(result)
+                end
+            end
+
+            local confirmUntil =
+                os.clock() + 2
 
             repeat
-                local candidate, owned =
-                    FindPlacedTower()
-
-                if candidate and owned then
-                    newTower = candidate
+                if newTower then
                     break
-                end
-
-                if candidate and not owned then
-                    local owner =
-                        candidate:FindFirstChild("Owner")
-                        or candidate:WaitForChild("Owner", 2)
-
-                    if owner and owner.Value == plr.UserId then
-                        newTower = candidate
-                        break
-                    end
                 end
 
                 task.wait(0.05)
@@ -228,31 +241,7 @@ return function(Context)
 
             if ok and DirectResponseOK(result) then
                 repeat
-                    local gameStateReplicator = GetDirectGameStateReplicator()
-
-                    if gameStateReplicator
-                        and gameStateReplicator:GetAttribute("GameOver") == true then
-                        return false
-                    end
-
-                    local candidate, owned =
-                        FindPlacedTower()
-
-                    if candidate and owned then
-                        newTower = candidate
-                    elseif candidate then
-                        local owner =
-                            candidate:FindFirstChild("Owner")
-                            or candidate:WaitForChild("Owner", 2)
-
-                        if owner and owner.Value == plr.UserId then
-                            newTower = candidate
-                        end
-                    end
-
-                    if not newTower then
-                        task.wait(0.05)
-                    end
+                    task.wait(0.05)
                 until newTower
                     or not IsStrategyRuntimeEnabled()
 
@@ -262,15 +251,21 @@ return function(Context)
             task.wait(0.1)
         end
 
-        if not IsStrategyRuntimeEnabled() then
+        if placeConnection then
+            placeConnection:Disconnect()
+        end
+
+        if not IsStrategyRuntimeEnabled()
+            or not newTower then
+
             return false
         end
 
-        if not newTower then
-            return false
-        end
+        table.insert(
+            TDS.PlacedTowers,
+            newTower
+        )
 
-        table.insert(TDS.PlacedTowers, newTower)
         return #TDS.PlacedTowers
     end
 
