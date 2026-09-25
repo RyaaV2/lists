@@ -7,8 +7,8 @@ return {
         "Assassin"
     },
     Priority = {
-        "Dead Ahead",
         "Lay By",
+        "Dead Ahead",
         "Mason Arch",
         "Black Spot Exchange",
         "Construction Crazy",
