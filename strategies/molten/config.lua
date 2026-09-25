@@ -10,9 +10,9 @@ return {
         Matchmaking = {Difficulty = "Molten", Type = "survival"},
         RequiredTowers = {"Soldier"},
         Priority = {
-            "Wrecked Battlefield II",
-            "Lighthaos",
             "Midnight Issue",
+            "Lighthaos",
+            "Wrecked Battlefield II",
             "Nether"
         },
         Maps = {
