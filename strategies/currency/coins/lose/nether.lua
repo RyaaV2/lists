@@ -1,34 +1,3 @@
-local RuntimeGlobals = getgenv()
-local StandardCurrencyJobId = tostring(game.JobId or "")
-
-if RuntimeGlobals.__RyaStandardCurrencyFarmRunning == true
-    and RuntimeGlobals.__RyaStandardCurrencyFarmJobId == StandardCurrencyJobId then
-
-    return
-end
-
-RuntimeGlobals.__RyaStandardCurrencyFarmRunning = true
-RuntimeGlobals.__RyaStandardCurrencyFarmJobId = StandardCurrencyJobId
-
-task.spawn(function()
-    local ReplicatedStorage = game:GetService("ReplicatedStorage")
-    local stateReplicators =
-        ReplicatedStorage:WaitForChild("StateReplicators")
-
-    local rep =
-        stateReplicators:WaitForChild("GameStateReplicator")
-
-    while rep.Parent
-        and rep:GetAttribute("GameOver") ~= true do
-
-        task.wait(0.2)
-    end
-
-    if RuntimeGlobals.__RyaStandardCurrencyFarmJobId == StandardCurrencyJobId then
-        RuntimeGlobals.__RyaStandardCurrencyFarmRunning = false
-    end
-end)
-
 TDS:Loadout("Soldier", "None", "None", "None", "None")
 
 TDS:Mode("Molten")
