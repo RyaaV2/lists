@@ -138,28 +138,29 @@ return function(Context)
         local existing = {}
 
         for _, tower in ipairs(towersFolder:GetChildren()) do
-            local owner = tower:FindFirstChild("Owner")
-
-            if owner and owner.Value == plr.UserId then
-                existing[tower] = true
-            end
+            existing[tower] = true
         end
 
-        
         local newTower
 
         local function FindPlacedTower()
+            local pendingTower
+
             for _, tower in ipairs(towersFolder:GetChildren()) do
                 if not existing[tower] then
                     local owner = tower:FindFirstChild("Owner")
 
-                    if owner and owner.Value == plr.UserId then
-                        return tower
+                    if owner then
+                        if owner.Value == plr.UserId then
+                            return tower, true
+                        end
+                    elseif not pendingTower then
+                        pendingTower = tower
                     end
                 end
             end
 
-            return nil
+            return pendingTower, false
         end
 
         while IsStrategyRuntimeEnabled() do
@@ -195,13 +196,26 @@ return function(Context)
                 )
             end)
 
-            local confirmUntil = os.clock() + 1.5
+            local confirmUntil = os.clock() + 5
 
             repeat
-                newTower = FindPlacedTower()
+                local candidate, owned =
+                    FindPlacedTower()
 
-                if newTower then
+                if candidate and owned then
+                    newTower = candidate
                     break
+                end
+
+                if candidate and not owned then
+                    local owner =
+                        candidate:FindFirstChild("Owner")
+                        or candidate:WaitForChild("Owner", 2)
+
+                    if owner and owner.Value == plr.UserId then
+                        newTower = candidate
+                        break
+                    end
                 end
 
                 task.wait(0.05)
@@ -221,7 +235,20 @@ return function(Context)
                         return false
                     end
 
-                    newTower = FindPlacedTower()
+                    local candidate, owned =
+                        FindPlacedTower()
+
+                    if candidate and owned then
+                        newTower = candidate
+                    elseif candidate then
+                        local owner =
+                            candidate:FindFirstChild("Owner")
+                            or candidate:WaitForChild("Owner", 2)
+
+                        if owner and owner.Value == plr.UserId then
+                            newTower = candidate
+                        end
+                    end
 
                     if not newTower then
                         task.wait(0.05)
