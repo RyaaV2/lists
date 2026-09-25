@@ -146,6 +146,22 @@ return function(Context)
         end
 
         
+        local newTower
+
+        local function FindPlacedTower()
+            for _, tower in ipairs(towersFolder:GetChildren()) do
+                if not existing[tower] then
+                    local owner = tower:FindFirstChild("Owner")
+
+                    if owner and owner.Value == plr.UserId then
+                        return tower
+                    end
+                end
+            end
+
+            return nil
+        end
+
         while IsStrategyRuntimeEnabled() do
             local gameStateReplicator = GetDirectGameStateReplicator()
 
@@ -179,42 +195,53 @@ return function(Context)
                 )
             end)
 
-            if ok and DirectResponseOK(result) then
+            local confirmUntil = os.clock() + 1.5
+
+            repeat
+                newTower = FindPlacedTower()
+
+                if newTower then
+                    break
+                end
+
+                task.wait(0.05)
+            until os.clock() >= confirmUntil
+                or not IsStrategyRuntimeEnabled()
+
+            if newTower then
                 break
             end
 
-            task.wait(0.25)
+            if ok and DirectResponseOK(result) then
+                repeat
+                    local gameStateReplicator = GetDirectGameStateReplicator()
+
+                    if gameStateReplicator
+                        and gameStateReplicator:GetAttribute("GameOver") == true then
+                        return false
+                    end
+
+                    newTower = FindPlacedTower()
+
+                    if not newTower then
+                        task.wait(0.05)
+                    end
+                until newTower
+                    or not IsStrategyRuntimeEnabled()
+
+                break
+            end
+
+            task.wait(0.1)
         end
 
         if not IsStrategyRuntimeEnabled() then
             return false
         end
 
-        local newTower
-
-        repeat
-            local gameStateReplicator = GetDirectGameStateReplicator()
-
-            if gameStateReplicator
-                and gameStateReplicator:GetAttribute("GameOver") == true then
-                return false
-            end
-
-            for _, tower in ipairs(towersFolder:GetChildren()) do
-                if not existing[tower] then
-                    local owner = tower:FindFirstChild("Owner")
-
-                    if owner and owner.Value == plr.UserId then
-                        newTower = tower
-                        break
-                    end
-                end
-            end
-
-            if not newTower then
-                task.wait(0.05)
-            end
-        until newTower
+        if not newTower then
+            return false
+        end
 
         table.insert(TDS.PlacedTowers, newTower)
         return #TDS.PlacedTowers
