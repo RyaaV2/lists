@@ -639,6 +639,9 @@ RuntimeGlobals.__RyaVIPVoteSkipVersion =
 local VIPVoteSkipVersion =
     RuntimeGlobals.__RyaVIPVoteSkipVersion
 
+local VIPVoteSkipStartedUnderAutoStrategy =
+    RuntimeGlobals.__RyaAutoStrategyEnabled == true
+
 local function GetAutoSkipButton()
     local settings =
         PlayerGui:FindFirstChild(
@@ -846,7 +849,14 @@ local function TryGetCurrentWave()
 end
 
 local function UpdateVIPAutoSkip()
+    if RuntimeGlobals.__RyaAutoStrategyEnabled == true
+        and RuntimeGlobals.__RyaAutoStrategyForceAutoSkip == true then
+
+        return
+    end
+
     if not VoteSkipConfigured then
+        SetAutoSkip(false)
         return
     end
 
@@ -887,12 +897,24 @@ local function StartVIPVoteSkip()
             and RuntimeGlobals.__RyaVIPVoteSkipVersion
                 == VIPVoteSkipVersion do
 
+            if VIPVoteSkipStartedUnderAutoStrategy
+                and RuntimeGlobals.__RyaAutoStrategyEnabled ~= true then
+
+                break
+            end
+
             UpdateVIPAutoSkip()
             task.wait(0.1)
         end
 
         VIPVoteSkipWorkerRunning = false
     end)
+end
+
+if HasVIP
+    and VIPVoteSkipStartedUnderAutoStrategy then
+
+    StartVIPVoteSkip()
 end
 
 local function IsVoteSkipButtonVisible()
