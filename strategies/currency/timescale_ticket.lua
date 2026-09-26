@@ -11,7 +11,7 @@ return {
         ExplodingEnemies = "Exploding",
         FlyingEnemies = "Flying",
         SpeedyEnemies = "Speedy",
-        JailedToers = "Jailed"
+        JailedTowers = "Jailed"
     },
 
     Description = "Timescale Ticket Trial Farm",
