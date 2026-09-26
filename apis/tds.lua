@@ -67,6 +67,8 @@ return function(Context)
     local VoteSkipConfigured = false
     local VIPVoteSkipWorkerRunning = false
     local NormalVoteSkipWorkerRunning = false
+    local SetAutoSkip
+    local StartVIPVoteSkip
 
     function TDS:ResetIndex()
         self.PlacedTowers = {}
@@ -76,6 +78,16 @@ return function(Context)
         table.clear(VoteSkipWaves)
         VoteSkipAll = false
         VoteSkipConfigured = false
+
+        if HasVIP
+            and SetAutoSkip then
+
+            SetAutoSkip(false)
+
+            if StartVIPVoteSkip then
+                StartVIPVoteSkip()
+            end
+        end
     end
 
     function TDS:Place(towerName, x, y, z, ...)
@@ -346,7 +358,7 @@ return function(Context)
         return true
     end
 
-    local function SetAutoSkip(enabled)
+    SetAutoSkip = function(enabled)
         enabled = enabled == true
 
         local current = GetAutoSkipState()
@@ -433,6 +445,7 @@ return function(Context)
 
     local function UpdateVIPAutoSkip()
         if not VoteSkipConfigured then
+            SetAutoSkip(false)
             return
         end
 
@@ -451,7 +464,7 @@ return function(Context)
         SetAutoSkip(VoteSkipWaves[currentWave] == true)
     end
 
-    local function StartVIPVoteSkip()
+    StartVIPVoteSkip = function()
         if VIPVoteSkipWorkerRunning then
             return
         end
