@@ -13,7 +13,7 @@ TDS:Place("Militant", -10.564520835876465, 0.40000665187835693, -16.313037872314
 TDS:Upgrade(4)
 
 TDS:VoteSkip(7)
-TDS:WaitForWave(8)
+TDS:WaitForWave(9)
 TDS:Sell(2)
 TDS:Sell(4)
 TDS:Sell(1)
