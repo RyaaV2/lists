@@ -875,42 +875,76 @@ return function(Context)
         return true
     end
 
-    function TDS:LoopAbility(index, abilityName, data)
+    function TDS:Ability(index, abilityName, data, loop)
         index =
             tonumber(index)
-
+    
+        if type(data) == "boolean" then
+            loop = data
+            data = nil
+        end
+    
         data =
             type(data) == "table"
             and data
-            or {}
-
-        task.spawn(function()
+            or nil
+    
+        local function Activate()
             while IsStrategyRuntimeEnabled() do
                 local tower =
                     TDS.PlacedTowers[
                         index
                     ]
-
-                if tower
-                    and tower.Parent then
-
-                    local payload =
-                        table.clone(
-                            data
-                        )
-
+    
+                if not tower
+                    or not tower.Parent then
+    
+                    return false
+                end
+    
+                local payload =
+                    data
+                    and table.clone(data)
+                    or nil
+    
+                if payload then
                     if type(
                         payload.towerToClone
                     ) == "number" then
-
+    
                         payload.towerToClone =
                             TDS.PlacedTowers[
                                 payload.towerToClone
                             ]
                     end
-
+    
+                    if type(
+                        payload.towerTarget
+                    ) == "number" then
+    
+                        payload.towerTarget =
+                            TDS.PlacedTowers[
+                                payload.towerTarget
+                            ]
+                    end
+    
+                    if type(
+                        payload.towerPosition
+                    ) == "table"
+                        and #payload.towerPosition > 0 then
+    
+                        payload.towerPosition =
+                            payload.towerPosition[
+                                math.random(
+                                    #payload.towerPosition
+                                )
+                            ]
+                    end
+                end
+    
+                local ok, result =
                     pcall(function()
-                        rf:InvokeServer(
+                        return rf:InvokeServer(
                             "Troops",
                             "Abilities",
                             "Activate",
@@ -921,25 +955,48 @@ return function(Context)
                             }
                         )
                     end)
+    
+                if ok
+                    and DirectResponseOK(result) then
+    
+                    return true
                 end
-
-                local rep =
-                    GetDirectGameStateReplicator()
-
-                if rep
-                    and rep:GetAttribute(
-                        "GameOver"
-                    ) == true then
-
-                    return
-                end
-
-                task.wait(0.5)
+    
+                task.wait(0.25)
             end
-        end)
-
-        return true
+    
+            return false
+        end
+    
+        if loop == true then
+            local active = true
+    
+            task.spawn(function()
+                while active
+                    and IsStrategyRuntimeEnabled() do
+    
+                    Activate()
+                    task.wait(1)
+                end
+            end)
+    
+            return function()
+                active = false
+            end
+        end
+    
+        return Activate()
     end
+    
+    function TDS:LoopAbility(index, abilityName, data)
+        return TDS:Ability(
+            index,
+            abilityName,
+            data,
+            true
+        )
+    end
+    
 
 
     local MedicChainAPI
