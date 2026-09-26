@@ -200,6 +200,9 @@ return function(Context)
 
     LoadSaved()
 
+    Globals.__RyaAutoStrategyForceAutoSkip =
+        Saved.AutoSkipStrategy == true
+
     local SelectedStrategyFile = nil
     local AutoStrategyThread = nil
     local AutoStrategyToggle = nil
@@ -1262,6 +1265,10 @@ return function(Context)
                 Globals.__RyaAutoStrategyEnabled == true
 
             if not autoStrategyEnabled then
+                if vipApplied then
+                    SetAutoSkip(false)
+                end
+
                 vipApplied = false
                 continue
             end
@@ -1279,6 +1286,10 @@ return function(Context)
                         end
                     end
                 else
+                    if vipApplied then
+                        SetAutoSkip(false)
+                    end
+
                     vipApplied = false
                 end
 
@@ -1741,6 +1752,9 @@ return function(Context)
             Callback = function(value)
                 Saved.AutoSkipStrategy =
                     value == true
+
+                Globals.__RyaAutoStrategyForceAutoSkip =
+                    Saved.AutoSkipStrategy == true
 
                 Save()
             end
