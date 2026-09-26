@@ -236,9 +236,21 @@ return function(Context)
         local requested = {...}
 
         for _, towerName in ipairs(requested) do
-            if tostring(towerName) == "Mercenary Base" then
+            towerName = tostring(towerName)
+
+            if towerName == "Gatling Gun" then
+                local loadAutoGatling =
+                    RuntimeGlobals.__RyaLoadAutoGatling
+
+                if type(loadAutoGatling) == "function" then
+                    task.spawn(function()
+                        pcall(
+                            loadAutoGatling
+                        )
+                    end)
+                end
+            elseif towerName == "Mercenary Base" then
                 self:Mercenary()
-                break
             end
         end
 
