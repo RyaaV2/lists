@@ -8,15 +8,7 @@ return {
     Trials = {
         FlyingEnemies = {
             DisplayName = "Flying",
-            StrategyPath = "strategies/currency/premium/timescale_ticket/flying.lua",
-
-            RequiredTowers = {
-                "Hacker",
-                "Gatling Gun",
-                "Militant",
-                "Mercenary Base",
-                "DJ Booth"
-            }
+            StrategyPath = "strategies/currency/premium/timescale_ticket/flying.lua"
         }
     }
 }
