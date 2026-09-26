@@ -9,7 +9,8 @@ return {
         ExplodingEnemies = "Exploding",
         FlyingEnemies = "Flying",
         SpeedyEnemies = "Speedy",
-        JailedTowers = "Jailed"
+        JailedTowers = "Jailed",
+        Inflation = "Inflation"
     },
 
     Description = "Timescale Ticket Trial Farm",
@@ -38,7 +39,8 @@ return {
         "Broke",
         "SpeedyEnemies",
         "Quarantine",
-        "JailedTowers"
+        "JailedTowers",
+        "Inflation"
     },
 
     Requirements = {
