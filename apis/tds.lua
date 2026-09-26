@@ -309,10 +309,6 @@ return function(Context)
     end
 
     function TDS:GameInfo(mapName, modifiers)
-        if self.SavedDifficulty == "Trial" then
-            return true
-        end
-
         if type(modifiers) == "table"
             and #modifiers > 0 then
 
