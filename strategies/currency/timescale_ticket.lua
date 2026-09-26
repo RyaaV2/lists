@@ -3,8 +3,6 @@
 
 return {
     CurrencyName = "Timescale Ticket",
-    TestOnly = true,
-    AllowTestWithoutPremium = true,
 
     ModifierDisplayNames = {
         HiddenEnemies = "Hidden",
