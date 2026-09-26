@@ -3,6 +3,7 @@ TDS:Loadout("Hacker", "Gatling Gun", "Militant", "Mercenary Base", "DJ Booth")
 TDS:Mode("Trial")
 
 TDS:Place("Militant", -28.784940719604492, 1.316602110862732, 3.101461410522461)
+TDS:Ready()
 
 -- [ Wave 1 ] --
 TDS:Upgrade(1)
