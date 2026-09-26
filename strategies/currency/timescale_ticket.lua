@@ -16,6 +16,8 @@ return {
 
     Description = "Timescale Ticket Trial Farm",
 
+    TrialStatePath = "strategies/currency/trial_state.lua",
+
     RouteKey = "PremiumCurrency.TimescaleTicket",
 
     GameOverAction = "Rematch",
