@@ -14,6 +14,11 @@ return {
         ExplodingEnemies = {
             DisplayName = "Exploding",
             StrategyPath = "strategies/currency/premium/timescale_ticket/exploding.lua"
+        },
+
+        Inflation = {
+            DisplayName = "Inflation",
+            StrategyPath = "strategies/currency/premium/timescale_ticket/inflation.lua"
         }
     }
 }
