@@ -625,8 +625,19 @@ local SkipWorkerRunning = false
 local SkipMode = nil
 local ActiveSkipWaves = VoteSkipWaves
 
-local VIPSkipWorkerRunning = false
-local VIPSkipMode = nil
+local VoteSkipAll = false
+local VoteSkipConfigured = false
+local VIPVoteSkipWorkerRunning = false
+
+local RuntimeGlobals = getgenv()
+
+RuntimeGlobals.__RyaVIPVoteSkipVersion =
+    (tonumber(
+        RuntimeGlobals.__RyaVIPVoteSkipVersion
+    ) or 0) + 1
+
+local VIPVoteSkipVersion =
+    RuntimeGlobals.__RyaVIPVoteSkipVersion
 
 local function GetAutoSkipButton()
     local settings =
@@ -834,76 +845,54 @@ local function TryGetCurrentWave()
     )
 end
 
-local function EnsureVIPSkipWorker()
-    if VIPSkipWorkerRunning then
+local function UpdateVIPAutoSkip()
+    if not VoteSkipConfigured then
         return
     end
 
-    VIPSkipWorkerRunning = true
-
-    task.spawn(function()
-        local lastWanted = nil
-
-        while IsStrategyRuntimeEnabled() do
-            local wanted = nil
-
-            if VIPSkipMode == "auto" then
-                wanted = true
-            elseif VIPSkipMode == "selective" then
-                local currentWave =
-                    TryGetCurrentWave()
-
-                if currentWave ~= nil then
-                    wanted =
-                        VoteSkipWaves[
-                            currentWave
-                        ] == true
-                else
-                    wanted =
-                        VoteSkipWaves[1] == true
-                end
-            end
-
-            if wanted ~= nil
-                and wanted ~= lastWanted then
-
-                if SetAutoSkip(wanted) then
-                    lastWanted = wanted
-                end
-            end
-
-            task.wait(0.1)
-        end
-
-        VIPSkipWorkerRunning = false
-    end)
-end
-
-local function StartVIPAutoSkip()
-    VIPSkipMode = "auto"
-    SetAutoSkip(true)
-    EnsureVIPSkipWorker()
-end
-
-local function StartVIPSelectiveSkip()
-    VIPSkipMode = "selective"
+    if VoteSkipAll then
+        SetAutoSkip(true)
+        return
+    end
 
     local currentWave =
         TryGetCurrentWave()
 
-    if currentWave ~= nil then
+    if not currentWave
+        or currentWave <= 0 then
+
         SetAutoSkip(
-            VoteSkipWaves[
-                currentWave
-            ] == true
+            VoteSkipWaves[1] == true
         )
-    elseif VoteSkipWaves[1] == true then
-        SetAutoSkip(true)
-    else
-        SetAutoSkip(false)
+
+        return
     end
 
-    EnsureVIPSkipWorker()
+    SetAutoSkip(
+        VoteSkipWaves[
+            currentWave
+        ] == true
+    )
+end
+
+local function StartVIPVoteSkip()
+    if VIPVoteSkipWorkerRunning then
+        return
+    end
+
+    VIPVoteSkipWorkerRunning = true
+
+    task.spawn(function()
+        while IsStrategyRuntimeEnabled()
+            and RuntimeGlobals.__RyaVIPVoteSkipVersion
+                == VIPVoteSkipVersion do
+
+            UpdateVIPAutoSkip()
+            task.wait(0.1)
+        end
+
+        VIPVoteSkipWorkerRunning = false
+    end)
 end
 
 local function IsVoteSkipButtonVisible()
@@ -1053,8 +1042,9 @@ function TDS:ResetIndex()
     self.placed_towers = self.PlacedTowers
     self.StackCounts = {}
     table.clear(VoteSkipWaves)
+    VoteSkipAll = false
+    VoteSkipConfigured = false
     SkipMode = nil
-    VIPSkipMode = nil
 
     if HasVIP then
         SetAutoSkip(false)
@@ -1965,9 +1955,14 @@ function TDS:GameInfo(mapName, modifiers)
 end
 
 function TDS:VoteSkip(startWave, endWave)
+    VoteSkipConfigured = true
+
     if startWave == nil and endWave == nil then
+        VoteSkipAll = true
+
         if HasVIP then
-            StartVIPAutoSkip()
+            UpdateVIPAutoSkip()
+            StartVIPVoteSkip()
         else
             StartDirectAutoSkip()
         end
@@ -1977,14 +1972,18 @@ function TDS:VoteSkip(startWave, endWave)
 
     startWave = tonumber(startWave)
 
+    if not startWave then
+        return false
+    end
+
     if endWave == nil then
         endWave = startWave
     else
         endWave = tonumber(endWave)
-    end
 
-    if not startWave or not endWave then
-        return false
+        if not endWave then
+            return false
+        end
     end
 
     startWave = math.floor(startWave)
@@ -1999,7 +1998,8 @@ function TDS:VoteSkip(startWave, endWave)
     end
 
     if HasVIP then
-        StartVIPSelectiveSkip()
+        UpdateVIPAutoSkip()
+        StartVIPVoteSkip()
     else
         StartDirectSelectiveSkip(
             VoteSkipWaves
