@@ -37,8 +37,7 @@ return {
         "FlyingEnemies",
         "Broke",
         "SpeedyEnemies",
-        "Quarantine",
-        "JailedTowers"
+        "Quarantine"
     },
 
     Requirements = {
