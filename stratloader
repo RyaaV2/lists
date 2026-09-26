@@ -1120,6 +1120,9 @@ return function(Context)
         return nil
     end
 
+    local AutoSkipPendingState = nil
+    local AutoSkipLastClickAt = 0
+
     local function ToggleAutoSkip()
         local button =
             GetAutoSkipButton()
@@ -1168,6 +1171,8 @@ return function(Context)
     end
 
     local function SetAutoSkip(enabled)
+        enabled = enabled == true
+
         local current =
             IsAutoSkipEnabled()
 
@@ -1176,15 +1181,35 @@ return function(Context)
         end
 
         if current == enabled then
+            AutoSkipPendingState = nil
             return true
         end
 
-        if not ToggleAutoSkip() then
+        if AutoSkipPendingState == enabled
+            and os.clock() - AutoSkipLastClickAt < 0.5 then
+
             return false
         end
 
-        return IsAutoSkipEnabled()
-            == enabled
+        AutoSkipPendingState = enabled
+        AutoSkipLastClickAt = os.clock()
+
+        if not ToggleAutoSkip() then
+            AutoSkipPendingState = nil
+            return false
+        end
+
+        task.wait(0.15)
+
+        current =
+            IsAutoSkipEnabled()
+
+        if current == enabled then
+            AutoSkipPendingState = nil
+            return true
+        end
+
+        return false
     end
 
     local function IsVoteSkipButtonVisible()
@@ -1254,12 +1279,6 @@ return function(Context)
                         end
                     end
                 else
-                    if vipApplied
-                        or IsAutoSkipEnabled() == true then
-
-                        SetAutoSkip(false)
-                    end
-
                     vipApplied = false
                 end
 
