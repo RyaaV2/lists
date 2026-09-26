@@ -49,7 +49,8 @@ return {
             "Hacker",
             "Trapper",
             "DJ Booth",
-            "Militant"
+            "Militant",
+            "Military Base"
         }
     }
 }
