@@ -16,6 +16,7 @@ return {
 
     TrialStatePath = "strategies/currency/trial_state.lua",
     RouteConfigPath = "strategies/currency/premium/timescale_ticket/config.lua",
+    FallbackRouteConfigPath = "strategies/currency/premium/timescale_ticket/fallback_coins/config.lua",
 
     RouteKey = "PremiumCurrency.TimescaleTicket",
 
