@@ -2,6 +2,9 @@
 -- Kept separate from the live currency configs while this route is being built.
 
 return {
+    CurrencyName = "Timescale Ticket",
+    TestOnly = true,
+
     Description = "Timescale Ticket Trial Farm",
 
     RouteKey = "PremiumCurrency.TimescaleTicket",
