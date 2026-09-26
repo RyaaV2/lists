@@ -233,7 +233,18 @@ return function(Context)
     end
     
     function TDS:Loadout(...)
-        return DirectSetLoadout(...)
+        local requested = {...}
+
+        for _, towerName in ipairs(requested) do
+            if tostring(towerName) == "Mercenary Base" then
+                self:Mercenary()
+                break
+            end
+        end
+
+        return DirectSetLoadout(
+            (table.unpack or unpack)(requested)
+        )
     end
 
     local function BuildMatchmakingPayload(
@@ -767,14 +778,24 @@ return function(Context)
         )
     end
 
-    function TDS:Mercenary(dist, pathName)
-        dist =
-            tonumber(dist)
-            or 140
+    local MercenaryAutomationRunning = false
+    local MercenaryAutomationData = {
+        Dist = 195,
+        PathName = 1
+    }
 
-        pathName =
+    function TDS:Mercenary(dist, pathName)
+        MercenaryAutomationData.Dist =
+            tonumber(dist)
+            or MercenaryAutomationData.Dist
+
+        MercenaryAutomationData.PathName =
             tonumber(pathName)
-            or 1
+            or MercenaryAutomationData.PathName
+
+        if MercenaryAutomationRunning then
+            return true
+        end
 
         local towerConfig =
             type(StrategyConfig) == "table"
@@ -782,10 +803,12 @@ return function(Context)
             and type(StrategyConfig.Towers.Automation) == "table"
             and StrategyConfig.Towers.Automation.Mercenary
             or nil
-        local towerName = type(towerConfig) == "table" and tostring(towerConfig.Tower or "") or ""
-        local abilityName = type(towerConfig) == "table" and tostring(towerConfig.Ability or "") or ""
-        local minUpgrade = type(towerConfig) == "table" and tonumber(towerConfig.MinUpgrade) or 0
+        local towerName = type(towerConfig) == "table" and tostring(towerConfig.Tower or "Mercenary Base") or "Mercenary Base"
+        local abilityName = type(towerConfig) == "table" and tostring(towerConfig.Ability or "Air-Drop") or "Air-Drop"
+        local minUpgrade = type(towerConfig) == "table" and tonumber(towerConfig.MinUpgrade) or 5
         local interval = type(towerConfig) == "table" and tonumber(towerConfig.Interval) or 0.5
+
+        MercenaryAutomationRunning = true
 
         task.spawn(function()
             while IsStrategyRuntimeEnabled() do
@@ -808,8 +831,10 @@ return function(Context)
                                 "OwnerId"
                             ) == plr.UserId
                             and (
-                                towerRep:GetAttribute(
-                                    "Upgrade"
+                                tonumber(
+                                    towerRep:GetAttribute(
+                                        "Upgrade"
+                                    )
                                 )
                                 or 0
                             ) >= minUpgrade then
@@ -826,21 +851,25 @@ return function(Context)
                                             abilityName,
                                         Data = {
                                             pathName =
-                                                pathName,
+                                                MercenaryAutomationData.PathName,
                                             directionCFrame =
                                                 CFrame.new(),
                                             dist =
-                                                dist
+                                                MercenaryAutomationData.Dist
                                         }
                                     }
                                 )
                             end)
+
+                            task.wait(interval)
                         end
                     end
                 end
 
                 task.wait(interval)
             end
+
+            MercenaryAutomationRunning = false
         end)
 
         return true
