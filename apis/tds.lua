@@ -236,11 +236,83 @@ return function(Context)
         return DirectSetLoadout(...)
     end
 
-    function TDS:Mode(_mode)
-        return true
+    local function BuildMatchmakingPayload(
+        difficulty
+    )
+        difficulty =
+            tostring(
+                difficulty or ""
+            )
+
+        if difficulty == "Trial" then
+            return {
+                count = 1,
+                mode = "Trials"
+            }
+        end
+
+        return nil
+    end
+
+    function TDS:Mode(difficulty)
+        difficulty =
+            tostring(
+                difficulty or ""
+            )
+
+        self.SavedDifficulty =
+            difficulty
+
+        self.SavedMatchmaking =
+            BuildMatchmakingPayload(
+                difficulty
+            )
+
+        if difficulty ~= "Trial" then
+            return true
+        end
+
+        local playerGui =
+            plr:FindFirstChild("PlayerGui")
+
+        local lobbyHud =
+            playerGui
+            and playerGui:FindFirstChild(
+                "ReactLobbyHud"
+            )
+
+        local hotbar =
+            playerGui
+            and playerGui:FindFirstChild(
+                "ReactUniversalHotbar"
+            )
+
+        if not lobbyHud
+            and hotbar then
+
+            return false
+        end
+
+        local ok, result =
+            pcall(function()
+                return rf:InvokeServer(
+                    "Multiplayer",
+                    "v2:start",
+                    table.clone(
+                        self.SavedMatchmaking
+                    )
+                )
+            end)
+
+        return ok
+            and result ~= false
     end
 
     function TDS:GameInfo(mapName, modifiers)
+        if self.SavedDifficulty == "Trial" then
+            return true
+        end
+
         if type(modifiers) == "table"
             and #modifiers > 0 then
 
