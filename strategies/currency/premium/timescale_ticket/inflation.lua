@@ -13,8 +13,6 @@ TDS:Place("Military Base", 0.04381561279296875, 1.0063872337341309, 38.672733306
 TDS:Upgrade(1)
 TDS:Upgrade(2)
 TDS:Upgrade(3)
-TDS:Upgrade(4)
-
 TDS:VoteSkip(10)
 TDS:WaitForWave(10)
 
