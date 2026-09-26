@@ -9,6 +9,11 @@ return {
         FlyingEnemies = {
             DisplayName = "Flying",
             StrategyPath = "strategies/currency/premium/timescale_ticket/flying.lua"
+        },
+
+        ExplodingEnemies = {
+            DisplayName = "Exploding",
+            StrategyPath = "strategies/currency/premium/timescale_ticket/exploding.lua"
         }
     }
 }
