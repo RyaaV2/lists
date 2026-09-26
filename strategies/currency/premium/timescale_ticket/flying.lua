@@ -13,12 +13,12 @@ TDS:Place("Militant", -10.564520835876465, 0.40000665187835693, -16.313037872314
 TDS:Upgrade(4)
 
 TDS:VoteSkip(7)
+TDS:VoteSkip(8)
 TDS:WaitForWave(9)
 TDS:Sell(2)
 TDS:Sell(4)
 TDS:Sell(1)
 TDS:Sell(3)
-TDS:VoteSkip(8)
 TDS:Place("Gatling Gun", 9.519998550415039, 1.6807754039764404, -24.630443572998047)
 
 TDS:Upgrade(5)
