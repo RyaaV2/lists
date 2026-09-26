@@ -17,6 +17,7 @@ return {
     Description = "Timescale Ticket Trial Farm",
 
     TrialStatePath = "strategies/currency/trial_state.lua",
+    RouteConfigPath = "strategies/currency/premium/timescale_ticket/config.lua",
 
     RouteKey = "PremiumCurrency.TimescaleTicket",
 
