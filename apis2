@@ -704,6 +704,9 @@ local function IsAutoSkipEnabled()
     return nil
 end
 
+local AutoSkipPendingState = nil
+local AutoSkipLastClickAt = 0
+
 local function ToggleAutoSkip()
     local button = GetAutoSkipButton()
 
@@ -751,6 +754,8 @@ local function ToggleAutoSkip()
 end
 
 local function SetAutoSkip(enabled)
+    enabled = enabled == true
+
     local current =
         IsAutoSkipEnabled()
 
@@ -759,15 +764,35 @@ local function SetAutoSkip(enabled)
     end
 
     if current == enabled then
+        AutoSkipPendingState = nil
         return true
     end
 
-    if not ToggleAutoSkip() then
+    if AutoSkipPendingState == enabled
+        and os.clock() - AutoSkipLastClickAt < 0.5 then
+
         return false
     end
 
-    return IsAutoSkipEnabled()
-        == enabled
+    AutoSkipPendingState = enabled
+    AutoSkipLastClickAt = os.clock()
+
+    if not ToggleAutoSkip() then
+        AutoSkipPendingState = nil
+        return false
+    end
+
+    task.wait(0.15)
+
+    current =
+        IsAutoSkipEnabled()
+
+    if current == enabled then
+        AutoSkipPendingState = nil
+        return true
+    end
+
+    return false
 end
 
 local function TryGetCurrentWave()
@@ -882,6 +907,28 @@ local function StartVIPSelectiveSkip()
 end
 
 local function IsVoteSkipButtonVisible()
+    local stateReplicators =
+        ReplicatedStorage:FindFirstChild(
+            "StateReplicators"
+        )
+
+    local voteReplicator =
+        stateReplicators
+        and stateReplicators:FindFirstChild(
+            "VoteReplicator"
+        )
+
+    if voteReplicator
+        and voteReplicator:GetAttribute(
+            "Enabled"
+        ) == true
+        and voteReplicator:GetAttribute(
+            "Title"
+        ) == "Skip?" then
+
+        return true
+    end
+
     local voteGui =
         PlayerGui:FindFirstChild(
             "ReactOverridesVote"
