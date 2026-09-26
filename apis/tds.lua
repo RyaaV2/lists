@@ -232,8 +232,26 @@ return function(Context)
         return #TDS.PlacedTowers
     end
     
+    if TDS.AutoMercenaryEnabled == nil then
+        TDS.AutoMercenaryEnabled = true
+    end
+
+    function TDS:SetAutoMercenary(enabled)
+        self.AutoMercenaryEnabled =
+            enabled ~= false
+
+        if self.AutoMercenaryEnabled
+            and self.HasMercenaryBase == true then
+
+            self:Mercenary()
+        end
+
+        return self.AutoMercenaryEnabled
+    end
+
     function TDS:Loadout(...)
         local requested = {...}
+        local hasMercenaryBase = false
 
         for _, towerName in ipairs(requested) do
             towerName = tostring(towerName)
@@ -250,8 +268,17 @@ return function(Context)
                     end)
                 end
             elseif towerName == "Mercenary Base" then
-                self:Mercenary()
+                hasMercenaryBase = true
             end
+        end
+
+        self.HasMercenaryBase =
+            hasMercenaryBase
+
+        if self.AutoMercenaryEnabled ~= false
+            and self.HasMercenaryBase then
+
+            self:Mercenary()
         end
 
         return DirectSetLoadout(
@@ -823,7 +850,9 @@ return function(Context)
         MercenaryAutomationRunning = true
 
         task.spawn(function()
-            while IsStrategyRuntimeEnabled() do
+            while IsStrategyRuntimeEnabled()
+                and TDS.AutoMercenaryEnabled ~= false do
+
                 local towersFolder =
                     workspace:FindFirstChild(
                         "Towers"
