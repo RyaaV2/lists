@@ -17,10 +17,11 @@ TDS:Upgrade(2)
 -- [ Wave 4 ] --
 TDS:Place("Militant", -25.113365173339844, 1.3115326166152954, 2.2666711807250977)
 TDS:Upgrade(3)
-TDS:Upgrade(3)
-
+TDS:Place("Militant", -22.594030380249023, 1.0001664161682129, 4.4240283966064453)
+TDS:Upgrade(4)
 -- [ Wave 7 ] --
 TDS:WaitForWave(7)
+TDS:Sell(4)
 TDS:Sell(3)
 TDS:Sell(2)
 TDS:Sell(1)
