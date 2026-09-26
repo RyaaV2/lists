@@ -1,3 +1,4 @@
+TDS:SetAutoMercenary(false)
 TDS:Loadout("Gatling Gun", "Military Base", "Mercenary Base", "DJ Booth", "Hacker")
 TDS:Mode("Trial")
 
