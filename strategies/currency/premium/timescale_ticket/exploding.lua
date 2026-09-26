@@ -109,5 +109,5 @@ TDS:Upgrade(6)
 TDS:Upgrade(6)
 TDS:Upgrade(6, 2)
 
-TDS:Ability(6, "Hologram Tower", {towerPosition = Vector3.new(11.168205261230469, 5.901095867156982, 2.309816360473633), towerToClone = 4}, true)
+TDS:Ability(6, "Hologram Tower", {towerPosition = Vector3.new(11.168205261230469, 5.901095867156982, 2.309816360473633), towerToClone = 5}, true)
 
