@@ -4,6 +4,15 @@
 return {
     CurrencyName = "Timescale Ticket",
     TestOnly = true,
+    AllowTestWithoutPremium = true,
+
+    ModifierDisplayNames = {
+        HiddenEnemies = "Hidden",
+        ExplodingEnemies = "Exploding",
+        FlyingEnemies = "Flying",
+        SpeedyEnemies = "Speedy",
+        JailedTowers = "Jailed"
+    },
 
     Description = "Timescale Ticket Trial Farm",
 
