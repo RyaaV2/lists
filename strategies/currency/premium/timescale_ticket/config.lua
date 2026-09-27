@@ -26,6 +26,11 @@ return {
             StrategyPath = "strategies/currency/premium/timescale_ticket/fog.lua"
         },
 
+        Limitation = {
+            DisplayName = "Limitation",
+            StrategyPath = "strategies/currency/premium/timescale_ticket/limitation.lua"
+        },
+
         Quarantine = {
             DisplayName = "Quarantine",
             StrategyPath = "strategies/currency/premium/timescale_ticket/quarantine.lua"
