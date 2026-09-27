@@ -16,6 +16,11 @@ return {
             StrategyPath = "strategies/currency/premium/timescale_ticket/exploding.lua"
         },
 
+        Quarantine = {
+            DisplayName = "Quarantine",
+            StrategyPath = "strategies/currency/premium/timescale_ticket/quarantine.lua"
+        },
+
         Inflation = {
             DisplayName = "Inflation",
             StrategyPath = "strategies/currency/premium/timescale_ticket/inflation.lua"
