@@ -11,6 +11,14 @@ return {
 
     Matchmaking = {Difficulty = "Fallen", Type = "survival"},
 
+    RequiredTowers = {
+        "Hacker",
+        "Gatling Gun",
+        "Mercenary Base",
+        "Trapper",
+        "DJ Booth"
+    },
+
     Priority = {
         "Lay By",
         "Dead Ahead",
