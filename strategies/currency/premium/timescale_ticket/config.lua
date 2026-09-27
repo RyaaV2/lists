@@ -21,6 +21,11 @@ return {
             StrategyPath = "strategies/currency/premium/timescale_ticket/exploding.lua"
         },
 
+        SpeedyEnemies = {
+            DisplayName = "Speedy",
+            StrategyPath = "strategies/currency/premium/timescale_ticket/speedy.lua"
+        },
+
         Glass = {
             DisplayName = "Glass",
             StrategyPath = "strategies/currency/premium/timescale_ticket/glass.lua"
