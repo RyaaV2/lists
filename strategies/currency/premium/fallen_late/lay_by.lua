@@ -23,6 +23,7 @@ TDS:GameInfo("Lay By", {
 TDS:VoteSkip(1,10)
 TDS:VoteSkip(13,30)
 TDS:VoteSkip(32,34)
+TDS:VoteSkip(37,39)
 
 TDS:Mercenary(140, 1)
 
