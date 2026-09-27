@@ -6,6 +6,11 @@ return {
     },
 
     Trials = {
+        HiddenEnemies = {
+            DisplayName = "Hidden",
+            StrategyPath = "strategies/currency/premium/timescale_ticket/hidden.lua"
+        },
+
         FlyingEnemies = {
             DisplayName = "Flying",
             StrategyPath = "strategies/currency/premium/timescale_ticket/flying.lua"
