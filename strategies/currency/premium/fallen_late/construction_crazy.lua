@@ -7,7 +7,7 @@ if type(loadAutoGatling) == "function" then
     )
 end
 
-TDS:Loadout("Hacker", "Gatling Gun", "Mercenary Base", "Trapper")
+TDS:Loadout("Hacker", "Gatling Gun", "Mercenary Base", "Trapper", "DJ Booth")
 
 TDS:Mode("Fallen")
 
@@ -81,6 +81,12 @@ TDS:SetOption(2, "Trap", "Bear Traps")
 
 TDS:Place("Mercenary Base", -41.209049224853516, 0.255012869834900, -1.575437545776367, true)
 TDS:UpgradeTimes(10, 6)
+
+TDS:Place("DJ Booth", -41.209049224853516, 0.255012869834900, -1.575437545776367, true)
+
+TDS:UpgradeTimes(11, 2)
+TDS:SetOption(11, "Track", "Red")
+TDS:UpgradeTimes(11, 3)
 
 TDS:LoopAbility(7, "Hologram Tower", {
     towerPosition = Vector3.new(-41.209049224853516, 0.255012869834900, -1.575437545776367),
