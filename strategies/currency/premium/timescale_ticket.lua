@@ -38,8 +38,7 @@ return {
         "Broke",
         "SpeedyEnemies",
         "Quarantine",
-        "JailedTowers",
-        "Inflation"
+        "JailedTowers"
     },
 
     Requirements = {
