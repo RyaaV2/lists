@@ -100,6 +100,5 @@ TDS:Upgrade(10)
 TDS:Upgrade(10)
 TDS:Upgrade(10)
 TDS:SetOption(10, "Trap", "Bear Traps")
-
-TDS:Ability(4, "Hologram Tower", {towerPosition = Vector3.new(11.831933975219727, 7.68244743347168, -50.24760437011719), towerToClone = 2}, true)
 TDS:SetOption(3, "Track", "Red")
+TDS:Ability(4, "Hologram Tower", {towerPosition = Vector3.new(11.831933975219727, 7.68244743347168, -50.24760437011719), towerToClone = 2}, true)
