@@ -764,10 +764,14 @@ return function(Context)
             )
     end
 
+    local IgnoreAutoStrategyToggleCallbacks = 0
+
     local function SetToggleVisual(value)
         if not AutoStrategyToggle then
             return
         end
+
+        IgnoreAutoStrategyToggleCallbacks += 1
 
         pcall(function()
             if AutoStrategyToggle.SetValue then
@@ -779,6 +783,14 @@ return function(Context)
                     value
                 )
             end
+        end)
+
+        task.defer(function()
+            IgnoreAutoStrategyToggleCallbacks =
+                math.max(
+                    IgnoreAutoStrategyToggleCallbacks - 1,
+                    0
+                )
         end)
     end
 
@@ -1735,6 +1747,12 @@ return function(Context)
             Desc = "Automatically runs the selected strategy file.",
             Value = Saved.Enabled == true,
             Callback = function(value)
+                if IgnoreAutoStrategyToggleCallbacks > 0
+                    or Globals.__RyaFarmToggleVisualSync == true then
+
+                    return
+                end
+
                 if value then
                     if not Start() then
                         Globals.__RyaAutoStrategyEnabled = false
