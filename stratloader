@@ -813,6 +813,26 @@ return function(Context)
         return true
     end
 
+    Globals.__RyaSetAutoStrategyToggleVisual =
+        SetToggleVisual
+
+    Globals.__RyaAutoStrategySetDesiredEnabled =
+        function(value)
+            Saved.Enabled = value == true
+            Save()
+
+            task.defer(function()
+                SetToggleVisual(
+                    Saved.Enabled
+                )
+            end)
+
+            return true
+        end
+
+    Globals.__RyaAutoStrategyStopForSwitch =
+        Stop
+
     local function Start()
         if type(CanEnable) == "function" then
             local ok, allowed, message =
@@ -823,10 +843,31 @@ return function(Context)
             if not ok
                 or allowed == false then
 
+                if ok
+                    and tostring(message or "")
+                        == "__RYA_PENDING_SWITCH__" then
+
+                    Saved.Enabled = true
+                    Save()
+
+                    task.defer(function()
+                        SetToggleVisual(true)
+                    end)
+
+                    UpdateMainStatus(
+                        tostring(
+                            Globals.__RyaAutoFarmTransitionStatus
+                            or "Status: Changed to Auto Strategy - Waiting for Current Game to Finish..."
+                        )
+                    )
+
+                    return true
+                end
+
                 Notify(
                     tostring(
                         message
-                        or "Turn off the other automation mode first."
+                        or "Unable to start Auto Strategy."
                     ),
                     5
                 )
