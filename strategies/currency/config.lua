@@ -23,7 +23,6 @@ return {
                 "Lay By",
                 "Dead Ahead",
                 "Mason Arch",
-                "Black Spot Exchange",
                 "Construction Crazy",
                 "Forgetten Docks"
             },
@@ -36,9 +35,6 @@ return {
 
                 ["Lay By"] =
                     "strategies/currency/coins/win/lay_by.lua",
-
-                ["Black Spot Exchange"] =
-                    "strategies/currency/coins/win/black_spot_exchange.lua",
 
                 ["Construction Crazy"] =
                     "strategies/currency/coins/win/construction_crazy.lua",
