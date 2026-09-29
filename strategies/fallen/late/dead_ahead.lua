@@ -22,7 +22,7 @@ TDS:GameInfo("Dead Ahead", {
 
 TDS:VoteSkip(1,10)
 TDS:VoteSkip(13,30)
-TDS:VoteSkip(32,36)
+TDS:VoteSkip(32,34)
 TDS:Mercenary(80, 1)
 
 TDS:Place("Trapper", 1.2970037460327148, 1.0000042915344238, -26.240280151367188, true)
