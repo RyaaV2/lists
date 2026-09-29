@@ -58,6 +58,8 @@ return {
         "Military Base", 
         "Militant", 
         "Paintballer", 
+        "Slime Trooper",
+        "Pulse Trooper",
         "Scout", 
         "Soldier", 
         "Boomerang", 
@@ -92,6 +94,8 @@ return {
         "Military Base", 
         "Militant", 
         "Paintballer", 
+        "Slime Trooper",
+        "Pulse Trooper",
         "Scout", 
         "Soldier", 
         "Boomerang", 
@@ -206,7 +210,9 @@ return {
                 {ProgressionMode = "Win", Route = "Easy.Win", FarmBehavior = "RepeatUntilAffordable"}, 
             } 
         }, 
-        ["Paintballer"] = {Type = "Currency", Currency = "Coins", Price = 100}, 
+        ["Paintballer"] = {Type = "Currency", Currency = "Coins", Price = 100},
+        ["Slime Trooper"] = {Type = "Currency", Currency = "Coins", Price = 300},
+        ["Pulse Trooper"] = {Type = "Currency", Currency = "Coins", Price = 3250}, 
         ["Scout"] = {Type = "Free"}, 
         ["Soldier"] = { 
             Type = "Currency", 
