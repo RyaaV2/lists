@@ -359,16 +359,21 @@ return function(Context)
     end
 
     function TDS:GameInfo(mapName, modifiers)
-        if type(modifiers) == "table"
-            and #modifiers > 0 then
+        if type(modifiers) == "table" then
 
             local votes = {}
 
-            for _, modifierName in ipairs(
-                modifiers
-            ) do
-                votes[tostring(modifierName)] =
-                    true
+            -- Supports both:
+            -- {"HiddenEnemies", "Fog"}
+            -- {HiddenEnemies = true, Fog = true, Glass = false}
+            for key, value in pairs(modifiers) do
+                if type(key) == "number" then
+                    if value ~= nil and value ~= false then
+                        votes[tostring(value)] = true
+                    end
+                elseif value == true then
+                    votes[tostring(key)] = true
+                end
             end
 
             pcall(function()
