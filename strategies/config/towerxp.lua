@@ -2,9 +2,15 @@ return {
     MinimumLevel = 50,
 
     RequiredTowers = {
-        "Pyromancer",
-        "Shotgunner",
-        "Minigunner"
+        ["All Normal Tower"] = {
+            "Pyromancer",
+            "Shotgunner",
+            "Minigunner"
+        },
+
+        ["Evolved Towers"] = {
+            "Pyromancer"
+        }
     },
 
     Strategy = "strategies/towerxp.lua",
