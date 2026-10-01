@@ -1,6 +1,11 @@
 return {
     MinimumLevel = 50,
 
+    RequiredTowers = {
+        "Hunter",
+        "Pyromancer"
+    },
+
     Strategy = "strategies/towerxp.lua",
 
     Matchmaking = {
