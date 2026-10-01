@@ -1,15 +1,28 @@
 return {
     MinimumLevel = 50,
 
-    RequiredTowers = {
-        ["All Normal Tower"] = {
-            "Pyromancer",
-            "Shotgunner",
-            "Minigunner"
+    Modes = {
+        {
+            Name = "All Normal Tower",
+            GameName = "All Normal Tower",
+            RequiredTowers = {
+                "Pyromancer",
+                "Shotgunner",
+                "Minigunner"
+            }
         },
-
-        ["Evolved Towers"] = {
-            "Pyromancer"
+        {
+            Name = "Evolved Towers",
+            RequiredTowers = {
+                "Pyromancer"
+            },
+            RequireSelectedTower = true,
+            Towers = {
+                {Name = "Operator", GameName = "Operator"},
+                {Name = "Juggernaut", GameName = "Juggernaut"},
+                {Name = "Kingpin", GameName = "Kingpin"},
+                {Name = "Enforcer", GameName = "Enforcer"}
+            }
         }
     },
 
@@ -18,13 +31,5 @@ return {
     Matchmaking = {
         Difficulty = "Easy",
         Type = "hardcore"
-    },
-
-    Towers = {
-        {Name = "All Normal Tower", GameName = "All Normal Tower"},
-        {Name = "Operator", GameName = "Operator"},
-        {Name = "Juggernaut", GameName = "Juggernaut"},
-        {Name = "Kingpin", GameName = "Kingpin"},
-        {Name = "Enforcer", GameName = "Enforcer"}
     }
 }
