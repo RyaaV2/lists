@@ -2,8 +2,11 @@ return {
     MinimumLevel = 50,
 
     RequiredTowers = {
-        "Hunter",
-        "Pyromancer"
+        "Pyromancer",
+        "Scout",
+        "Shotgunner",
+        "Crook Boss",
+        "Minigunner"
     },
 
     Strategy = "strategies/towerxp.lua",
@@ -14,13 +17,10 @@ return {
     },
 
     Towers = {
-        {Name = "Scout", GameName = "Scout"},
+        {Name = "All Normal Tower", GameName = "All Normal Tower"},
         {Name = "Operator", GameName = "Operator"},
-        {Name = "Minigunner", GameName = "Minigunner"},
         {Name = "Juggernaut", GameName = "Juggernaut"},
-        {Name = "Crook Boss", GameName = "Crook Boss"},
         {Name = "Kingpin", GameName = "Kingpin"},
-        {Name = "Shotgunner", GameName = "Shotgunner"},
         {Name = "Enforcer", GameName = "Enforcer"}
     }
 }
