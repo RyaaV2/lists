@@ -3,9 +3,7 @@ return {
 
     RequiredTowers = {
         "Pyromancer",
-        "Scout",
         "Shotgunner",
-        "Crook Boss",
         "Minigunner"
     },
 
