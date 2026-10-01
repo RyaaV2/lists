@@ -8,7 +8,7 @@ return {
     MilestoneBehavior = "ReturnToLobby",
 
         Matchmaking = {Difficulty = "Easy", Type = "hardcore", ExpectedDifficulty = "Hardcore"},
-        RequiredTowers = {"Pyromancer", "Hunter"},
+        RequiredTowers = {"Pyromancer"},
         Priority = {
             "Wretched Front"
         },
