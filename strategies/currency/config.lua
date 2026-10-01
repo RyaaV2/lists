@@ -102,8 +102,7 @@ return {
             },
 
             RequiredTowers = {
-                "Pyromancer",
-                "Hunter"
+                "Pyromancer"
             },
 
             Priority = {
