@@ -9,6 +9,13 @@ return {
                 "Pyromancer",
                 "Shotgunner",
                 "Minigunner"
+            },
+            FarmTowers = {
+                "Pyromancer",
+                "Scout",
+                "Shotgunner",
+                "Crook Boss",
+                "Minigunner"
             }
         },
         {
