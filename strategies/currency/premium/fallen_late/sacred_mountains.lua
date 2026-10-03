@@ -20,7 +20,9 @@ TDS:GameInfo("Sacred Mountains", {
     "Fog"
 })
 
-TDS:VoteSkip()
+TDS:VoteSkip(1,10)
+TDS:VoteSkip(13,30)
+TDS:VoteSkip(32,34)
 
 TDS:Mercenary(140, 1)
 
