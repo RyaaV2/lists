@@ -2278,6 +2278,9 @@ function TDS:LoopAbility(index, abilityName, data)
 end
 
 
+shared.TDSTable = TDS
+shared["TDS_Table"] = TDS
+
 local MedicChainAPI
 
 function TDS:MedicChain(...)
