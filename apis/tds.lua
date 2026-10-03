@@ -1045,6 +1045,9 @@ return function(Context)
     
 
 
+    shared.TDSTable = TDS
+    shared["TDS_Table"] = TDS
+
     local MedicChainAPI
 
     function TDS:MedicChain(...)
