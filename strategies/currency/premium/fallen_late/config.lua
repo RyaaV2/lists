@@ -30,7 +30,7 @@ return {
         ["Winter Abyss"] = "strategies/currency/premium/fallen_late/winter_abyss.lua",
         ["The Heights"] = "strategies/currency/premium/fallen_late/the_heights.lua",
         ["Retro The Heights"] = "strategies/currency/premium/fallen_late/retro_the_heights.lua",
-        ["Forgetten Docks"] = "strategies/currency/premium/fallen_late/forgetten_docks.lua",
+        ["Forgetten Doc"] = "strategies/currency/premium/fallen_late/forgetten_docks.lua",
         ["Sacred Mountains"] = "strategies/currency/premium/fallen_late/sacred_mountains.lua"
     }
 }
