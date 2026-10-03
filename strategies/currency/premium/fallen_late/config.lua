@@ -20,7 +20,6 @@ return {
         "Construction Crazy",
         "The Heights",
         "Retro The Heights",
-        "Forgetten Docks",
         "Winter Abyss",
         "Sacred Mountains"
     },
