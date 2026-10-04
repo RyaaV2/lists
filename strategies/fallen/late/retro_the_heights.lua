@@ -20,8 +20,10 @@ TDS:GameInfo("Retro The Heights", {
     "Fog"
 })
 
-TDS:VoteSkip()
-
+TDS:VoteSkip(1,10)
+TDS:VoteSkip(13,30)
+TDS:VoteSkip(32,34)
+TDS:VoteSkip(37,39)
 TDS:Mercenary(140, 1)
 
 TDS:Place("Trapper", 0.027876853942871, 0.562506079673767, 6.239594459533691, true)
