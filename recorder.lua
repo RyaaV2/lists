@@ -696,7 +696,14 @@ return function(ctx)
         end
     end
 
-    local RecorderTab = Window:Tab({Title = "Recorder", Icon = "camera"}) do
+    local RecorderTab =
+        ctx.Tab
+        or Window:Tab({
+            Title = "Recorder",
+            Icon = "camera"
+        })
+
+    do
         local RecorderOutput =
             RecorderTab:Label({
                 Title = "RECORDER:",
