@@ -1,12 +1,12 @@
 -- Premium Currency Farm configuration.
--- Coins uses the duplicated Fallen Late route under currency/premium/.
+-- Coins reuses the shared Fallen Late route.
 
 return {
     Coins = {
         ComingSoon = false,
         Description = "Better rewards if modifiers owned",
         RouteKey = "PremiumCurrency.Coins",
-        RouteConfigPath = "strategies/currency/premium/fallen_late/config.lua",
+        RouteConfigPath = "strategies/fallen/late/config.lua",
         GameOverAction = "Rematch",
 
         SupportedModifiersTrials = {
