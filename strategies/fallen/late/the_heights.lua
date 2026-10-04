@@ -20,8 +20,10 @@ TDS:GameInfo("The Heights", {
     "Fog"
 })
 
-TDS:VoteSkip()
-
+TDS:VoteSkip(1,10)
+TDS:VoteSkip(13,30)
+TDS:VoteSkip(32,34)
+TDS:VoteSkip(37,39)
 TDS:Mercenary(140, 1)
 
 TDS:Place("Trapper", -3.240005016326904, 0.499997019767761, 5.410642623901367, true)
