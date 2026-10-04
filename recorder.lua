@@ -23,6 +23,7 @@ return function(ctx)
     local has_hook = type(hookmetamethod) == "function"
     local current_record_file = nil
     local RECORD_FOLDER = "AutoStrategy"
+    local LOBBY_PLACE_ID = 3260590327
 
     local function sanitize_mode_name(mode_name)
         mode_name = tostring(mode_name or "Unknown")
@@ -754,6 +755,14 @@ return function(ctx)
             Desc = "",
             Callback = function()
                 Recorder:Clear()
+
+                if game.PlaceId == LOBBY_PLACE_ID
+                    or game_state == "LOBBY" then
+
+                    Globals.record_strat = false
+                    Recorder:Log("Recorder only works in-game.")
+                    return
+                end
 
                 if not has_hook then
                     Recorder:Log("\nYour executor is not supported for recording and is \nonly meant for replaying strats.")
