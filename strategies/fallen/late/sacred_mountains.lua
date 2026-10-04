@@ -20,8 +20,10 @@ TDS:GameInfo("Sacred Mountains", {
     "Fog"
 })
 
-TDS:VoteSkip()
-
+TDS:VoteSkip(1,10)
+TDS:VoteSkip(13,30)
+TDS:VoteSkip(32,34)
+TDS:VoteSkip(37,39)
 TDS:Mercenary(140, 1)
 
 TDS:Place("Trapper", -13.292556762695312, 0.400015711784363, -14.377884864807129, true)
