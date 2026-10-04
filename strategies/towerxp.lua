@@ -28,6 +28,8 @@ return function(TDS, selectedTower)
 
         TDS:Place("Scout", -3.6180145740509033, 0.025390289723873138, -9.7833690643310547, true)
         TDS:Place("Shotgunner", -3.6180145740509033, 0.025390289723873138, -9.7833690643310547, true)
+        TDS:WaitForWave(22)
+        TDS:Sell(1)
         TDS:Place("Minigunner", -3.6180145740509033, 0.025390289723873138, -9.7833690643310547, true)
 
         return true
