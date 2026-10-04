@@ -17,18 +17,18 @@ return function(TDS, selectedTower)
         TDS:Ready()
         TDS:UpgradeTimes(1, 3)
 
-        TDS:Place("Crook Boss", -1.002932071685791, 0.66132575273513794, -22.218265533447266, true)
+        TDS:Place("Crook Boss", -3.6180145740509033, 0.025390289723873138, -9.7833690643310547, true)
         TDS:UpgradeTimes(2, 2)
 
-        TDS:Place("Crook Boss", -1.002932071685791, 0.66132575273513794, -22.218265533447266, true)
+        TDS:Place("Crook Boss", -3.6180145740509033, 0.025390289723873138, -9.7833690643310547, true)
         TDS:UpgradeTimes(3, 2)
 
-        TDS:Place("Crook Boss", -1.002932071685791, 0.66132575273513794, -22.218265533447266, true)
+        TDS:Place("Crook Boss", -3.6180145740509033, 0.025390289723873138, -9.7833690643310547, true)
         TDS:UpgradeTimes(4, 2)
 
-        TDS:Place("Scout", -1.002932071685791, 0.66132575273513794, -22.218265533447266, true)
-        TDS:Place("Shotgunner", -1.002932071685791, 0.66132575273513794, -22.218265533447266, true)
-        TDS:Place("Minigunner", -1.002932071685791, 0.66132575273513794, -22.218265533447266, true)
+        TDS:Place("Scout", -3.6180145740509033, 0.025390289723873138, -9.7833690643310547, true)
+        TDS:Place("Shotgunner", -3.6180145740509033, 0.025390289723873138, -9.7833690643310547, true)
+        TDS:Place("Minigunner", -3.6180145740509033, 0.025390289723873138, -9.7833690643310547, true)
 
         return true
     end
@@ -55,16 +55,16 @@ return function(TDS, selectedTower)
     TDS:Ready()
     TDS:UpgradeTimes(1, 3)
 
-    TDS:Place("Crook Boss", -1.002932071685791, 0.66132575273513794, -22.218265533447266, true)
+    TDS:Place("Crook Boss", -3.6180145740509033, 0.025390289723873138, -9.7833690643310547, true)
     TDS:UpgradeTimes(2, 2)
 
-    TDS:Place("Crook Boss", -1.002932071685791, 0.66132575273513794, -22.218265533447266, true)
+    TDS:Place("Crook Boss", -3.6180145740509033, 0.025390289723873138, -9.7833690643310547, true)
     TDS:UpgradeTimes(3, 2)
 
     TDS:WaitForWave(20)
     TDS:Sell(1)
 
-    TDS:Place(loadoutTower, -1.002932071685791, 0.66132575273513794, -22.218265533447266, true)
+    TDS:Place(loadoutTower, -3.6180145740509033, 0.025390289723873138, -9.7833690643310547, true)
 
     return true
 end
