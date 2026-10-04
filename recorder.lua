@@ -705,6 +705,14 @@ return function(ctx)
         })
 
     do
+        if RecorderTab.SetStatus then
+            RecorderTab:SetStatus(
+                (game.PlaceId == LOBBY_PLACE_ID or game_state == "LOBBY")
+                and "Recorder only works in-game."
+                or "Ready"
+            )
+        end
+
         local RecorderOutput =
             RecorderTab:Label({
                 Title = "RECORDER:",
@@ -760,7 +768,11 @@ return function(ctx)
                     or game_state == "LOBBY" then
 
                     Globals.record_strat = false
-                    Recorder:Log("Recorder only works in-game.")
+
+                    if RecorderTab.SetStatus then
+                        RecorderTab:SetStatus("Recorder only works in-game.")
+                    end
+
                     return
                 end
 
@@ -795,6 +807,10 @@ return function(ctx)
                 end
 
                 Recorder:Log("Recorder started")
+
+                if RecorderTab.SetStatus then
+                    RecorderTab:SetStatus("Recording...")
+                end
 
                 local current_mode = "Unknown"
                 local current_map = "Unknown"
@@ -911,6 +927,15 @@ TDS:Mode("%s")%s
             Desc = "",
             Callback = function()
                 Globals.record_strat = false
+
+                if RecorderTab.SetStatus then
+                    RecorderTab:SetStatus(
+                        (game.PlaceId == LOBBY_PLACE_ID or game_state == "LOBBY")
+                        and "Recorder only works in-game."
+                        or "Saved"
+                    )
+                end
+
                 if has_hook then
                     Recorder:Clear()
                     Recorder:Log(
