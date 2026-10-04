@@ -1,6 +1,5 @@
--- Late-game Fallen strategy route.
--- The strategy files in this folder are temporary copies of Starter.
--- Replace them with the new Fallen Late strategy files when ready.
+-- Shared late-game Fallen strategy route.
+-- Used by Auto Max, Premium Coins, and Timescale Ticket fallback.
 
 return {
     MatchTimeoutMinutes = 20,
@@ -17,7 +16,7 @@ return {
     Priority = {
         "Lay By",
         "Dead Ahead",
-        "Construction CCrazy",
+        "Construction Crazy",
         "The Heights",
         "Retro The Heights",
         "Forgetten Docks",
@@ -27,7 +26,7 @@ return {
     Maps = {
         ["Dead Ahead"] = "strategies/fallen/late/dead_ahead.lua",
         ["Lay By"] = "strategies/fallen/late/lay_by.lua",
-        ["Construction CCrazy"] = "strategies/fallen/late/construction_crazy.lua",
+        ["Construction Crazy"] = "strategies/fallen/late/construction_crazy.lua",
         ["Winter Abyss"] = "strategies/fallen/late/winter_abyss.lua",
         ["The Heights"] = "strategies/fallen/late/the_heights.lua",
         ["Retro The Heights"] = "strategies/fallen/late/retro_the_heights.lua",
