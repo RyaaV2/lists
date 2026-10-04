@@ -19,7 +19,7 @@ return {
         "Construction Crazy",
         "The Heights",
         "Retro The Heights",
-        "Forgetten Dock",
+        "Forgetten Docks",
         "Winter Abyss",
         "Sacred Mountains"
     },
@@ -30,7 +30,7 @@ return {
         ["Winter Abyss"] = "strategies/fallen/late/winter_abyss.lua",
         ["The Heights"] = "strategies/fallen/late/the_heights.lua",
         ["Retro The Heights"] = "strategies/fallen/late/retro_the_heights.lua",
-        ["Forgetten Dock"] = "strategies/fallen/late/forgetten_docks.lua",
+        ["Forgetten Docks"] = "strategies/fallen/late/forgetten_docks.lua",
         ["Sacred Mountains"] = "strategies/fallen/late/sacred_mountains.lua"
     }
 }
