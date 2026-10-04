@@ -1,4 +1,3 @@
-```
 local Globals = getgenv()
 
 return function(ctx)
@@ -926,4 +925,3 @@ TDS:Mode("%s")%s
         end
     end
 end
-```
