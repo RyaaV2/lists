@@ -20,8 +20,10 @@ TDS:GameInfo("Construction Crazy", {
     "Fog"
 })
 
-TDS:VoteSkip()
-
+TDS:VoteSkip(1,10)
+TDS:VoteSkip(13,30)
+TDS:VoteSkip(32,34)
+TDS:VoteSkip(37,39)
 TDS:Mercenary(140, 1)
 
 TDS:Place("Trapper", 5.974642753601074, 0.505009293556213, -25.299703598022461, true)
