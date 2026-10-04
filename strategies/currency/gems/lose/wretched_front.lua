@@ -1,4 +1,4 @@
-TDS:Loadout("Pyromancer", "Scout", "Shotgunner", "Crook Boss", "Minigunner")
+TDS:Loadout("Pyromancer", "Crook Boss", "Shotgunner", "Scout", "Minigunner")
 
 TDS:Mode("Hardcore")
 TDS:GameInfo("Wretched Front")
