@@ -20,8 +20,10 @@ TDS:GameInfo("Winter Abyss", {
     "Fog"
 })
 
-TDS:VoteSkip()
-
+TDS:VoteSkip(1,10)
+TDS:VoteSkip(13,30)
+TDS:VoteSkip(32,34)
+TDS:VoteSkip(37,39)
 TDS:Mercenary(140, 1)
 
 TDS:Place("Trapper", -10.301908493041992, 0.989994883537292, 39.803794860839844, true)
