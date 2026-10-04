@@ -20,8 +20,10 @@ TDS:GameInfo("Forgetten Docks", {
     "Fog"
 })
 
-TDS:VoteSkip()
-
+TDS:VoteSkip(1,10)
+TDS:VoteSkip(13,30)
+TDS:VoteSkip(32,34)
+TDS:VoteSkip(37,39)
 TDS:Mercenary(140, 1)
 
 TDS:Place("Trapper", -22.387372970581055, 1.024996638298035, -18.186660766601562, true)
