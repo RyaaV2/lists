@@ -697,10 +697,50 @@ return function(ctx)
     end
 
     local RecorderTab = Window:Tab({Title = "Recorder", Icon = "camera"}) do
-        Recorder = RecorderTab:CreateLogger({
-            Title = "RECORDER:",
-            Size = UDim2.new(0, 330, 0, 230)
-        })
+        local RecorderOutput =
+            RecorderTab:Label({
+                Title = "RECORDER:",
+                Desc = ""
+            })
+
+        local RecorderLines = {}
+
+        Recorder = {}
+
+        function Recorder:Clear()
+            table.clear(RecorderLines)
+
+            if RecorderOutput then
+                if RecorderOutput.SetDesc then
+                    RecorderOutput:SetDesc("")
+                elseif RecorderOutput.Set then
+                    RecorderOutput:Set("")
+                end
+            end
+        end
+
+        function Recorder:Log(message)
+            RecorderLines[#RecorderLines + 1] =
+                tostring(message or "")
+
+            while #RecorderLines > 12 do
+                table.remove(RecorderLines, 1)
+            end
+
+            local output =
+                table.concat(
+                    RecorderLines,
+                    "\n"
+                )
+
+            if RecorderOutput then
+                if RecorderOutput.SetDesc then
+                    RecorderOutput:SetDesc(output)
+                elseif RecorderOutput.Set then
+                    RecorderOutput:Set(output)
+                end
+            end
+        end
 
         RecorderTab:Button({
             Title = "START",
