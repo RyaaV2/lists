@@ -18,8 +18,8 @@ return {
         "Lay By",
         "Dead Ahead",
         "Construction Crazy",
-        "The Heights",
-        "Retro The Heights",
+        "The Height",
+        "Retro The Height",
         "Winter Abyss",
         "Sacred Mountains"
     },
@@ -28,8 +28,8 @@ return {
         ["Lay By"] = "strategies/currency/premium/fallen_late/lay_by.lua",
         ["Construction Crazy"] = "strategies/currency/premium/fallen_late/construction_crazy.lua",
         ["Winter Abyss"] = "strategies/currency/premium/fallen_late/winter_abyss.lua",
-        ["The Heights"] = "strategies/currency/premium/fallen_late/the_heights.lua",
-        ["Retro The Heights"] = "strategies/currency/premium/fallen_late/retro_the_heights.lua",
+        ["The Height"] = "strategies/currency/premium/fallen_late/the_heights.lua",
+        ["Retro The Height"] = "strategies/currency/premium/fallen_late/retro_the_heights.lua",
         ["Forgetten Doc"] = "strategies/currency/premium/fallen_late/forgetten_docks.lua",
         ["Sacred Mountains"] = "strategies/currency/premium/fallen_late/sacred_mountains.lua"
     }
