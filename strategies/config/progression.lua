@@ -57,6 +57,53 @@ return {
     AutoMaxAccount = {
         TowerCoinStep = 10000,
 
+        Trial = {
+            Enabled = true,
+            TrialCurrency = "Timescale Ticket",
+
+            RequiredTowers = {
+                "Militant"
+            },
+
+            SupportedTrials = {
+                Exploding = "ExplodingEnemies",
+                Hidden = "HiddenEnemies",
+                Quarantine = "Quarantine",
+                Fog = "Fog",
+                Limitation = "Limitation"
+            },
+
+            Rotation = {
+                Duration = 3 * 60 * 60,
+                AnchorTime = DateTime.fromUniversalTime(
+                    2026,
+                    9,
+                    29,
+                    12,
+                    0,
+                    0
+                ).UnixTimestamp,
+
+                Trials = {
+                    "Exploding",
+                    "Inflation",
+                    "Committed",
+                    "Hidden",
+                    "Broken",
+                    "Healthy",
+                    "Speedies",
+                    "Glass",
+                    "Quarantine",
+                    "Fog",
+                    "Limitation",
+                    "Flying",
+                    "Jailed"
+                }
+            },
+
+            FallbackRoute = "LateGrind"
+        },
+
         GrindRules = {
             {
                 MaxLevel = 14,
