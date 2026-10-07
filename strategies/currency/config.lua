@@ -104,7 +104,7 @@ return {
             RequiredTowers = {
                 "Boomerang",
                 "Farm",
-                "Shotgunner
+                "Shotgunner"
             },
 
             Priority = {
