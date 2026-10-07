@@ -70,8 +70,7 @@ return {
                 Hidden = "HiddenEnemies",
                 Quarantine = "Quarantine",
                 Fog = "Fog",
-                Limitation = "Limitation",
-                Jailed = "JailedTowers"
+                Limitation = "Limitation"
             },
 
             Strategies = {
@@ -79,8 +78,7 @@ return {
                 Hidden = "strategies/currency/premium/timescale_ticket/hidden.lua",
                 Quarantine = "strategies/currency/premium/timescale_ticket/quarantine.lua",
                 Fog = "strategies/currency/premium/timescale_ticket/fog.lua",
-                Limitation = "strategies/currency/premium/timescale_ticket/limitation.lua",
-                Jailed = "https://raw.githubusercontent.com/RyaaV2/lists/refs/heads/main/strategies/currency/premium/timescale_ticket/jailed.lua"
+                Limitation = "strategies/currency/premium/timescale_ticket/limitation.lua"
             },
 
             Rotation = {
