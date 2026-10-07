@@ -26,12 +26,12 @@ TDS:Upgrade(6)
 
 TDS:VoteSkip(7)
 
-TDS:WaitForWave(9)
+TDS:VoteSkip(9)
+TDS:VoteSkip(10)
+TDS:WaitForWave(10)
 TDS:Sell(1)
 TDS:Sell(2)
 TDS:Sell(4)
-TDS:VoteSkip(9)
-TDS:VoteSkip(10)
 
 TDS:Place("Gatling Gun", 122.43853759765625, 6.601999282836914, 22.33414077758789)
 TDS:Place("Militant", 136.02613830566406, 2.0749998092651367, -45.326725006103516)
