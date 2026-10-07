@@ -73,6 +73,14 @@ return {
                 Limitation = "Limitation"
             },
 
+            Strategies = {
+                Exploding = "strategies/currency/premium/timescale_ticket/exploding.lua",
+                Hidden = "strategies/currency/premium/timescale_ticket/hidden.lua",
+                Quarantine = "strategies/currency/premium/timescale_ticket/quarantine.lua",
+                Fog = "strategies/currency/premium/timescale_ticket/fog.lua",
+                Limitation = "strategies/currency/premium/timescale_ticket/limitation.lua"
+            },
+
             Rotation = {
                 Duration = 3 * 60 * 60,
                 AnchorTime = DateTime.fromUniversalTime(
