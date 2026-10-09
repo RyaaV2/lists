@@ -8,7 +8,7 @@ local AutoCollect = {}
 local running = false
 
 local function IsLobby()
-    return PlayerGui:FindFirstChild("ReactLobbyHud") ~= nil
+    return game.PlaceId == 3260590327
 end
 
 function AutoCollect.IsRunning()
@@ -29,13 +29,22 @@ function AutoCollect.Start()
                 local dailySpin = network:WaitForChild("DailySpin", 5)
                 local redeemSpin = dailySpin and dailySpin:WaitForChild("RF:RedeemSpin", 5)
                 if redeemSpin then
-                    local ticketCount = spinTickets.Value
-                    for _ = 1, ticketCount do
-                        if not Globals.ClaimRewards then
+                    local maxAttempts = math.max(0, math.floor(tonumber(spinTickets.Value) or 0))
+                    for _ = 1, maxAttempts do
+                        if not Globals.ClaimRewards or not IsLobby() or spinTickets.Value <= 0 then
                             break
                         end
-                        redeemSpin:InvokeServer()
+                        local before = spinTickets.Value
+                        local ok = pcall(function()
+                            redeemSpin:InvokeServer()
+                        end)
+                        if not ok then
+                            break
+                        end
                         task.wait(0.2)
+                        if spinTickets.Value >= before then
+                            break
+                        end
                     end
                 end
             end
