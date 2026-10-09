@@ -22,13 +22,13 @@ return {
             Priority = {
                 "Lay By",
                 "Dead Ahead",
-                "Mason Arch",
+                "ason Arch",
                 "Black Spot Exchange",
                 "Construction Crazy",
                 "Forgetten Docks"
             },
             Maps = {
-                ["Mason Arch"] =
+                ["ason Arch"] =
                     "strategies/currency/coins/win/mason_arch.lua",
 
                 ["Dead Ahead"] =
