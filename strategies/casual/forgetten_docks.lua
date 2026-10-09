@@ -7,9 +7,9 @@ TDS:GameInfo("Forgetten Docks", {})
 TDS:VoteSkip()
 
 TDS:Place("Assassin", -21.944828033447, 1.0249927043915, -26.497314453125, true)
+TDS:Ready()
 TDS:Place("Assassin", -21.944828033447, 1.0249927043915, -26.497314453125, true)
 
-TDS:Ready()
 
 TDS:Place("Assassin", -21.944828033447, 1.0249927043915, -26.497314453125, true)
 TDS:Place("Assassin", -21.944828033447, 1.0249927043915, -26.497314453125, true)
