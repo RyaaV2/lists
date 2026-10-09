@@ -68,13 +68,16 @@ end
 local PathfindingService = game:GetService("PathfindingService")
 local pickupsRunning = false
 
+local PathfindingService = game:GetService("PathfindingService")
+local pickupsRunning = false
+
 local function IsVoidCharm(obj)
     return math.abs(obj.Position.Y) > 999999
 end
 
 local function GetRoot()
-    local character = Player.Character
-    return character and character:FindFirstChild("HumanoidRootPart")
+    local char = Player.Character
+    return char and char:FindFirstChild("HumanoidRootPart")
 end
 
 function AutoCollect.IsPickupsRunning()
@@ -82,25 +85,25 @@ function AutoCollect.IsPickupsRunning()
 end
 
 function AutoCollect.StartPickups()
-    if pickupsRunning or not Globals.AutoPickups then
-        return false
-    end
+    if pickupsRunning or not Globals.AutoPickups then return end
     pickupsRunning = true
+
     task.spawn(function()
         while Globals.AutoPickups do
             local folder = workspace:FindFirstChild("Pickups")
             local hrp = GetRoot()
+
             if folder and hrp then
-                local character = hrp.Parent
-                local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-                local function MoveToPos(targetPos)
+                local char = hrp.Parent
+                local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+                local function MoveToPos(TargetPos)
                     if not humanoid then
                         return false
                     end
                     local function MoveDirect(pos)
                         humanoid:MoveTo(pos)
-                        local startedAt = os.clock()
-                        while os.clock() - startedAt < 2 do
+                        local StartT = os.clock()
+                        while os.clock() - StartT < 2 do
                             if not Globals.AutoPickups then
                                 return false
                             end
@@ -119,66 +122,73 @@ function AutoCollect.StartPickups()
                         AgentMaxSlope = 45
                     })
                     local ok = pcall(function()
-                        path:ComputeAsync(hrp.Position, targetPos)
+                        path:ComputeAsync(hrp.Position, TargetPos)
                     end)
                     if ok and path.Status == Enum.PathStatus.Success then
-                        local blockedConnection
-                        blockedConnection = path.Blocked:Connect(function()
-                            if blockedConnection then
-                                blockedConnection:Disconnect()
+                        local waypoints = path:GetWaypoints()
+                        local BlockedConn = nil
+                        BlockedConn = path.Blocked:Connect(function()
+                            if BlockedConn then
+                                BlockedConn:Disconnect()
                             end
                             if Globals.AutoPickups then
                                 task.spawn(function()
-                                    MoveToPos(targetPos)
+                                    MoveToPos(TargetPos)
                                 end)
                             end
                         end)
-                        for _, waypoint in ipairs(path:GetWaypoints()) do
+                        for _, wp in ipairs(waypoints) do
                             if not Globals.AutoPickups then
-                                if blockedConnection then
-                                    blockedConnection:Disconnect()
+                                if BlockedConn then
+                                    BlockedConn:Disconnect()
                                 end
                                 return false
                             end
-                            if waypoint.Action == Enum.PathWaypointAction.Jump then
+                            if wp.Action == Enum.PathWaypointAction.Jump then
                                 humanoid.Jump = true
                             end
-                            if not MoveDirect(waypoint.Position) then
-                                if blockedConnection then
-                                    blockedConnection:Disconnect()
+                            if not MoveDirect(wp.Position) then
+                                if BlockedConn then
+                                    BlockedConn:Disconnect()
                                 end
                                 return false
                             end
                         end
-                        if blockedConnection then
-                            blockedConnection:Disconnect()
+                        if BlockedConn then
+                            BlockedConn:Disconnect()
                         end
                         return true
                     end
-                    return MoveDirect(targetPos)
+                    return MoveDirect(TargetPos)
                 end
+
                 for _, item in ipairs(folder:GetChildren()) do
-                    if not Globals.AutoPickups then
-                        break
-                    end
-                    if item:IsA("MeshPart")
-                        and (item.Name == "Bunz" or item.Name == "Lorebook" or item.Name == "SnowCharm" or item.Name == "Fragment")
-                        and not IsVoidCharm(item) then
-                        if Globals.PickupMethod == "Instant" then
-                            hrp.CFrame = item.CFrame * CFrame.new(0, 3, 0)
-                            task.wait(0.2)
-                        else
-                            MoveToPos(item.Position + Vector3.new(0, 3, 0))
-                            task.wait(0.2)
+                    if not Globals.AutoPickups then break end
+
+                    if item:IsA("MeshPart") and (item.Name == "Bunz" or item.Name == "Lorebook" or item.Name == "SnowCharm" or item.Name == "Fragment") then
+                        if not IsVoidCharm(item) then
+                            if Globals.PickupMethod == "Instant" then
+                                hrp.CFrame = item.CFrame * CFrame.new(0, 3, 0)
+                                task.wait(0.2)
+                                task.wait(0.3)
+                            else
+                                local TargetPos = item.Position + Vector3.new(0, 3, 0)
+                                MoveToPos(TargetPos)
+                                task.wait(0.2)
+                                task.wait(0.3)
+                            end
                         end
                     end
                 end
             end
-            task.wait(0.5)
+
+            task.wait(1)
         end
+
         pickupsRunning = false
     end)
     return true
 end
+
 
 return AutoCollect
