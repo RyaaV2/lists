@@ -162,7 +162,7 @@ function AutoCollect.StartPickups()
                         break
                     end
                     if item:IsA("MeshPart")
-                        and (item.Name == "Bunz" or item.Name == "Lorebook" or item.Name == "SnowCharm")
+                        and (item.Name == "Bunz" or item.Name == "Lorebook" or item.Name == "SnowCharm" or item.Name == "Fragment")
                         and not IsVoidCharm(item) then
                         if Globals.PickupMethod == "Instant" then
                             hrp.CFrame = item.CFrame * CFrame.new(0, 3, 0)
