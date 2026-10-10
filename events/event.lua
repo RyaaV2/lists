@@ -94,9 +94,21 @@ local function EndMatchWatch(session)
                     local ok, result = QueueNight1Hard()
                     if ok and result ~= false then
                         MatchQueued = true
-                        Running = false
-                        SkipGeneration += 1
-                        break
+                        -- An InvokeServer call may return without actually
+                        -- starting matchmaking. Verify the match transitions.
+                        local originalJob = game.JobId
+                        local deadline = os.clock() + 8
+                        repeat
+                            task.wait(0.5)
+                            if not IsGameOver()
+                                or game.JobId ~= originalJob
+                                or game.PlaceId == LOBBY_PLACE_ID then
+                                Running = false
+                                SkipGeneration += 1
+                                return
+                            end
+                        until os.clock() >= deadline
+                        MatchQueued = false
                     end
                 end
 
