@@ -1,30 +1,190 @@
 local Event = {}
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Remote = ReplicatedStorage:WaitForChild("RemoteFunction")
+local LOBBY_PLACE_ID = 3260590327
 
 local Requirements = {
     ["Night 1"] = {
         Easy = {},
-        Hard = {},
+        Hard = {"Boomerang", "Militant", "Commander", "Turret"},
     },
 }
 
+local Running = false
+local SkipGeneration = 0
+local StrategyStarted = false
+
 function Event.GetRequirements(night, mode)
-    local nightConfig = Requirements[night]
-    if not nightConfig then
+    local config = Requirements[night]
+    if not config then
         return "Coming soon"
     end
-    local towers = nightConfig[mode]
-    if type(towers) ~= "table" or #towers == 0 then
+    local towers = config[mode]
+    if not towers or #towers == 0 then
         return "Not configured yet"
     end
     return towers
 end
 
-function Event.Start(night, mode)
-    -- No strategy has been configured yet. Do not report success.
-    return false
+local function StartSkipWatcher()
+    SkipGeneration += 1
+    local generation = SkipGeneration
+    task.spawn(function()
+        local gui = Players.LocalPlayer:WaitForChild("PlayerGui")
+        local lastVote = 0
+        while Running and SkipGeneration == generation do
+            local voteGui = gui:FindFirstChild("ReactOverridesVote")
+            local frame = voteGui and voteGui:FindFirstChild("Frame")
+            local votes = frame and frame:FindFirstChild("votes")
+            local button = votes and votes:FindFirstChild("button")
+            local label = button and button:FindFirstChild("text")
+            local visible = voteGui and voteGui.Enabled
+                and frame and frame.Visible
+                and votes and votes.Visible
+                and button and button.Visible
+            local isSkip = label and label:IsA("TextLabel")
+                and label.Text:lower():find("hold to skip", 1, true)
+            if visible and isSkip and os.clock() - lastVote >= 3 then
+                lastVote = os.clock()
+                task.spawn(function()
+                    pcall(function()
+                        Remote:InvokeServer("Voting", "Skip")
+                    end)
+                end)
+            end
+            task.wait(0.1)
+        end
+    end)
+end
+
+local function RunNight1Hard(TDS)
+    TDS:Loadout("Boomerang", "Militant", "Commander", "Turret", "None")
+
+    TDS:Place("Boomerang", -8.55457878112793, 2.0652565956115723, 207.20245361328125, true)
+    TDS:Place("Boomerang", -8.55457878112793, 2.0652565956115723, 207.20245361328125, true)
+    TDS:Ready()
+
+    -- Wave 1
+    TDS:VoteSkip(1)
+    TDS:Upgrade(1)
+
+    -- Wave 2
+    TDS:VoteSkip(2)
+
+    -- Wave 3
+    TDS:Upgrade(2)
+    TDS:VoteSkip(3)
+
+    -- Wave 4
+    TDS:VoteSkip(4)
+
+    -- Wave 5
+    TDS:Place("Militant", -7.364101409912109, 2.059061050415039, 207.34213256835938, true)
+    TDS:Place("Militant", -8.865612030029297, 2.050936222076416, 208.03802490234375, true)
+    TDS:Place("Militant", -10.657787322998047, 2.0503177642822266, 207.81719970703125, true)
+    TDS:Upgrade(5)
+    TDS:Upgrade(4)
+    TDS:Upgrade(3)
+    TDS:Place("Militant", -10.332830429077148, 2.0369067192077637, 207.84109497070312, true)
+    TDS:Upgrade(6)
+    TDS:Upgrade(6)
+
+    -- Wave 6
+    TDS:Upgrade(5)
+    TDS:Upgrade(4)
+    TDS:Place("Commander", -8.37071418762207, 2.0034849643707275, 201.2025146484375)
+
+    -- Wave 7
+    TDS:Upgrade(2)
+    TDS:Upgrade(7)
+    TDS:Upgrade(3)
+
+    -- Wave 8
+    TDS:Upgrade(2)
+    TDS:VoteSkip(8)
+
+    -- Wave 9
+    TDS:Upgrade(1)
+    TDS:Upgrade(1)
+    TDS:Upgrade(3)
+    TDS:Upgrade(6)
+
+    -- Wave 10
+    TDS:Upgrade(4)
+
+    -- Wave 11
+    TDS:Place("Turret", -8.82754898071289, 2.0518181324005127, 205.82386779785156, true)
+
+    -- Wave 12
+    TDS:Upgrade(8)
+
+    -- Wave 13
+    TDS:Upgrade(8)
+    TDS:Upgrade(7)
+
+    -- Wave 14
+    TDS:Place("Commander", -11.818249702453613, 2.001413345336914, 201.78997802734375, true)
+    TDS:Place("Commander", -12.282033920288086, 2.0866596698760986, 202.96209716796875, true)
+    TDS:Upgrade(9)
+    TDS:Upgrade(10)
+    TDS:Upgrade(10)
+    TDS:Upgrade(9)
+    TDS:Place("Turret", -10.076197624206543, 2.091841459274292, 205.66558837890625, true)
+
+    -- Wave 15
+    TDS:Upgrade(11)
+    TDS:Upgrade(11)
+    TDS:Upgrade(9)
+    TDS:Place("Turret", -7.479306221008301, 2.038647413253784, 204.6977081298828, true)
+    TDS:Upgrade(12)
+    TDS:Upgrade(12)
+    TDS:Upgrade(8)
+    TDS:Upgrade(11)
+    TDS:Upgrade(12)
+    TDS:VoteSkip(15)
+end
+
+function Event.Start(night, mode, TDS)
+    if night ~= "Night 1" or mode ~= "Hard" then
+        return false
+    end
+    if Running then
+        return false
+    end
+
+    if game.PlaceId == LOBBY_PLACE_ID then
+        local ok, result = pcall(function()
+            return Remote:InvokeServer("Multiplayer", "v2:start", {
+                difficulty = "Act1",
+                night = 1,
+                count = 1,
+                mode = "halloween2026",
+            })
+        end)
+        return ok and result ~= false
+    end
+
+    TDS = TDS or _G.TDS or (getgenv and getgenv().TDS)
+    if type(TDS) ~= "table" or StrategyStarted then
+        return false
+    end
+
+    Running = true
+    StrategyStarted = true
+    StartSkipWatcher()
+    local ok, err = pcall(RunNight1Hard, TDS)
+    if not ok then
+        warn("[Auto Event] Night 1 Hard strategy error:", err)
+        Event.Stop()
+        return false
+    end
+    return true
 end
 
 function Event.Stop()
+    Running = false
+    SkipGeneration += 1
     return true
 end
 
