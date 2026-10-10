@@ -237,15 +237,9 @@ function Event.Start(night, mode, TDS)
         return false
     end
 
-    TDS = TDS or _G.TDS or (getgenv and getgenv().TDS)
-    if type(TDS) ~= "table" then
-        local ok, api = pcall(function()
-            return loadstring(game:HttpGet(
-                "https://raw.githubusercontent.com/RyaaV2/lists/refs/heads/main/apis/tds.lua"
-            ))()
-        end)
-        if ok then TDS = api end
-    end
+    -- Use the API instance installed by the main Auto Progress backend.
+    -- apis/tds.lua returns a context installer, not a standalone TDS table.
+    TDS = TDS or shared.TDSTable or shared["TDS_Table"]
     if type(TDS) ~= "table" or StrategyStarted then
         return false
     end
