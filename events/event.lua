@@ -23,6 +23,57 @@ local function IsGameOver()
     return rep and rep:GetAttribute("GameOver") == true or false
 end
 
+local function EquipNight1EasyLobbyLoadout()
+    local stateReplicators = ReplicatedStorage:WaitForChild("StateReplicators", 10)
+    if not stateReplicators then return false end
+
+    local playerReplicator
+    local deadline = os.clock() + 10
+    repeat
+        for _, rep in ipairs(stateReplicators:GetChildren()) do
+            if rep.Name == "PlayerReplicator"
+                and tonumber(rep:GetAttribute("UserId")) == Players.LocalPlayer.UserId then
+                playerReplicator = rep
+                break
+            end
+        end
+        if not playerReplicator then task.wait(0.2) end
+    until playerReplicator or os.clock() >= deadline
+    if not playerReplicator then return false end
+
+    local equipped = {}
+    local raw = playerReplicator:GetAttribute("EquippedTowers")
+    if type(raw) == "string" then
+        local json = raw:match("%[.*%]")
+        if json then
+            pcall(function()
+                equipped = game:GetService("HttpService"):JSONDecode(json)
+            end)
+        end
+    end
+
+    local remoteEvent = ReplicatedStorage:WaitForChild("RemoteEvent")
+    for _, tower in ipairs(equipped) do
+        if tower and tower ~= "" and tower ~= "None" then
+            remoteEvent:FireServer("Inventory", "Unequip", "Tower", tower)
+            task.wait(0.3)
+        end
+    end
+
+    task.wait(0.2)
+    for _, tower in ipairs({"Boomerang", "Militant"}) do
+        remoteEvent:FireServer("Inventory", "Equip", "Tower", tower)
+        task.wait(0.3)
+    end
+
+    task.wait(0.2)
+    local manager = ReplicatedStorage:WaitForChild("Network"):WaitForChild("PlayerManager")
+    manager["RE:SelectLoadout"]:FireServer()
+    task.wait(0.2)
+    manager["RE:UserLoadout"]:FireServer()
+    return true
+end
+
 local function QueueNight1(mode)
     return pcall(function()
         return Remote:InvokeServer("Multiplayer", "v2:start", {
@@ -337,6 +388,14 @@ function Event.Start(night, mode, TDS)
     end
 
     if game.PlaceId == LOBBY_PLACE_ID then
+        if mode == "Easy" then
+            local ok, result = pcall(EquipNight1EasyLobbyLoadout)
+            if not ok or result ~= true then
+                warn("[Auto Event] Failed to prepare Easy lobby loadout")
+                return false
+            end
+        end
+
         local ok, result = QueueNight1(mode)
         if ok and result ~= false then
             MatchQueued = true
