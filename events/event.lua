@@ -25,25 +25,84 @@ local function IsGameOver()
     return rep and rep:GetAttribute("GameOver") == true or false
 end
 
+local function QueueNight1Hard()
+    return pcall(function()
+        return Remote:InvokeServer("Multiplayer", "v2:start", {
+            difficulty = "Act1",
+            night = 1,
+            count = 1,
+            mode = "halloween2026",
+        })
+    end)
+end
+
+local function ReturnToLobby()
+    local network = ReplicatedStorage:FindFirstChild("Network")
+    local teleport = network and network:FindFirstChild("Teleport")
+    local back = teleport and teleport:FindFirstChild("RE:backToLobby")
+
+    if back then
+        pcall(function()
+            back:FireServer()
+        end)
+    end
+
+    -- The back-to-lobby remote can be absent or fail to teleport.
+    task.wait(5)
+    if game.PlaceId ~= LOBBY_PLACE_ID then
+        pcall(function()
+            game:GetService("TeleportService"):Teleport(
+                LOBBY_PLACE_ID,
+                Players.LocalPlayer
+            )
+        end)
+    end
+end
+
 local function EndMatchWatch(session)
     task.spawn(function()
         while Running and ModuleSession == session do
             if IsGameOver() then
+                -- Give the match-complete webhook time to record rewards.
+                task.wait(3.5)
+                if not Running or ModuleSession ~= session then
+                    break
+                end
+
                 local globals = getgenv()
-                if globals.__RyaAutoFarmTransitionTarget
-                    and globals.__RyaAutoFarmTransitionTarget ~= "Event" then
+                local pending = tostring(
+                    globals.__RyaAutoFarmTransitionTarget
+                    or globals.PendingAutoFarmTarget
+                    or ""
+                )
+
+                if pending ~= "" and pending ~= "Event" then
                     if globals.__RyaApplyAutoFarmTransition then
                         globals.__RyaApplyAutoFarmTransition()
                     end
+                    Running = false
+                    SkipGeneration += 1
+                    ReturnToLobby()
+                    break
                 end
+
+                -- Matchmaking is attempted immediately after game over.
+                -- If the server does not accept it, lobby startup retries.
+                if globals.AutoEventEnabled == true
+                    and tostring(globals.EventNight or "Night 1") == "Night 1"
+                    and tostring(globals.EventMode or "Hard") == "Hard" then
+                    local ok, result = QueueNight1Hard()
+                    if ok and result ~= false then
+                        MatchQueued = true
+                        Running = false
+                        SkipGeneration += 1
+                        break
+                    end
+                end
+
                 Running = false
                 SkipGeneration += 1
-                local network = ReplicatedStorage:FindFirstChild("Network")
-                local teleport = network and network:FindFirstChild("Teleport")
-                local back = teleport and teleport:FindFirstChild("RE:backToLobby")
-                if back then
-                    pcall(function() back:FireServer() end)
-                end
+                ReturnToLobby()
                 break
             end
             task.wait(0.25)
@@ -222,14 +281,7 @@ function Event.Start(night, mode, TDS)
             return false
         end
 
-        local ok, result = pcall(function()
-            return Remote:InvokeServer("Multiplayer", "v2:start", {
-                difficulty = "Act1",
-                night = 1,
-                count = 1,
-                mode = "halloween2026",
-            })
-        end)
+        local ok, result = QueueNight1Hard()
         if ok and result ~= false then
             MatchQueued = true
             return true
