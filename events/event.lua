@@ -6,12 +6,10 @@ local LOBBY_PLACE_ID = 3260590327
 
 local Requirements = {
     ["Night 1"] = {
-        Easy = {},
+        Easy = {"Boomerang", "Militant"},
         Hard = {"Boomerang", "Militant", "Commander"},
     },
 }
-
-local REQUIRED_LEVEL = 50
 
 local Running = false
 local SkipGeneration = 0
@@ -25,10 +23,10 @@ local function IsGameOver()
     return rep and rep:GetAttribute("GameOver") == true or false
 end
 
-local function QueueNight1Hard()
+local function QueueNight1(mode)
     return pcall(function()
         return Remote:InvokeServer("Multiplayer", "v2:start", {
-            difficulty = "Act1",
+            difficulty = mode == "Easy" and "Act1Easy" or "Act1",
             night = 1,
             count = 1,
             mode = "halloween2026",
@@ -90,8 +88,8 @@ local function EndMatchWatch(session)
                 -- If the server does not accept it, lobby startup retries.
                 if globals.AutoEventEnabled == true
                     and tostring(globals.EventNight or "Night 1") == "Night 1"
-                    and tostring(globals.EventMode or "Hard") == "Hard" then
-                    local ok, result = QueueNight1Hard()
+                    then
+                    local ok, result = QueueNight1(tostring(globals.EventMode or "Hard"))
                     if ok and result ~= false then
                         MatchQueued = true
                         -- An InvokeServer call may return without actually
@@ -135,30 +133,7 @@ function Event.GetRequirements(night, mode)
 end
 
 function Event.GetRequiredLevel(night, mode)
-    if night == "Night 1" and mode == "Hard" then
-        return REQUIRED_LEVEL
-    end
     return nil
-end
-
-local function GetPlayerLevel()
-    local player = Players.LocalPlayer
-    local stats = shared.AutoProgressStats
-    if type(stats) == "table" and type(stats.GetLevel) == "function" then
-        local ok, value = pcall(stats.GetLevel)
-        if ok and tonumber(value) then
-            return tonumber(value)
-        end
-    end
-    local level = player:FindFirstChild("Level")
-    if not level then
-        local leaderstats = player:FindFirstChild("leaderstats")
-        level = leaderstats and leaderstats:FindFirstChild("Level")
-    end
-    if level and tonumber(level.Value) then
-        return tonumber(level.Value)
-    end
-    return tonumber(player:GetAttribute("Level"))
 end
 
 local function StartSkipWatcher()
@@ -190,6 +165,77 @@ local function StartSkipWatcher()
             task.wait(0.1)
         end
     end)
+end
+
+local function RunNight1Easy(TDS)
+    TDS:Loadout("Boomerang", "Militant", "None", "None", "None")
+
+    local playerManager = ReplicatedStorage:WaitForChild("Network"):WaitForChild("PlayerManager")
+    playerManager["RE:SelectLoadout"]:FireServer()
+    task.wait(0.2)
+    playerManager["RE:UserLoadout"]:FireServer()
+
+    TDS:VoteSkip()
+
+    TDS:Place("Boomerang", -8.0976810455322266, 2.0595896244049072, 206.319091796875, true)
+    TDS:Upgrade(1)
+    TDS:Upgrade(1)
+    TDS:Ready()
+
+    TDS:Place("Boomerang", -8.0976810455322266, 2.0595896244049072, 206.319091796875, true)
+    TDS:Upgrade(2)
+    TDS:Upgrade(2)
+
+    TDS:Place("Militant", -8.0976810455322266, 2.0595896244049072, 206.319091796875, true)
+    TDS:Upgrade(3)
+    TDS:Upgrade(3)
+
+    TDS:Place("Militant", -8.0976810455322266, 2.0595896244049072, 206.319091796875, true)
+    TDS:Upgrade(4)
+    TDS:Upgrade(4)
+    TDS:Upgrade(1)
+
+    TDS:Place("Militant", -8.0976810455322266, 2.0595896244049072, 206.319091796875, true)
+    TDS:Upgrade(5)
+
+    TDS:Upgrade(2)
+    TDS:Upgrade(5)
+    TDS:Upgrade(3)
+    TDS:Upgrade(4)
+    TDS:Upgrade(5)
+    TDS:Upgrade(3)
+    TDS:Upgrade(1)
+
+    TDS:Place("Militant", -8.0976810455322266, 2.0595896244049072, 206.319091796875, true)
+    TDS:Upgrade(6)
+    TDS:Upgrade(6)
+    TDS:Upgrade(6)
+    TDS:Upgrade(6)
+    TDS:Upgrade(5)
+    TDS:Upgrade(4)
+
+    TDS:Place("Militant", -8.0976810455322266, 2.0595896244049072, 206.319091796875, true)
+    TDS:Upgrade(7)
+    TDS:Upgrade(7)
+    TDS:Upgrade(7)
+
+    TDS:Place("Boomerang", -8.0976810455322266, 2.0595896244049072, 206.319091796875, true)
+    TDS:Upgrade(8)
+    TDS:Upgrade(8)
+    TDS:Upgrade(8)
+    TDS:Upgrade(2)
+
+    TDS:Place("Boomerang", -8.0976810455322266, 2.0595896244049072, 206.319091796875, true)
+    TDS:Upgrade(9)
+    TDS:Upgrade(9)
+    TDS:Upgrade(9)
+    TDS:Upgrade(9)
+
+    TDS:Place("Boomerang", -8.0976810455322266, 2.0595896244049072, 206.319091796875, true)
+    TDS:Upgrade(10)
+    TDS:Upgrade(10)
+    TDS:Upgrade(10)
+    TDS:Upgrade(10)
 end
 
 local function RunNight1Hard(TDS)
@@ -280,7 +326,7 @@ local function RunNight1Hard(TDS)
 end
 
 function Event.Start(night, mode, TDS)
-    if night ~= "Night 1" or mode ~= "Hard" then
+    if night ~= "Night 1" or (mode ~= "Hard" and mode ~= "Easy") then
         return false
     end
     if Running or MatchQueued then
@@ -288,12 +334,7 @@ function Event.Start(night, mode, TDS)
     end
 
     if game.PlaceId == LOBBY_PLACE_ID then
-        local level = GetPlayerLevel()
-        if level == nil or level < REQUIRED_LEVEL then
-            return false
-        end
-
-        local ok, result = QueueNight1Hard()
+        local ok, result = QueueNight1(mode)
         if ok and result ~= false then
             MatchQueued = true
             return true
@@ -314,9 +355,9 @@ function Event.Start(night, mode, TDS)
     StartSkipWatcher()
     EndMatchWatch(ModuleSession)
     task.spawn(function()
-        local ok, err = pcall(RunNight1Hard, TDS)
+        local ok, err = pcall(mode == "Easy" and RunNight1Easy or RunNight1Hard, TDS)
         if not ok then
-            warn("[Auto Event] Night 1 Hard strategy error:", err)
+            warn("[Auto Event] Night 1 " .. mode .. " strategy error:", err)
         end
     end)
     return true
