@@ -7,9 +7,11 @@ local LOBBY_PLACE_ID = 3260590327
 local Requirements = {
     ["Night 1"] = {
         Easy = {},
-        Hard = {"Boomerang", "Militant", "Commander", "Turret"},
+        Hard = {"Boomerang", "Militant", "Commander"},
     },
 }
+
+local REQUIRED_LEVEL = 50
 
 local Running = false
 local SkipGeneration = 0
@@ -25,6 +27,33 @@ function Event.GetRequirements(night, mode)
         return "Not configured yet"
     end
     return towers
+end
+
+function Event.GetRequiredLevel(night, mode)
+    if night == "Night 1" and mode == "Hard" then
+        return REQUIRED_LEVEL
+    end
+    return nil
+end
+
+local function GetPlayerLevel()
+    local player = Players.LocalPlayer
+    local stats = shared.AutoProgressStats
+    if type(stats) == "table" and type(stats.GetLevel) == "function" then
+        local ok, value = pcall(stats.GetLevel)
+        if ok and tonumber(value) then
+            return tonumber(value)
+        end
+    end
+    local level = player:FindFirstChild("Level")
+    if not level then
+        local leaderstats = player:FindFirstChild("leaderstats")
+        level = leaderstats and leaderstats:FindFirstChild("Level")
+    end
+    if level and tonumber(level.Value) then
+        return tonumber(level.Value)
+    end
+    return tonumber(player:GetAttribute("Level"))
 end
 
 local function StartSkipWatcher()
@@ -154,6 +183,11 @@ function Event.Start(night, mode, TDS)
     end
 
     if game.PlaceId == LOBBY_PLACE_ID then
+        local level = GetPlayerLevel()
+        if level == nil or level < REQUIRED_LEVEL then
+            return false
+        end
+
         local ok, result = pcall(function()
             return Remote:InvokeServer("Multiplayer", "v2:start", {
                 difficulty = "Act1",
