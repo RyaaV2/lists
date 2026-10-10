@@ -89,7 +89,7 @@ local function EndMatchWatch(session)
                 if globals.AutoEventEnabled == true
                     and tostring(globals.EventNight or "Night 1") == "Night 1"
                     then
-                    local ok, result = QueueNight1(tostring(globals.EventMode or "Hard"))
+                    local ok, result = QueueNight1(tostring(globals.EventMode or "Easy"))
                     if ok and result ~= false then
                         MatchQueued = true
                         -- An InvokeServer call may return without actually
@@ -133,6 +133,9 @@ function Event.GetRequirements(night, mode)
 end
 
 function Event.GetRequiredLevel(night, mode)
+    if night == "Night 1" and mode == "Easy" then
+        return 0
+    end
     return nil
 end
 
