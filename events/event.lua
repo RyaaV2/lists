@@ -6,7 +6,7 @@ local LOBBY_PLACE_ID = 3260590327
 
 local Requirements = {
     ["Night 1"] = {
-        Easy = {"Boomerang", "Militant"},
+        Easy = {},
         Hard = {"Boomerang", "Militant", "Commander"},
     },
 }
@@ -279,66 +279,8 @@ local function RunNight1Hard(TDS)
     TDS:VoteSkip(15)
 end
 
-local function RunNight1Easy(TDS)
-    TDS:Loadout("Boomerang", "Militant", "None", "None", "None")
-    TDS:Place("Boomerang", -10.510400772094727, 2.135944366455078, 205.15176391601562, true)
-    TDS:Upgrade(1)
-    TDS:Ready()
-    TDS:VoteSkip(1)
-    TDS:Upgrade(1)
-    TDS:VoteSkip(1)
-    TDS:VoteSkip(2)
-    TDS:VoteSkip(3)
-    TDS:Place("Boomerang", -10.510400772094727, 2.135944366455078, 205.15176391601562, true)
-    TDS:Upgrade(2)
-    TDS:VoteSkip(4)
-    TDS:Upgrade(2)
-    TDS:VoteSkip(5)
-    TDS:Place("Militant", -10.510400772094727, 2.135944366455078, 205.15176391601562, true)
-    TDS:Upgrade(3)
-    TDS:Upgrade(3)
-    TDS:VoteSkip(6)
-    TDS:Place("Militant", -10.510400772094727, 2.135944366455078, 205.15176391601562, true)
-    TDS:Upgrade(4)
-    TDS:Upgrade(4)
-    TDS:VoteSkip(7)
-    TDS:Upgrade(1)
-    TDS:Place("Militant", -10.510400772094727, 2.135944366455078, 205.15176391601562, true)
-    TDS:Upgrade(5)
-    TDS:VoteSkip(8)
-    TDS:Upgrade(2)
-    TDS:VoteSkip(9)
-    TDS:Upgrade(5)
-    TDS:Upgrade(3)
-    TDS:VoteSkip(10)
-    TDS:Upgrade(4)
-    TDS:VoteSkip(11)
-    TDS:Upgrade(5)
-    TDS:VoteSkip(12)
-    TDS:Upgrade(3)
-    TDS:VoteSkip(13)
-    TDS:VoteSkip(14)
-    TDS:Upgrade(1)
-    TDS:Place("Militant", -10.510400772094727, 2.135944366455078, 205.15176391601562, true)
-    TDS:Upgrade(6)
-    TDS:Upgrade(6)
-    TDS:Upgrade(6)
-    TDS:Upgrade(6)
-    TDS:Upgrade(5)
-    TDS:Upgrade(4)
-    TDS:Place("Militant", -10.510400772094727, 2.135944366455078, 205.15176391601562, true)
-    TDS:Upgrade(7)
-    TDS:Upgrade(7)
-    TDS:Upgrade(7)
-    TDS:Place("Militant", -10.510400772094727, 2.135944366455078, 205.15176391601562, true)
-    TDS:Upgrade(8)
-    TDS:Upgrade(8)
-    TDS:Upgrade(8)
-    TDS:Upgrade(2)
-end
-
 function Event.Start(night, mode, TDS)
-    if night ~= "Night 1" or (mode ~= "Hard" and mode ~= "Easy") then
+    if night ~= "Night 1" or mode ~= "Hard" then
         return false
     end
     if Running or MatchQueued then
@@ -346,9 +288,6 @@ function Event.Start(night, mode, TDS)
     end
 
     if game.PlaceId == LOBBY_PLACE_ID then
-        if mode == "Easy" then
-            return false
-        end
         local level = GetPlayerLevel()
         if level == nil or level < REQUIRED_LEVEL then
             return false
@@ -375,10 +314,9 @@ function Event.Start(night, mode, TDS)
     StartSkipWatcher()
     EndMatchWatch(ModuleSession)
     task.spawn(function()
-        local strategy = mode == "Easy" and RunNight1Easy or RunNight1Hard
-        local ok, err = pcall(strategy, TDS)
+        local ok, err = pcall(RunNight1Hard, TDS)
         if not ok then
-            warn("[Auto Event] Night 1 " .. mode .. " strategy error:", err)
+            warn("[Auto Event] Night 1 Hard strategy error:", err)
         end
     end)
     return true
