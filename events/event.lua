@@ -66,11 +66,6 @@ local function EquipNight1EasyLobbyLoadout()
         task.wait(0.3)
     end
 
-    task.wait(0.2)
-    local manager = ReplicatedStorage:WaitForChild("Network"):WaitForChild("PlayerManager")
-    manager["RE:SelectLoadout"]:FireServer()
-    task.wait(0.2)
-    manager["RE:UserLoadout"]:FireServer()
     return true
 end
 
