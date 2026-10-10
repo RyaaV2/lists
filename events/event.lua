@@ -16,6 +16,40 @@ local REQUIRED_LEVEL = 50
 local Running = false
 local SkipGeneration = 0
 local StrategyStarted = false
+local MatchQueued = false
+local ModuleSession = 0
+
+local function IsGameOver()
+    local rs = ReplicatedStorage:FindFirstChild("StateReplicators")
+    local rep = rs and rs:FindFirstChild("GameStateReplicator")
+    return rep and rep:GetAttribute("GameOver") == true or false
+end
+
+local function EndMatchWatch(session)
+    task.spawn(function()
+        while Running and ModuleSession == session do
+            if IsGameOver() then
+                local globals = getgenv()
+                if globals.__RyaAutoFarmTransitionTarget
+                    and globals.__RyaAutoFarmTransitionTarget ~= "Event" then
+                    if globals.__RyaApplyAutoFarmTransition then
+                        globals.__RyaApplyAutoFarmTransition()
+                    end
+                end
+                Running = false
+                SkipGeneration += 1
+                local network = ReplicatedStorage:FindFirstChild("Network")
+                local teleport = network and network:FindFirstChild("Teleport")
+                local back = teleport and teleport:FindFirstChild("RE:backToLobby")
+                if back then
+                    pcall(function() back:FireServer() end)
+                end
+                break
+            end
+            task.wait(0.25)
+        end
+    end)
+end
 
 function Event.GetRequirements(night, mode)
     local config = Requirements[night]
@@ -178,7 +212,7 @@ function Event.Start(night, mode, TDS)
     if night ~= "Night 1" or mode ~= "Hard" then
         return false
     end
-    if Running then
+    if Running or MatchQueued then
         return false
     end
 
@@ -196,29 +230,45 @@ function Event.Start(night, mode, TDS)
                 mode = "halloween2026",
             })
         end)
-        return ok and result ~= false
+        if ok and result ~= false then
+            MatchQueued = true
+            return true
+        end
+        return false
     end
 
     TDS = TDS or _G.TDS or (getgenv and getgenv().TDS)
+    if type(TDS) ~= "table" then
+        local ok, api = pcall(function()
+            return loadstring(game:HttpGet(
+                "https://raw.githubusercontent.com/RyaaV2/lists/refs/heads/main/apis/tds.lua"
+            ))()
+        end)
+        if ok then TDS = api end
+    end
     if type(TDS) ~= "table" or StrategyStarted then
         return false
     end
 
     Running = true
     StrategyStarted = true
+    ModuleSession += 1
     StartSkipWatcher()
-    local ok, err = pcall(RunNight1Hard, TDS)
-    if not ok then
-        warn("[Auto Event] Night 1 Hard strategy error:", err)
-        Event.Stop()
-        return false
-    end
+    EndMatchWatch(ModuleSession)
+    task.spawn(function()
+        local ok, err = pcall(RunNight1Hard, TDS)
+        if not ok then
+            warn("[Auto Event] Night 1 Hard strategy error:", err)
+        end
+    end)
     return true
 end
 
 function Event.Stop()
     Running = false
     SkipGeneration += 1
+    ModuleSession += 1
+    MatchQueued = false
     return true
 end
 
