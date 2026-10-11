@@ -6,7 +6,7 @@ local LOBBY_PLACE_ID = 3260590327
 
 local Requirements = {
     ["Night 1"] = {
-        Easy = {"Boomerang", "Militant"},
+        Easy = {"Sniper"},
         Hard = {"Sniper"},
     },
 }
@@ -61,7 +61,7 @@ local function EquipNight1EasyLobbyLoadout()
     end
 
     task.wait(0.2)
-    for _, tower in ipairs({"Boomerang", "Militant"}) do
+    for _, tower in ipairs({"Sniper"}) do
         remoteEvent:FireServer("Inventory", "Equip", "Tower", tower)
         task.wait(0.3)
     end
@@ -217,74 +217,47 @@ local function StartSkipWatcher()
 end
 
 local function RunNight1Easy(TDS)
-    TDS:Loadout("Boomerang", "Militant", "None", "None", "None")
-
+    TDS:Loadout("Sniper", "None", "None", "None", "None")
     local playerManager = ReplicatedStorage:WaitForChild("Network"):WaitForChild("PlayerManager")
     playerManager["RE:SelectLoadout"]:FireServer()
     task.wait(0.2)
     playerManager["RE:UserLoadout"]:FireServer()
-
-    TDS:VoteSkip()
-
-    TDS:Place("Boomerang", -8.0976810455322266, 2.0595896244049072, 206.319091796875, true)
-    TDS:Upgrade(1)
+    TDS:Place("Sniper", 9.266754150390625, 6.802427291870117, 203.55477905273438)
+    TDS:Place("Sniper", 10.11859130859375, 6.741560459136963, 205.9476776123047)
+    TDS:Upgrade(2)
     TDS:Upgrade(1)
     TDS:Ready()
-
-    TDS:Place("Boomerang", -8.0976810455322266, 2.0595896244049072, 206.319091796875, true)
-    TDS:Upgrade(2)
-    TDS:Upgrade(2)
-
-    TDS:Place("Militant", -8.0976810455322266, 2.0595896244049072, 206.319091796875, true)
+    TDS:Place("Sniper", 7.6457014083862305, 8.861952781677246, 209.50477600097656)
     TDS:Upgrade(3)
-    TDS:Upgrade(3)
-
-    TDS:Place("Militant", -8.0976810455322266, 2.0595896244049072, 206.319091796875, true)
-    TDS:Upgrade(4)
-    TDS:Upgrade(4)
-    TDS:Upgrade(1)
-
-    TDS:Place("Militant", -8.0976810455322266, 2.0595896244049072, 206.319091796875, true)
-    TDS:Upgrade(5)
-
-    TDS:Upgrade(2)
-    TDS:Upgrade(5)
-    TDS:Upgrade(3)
-    TDS:Upgrade(4)
-    TDS:Upgrade(5)
-    TDS:Upgrade(3)
-    TDS:Upgrade(1)
-
-    TDS:Place("Militant", -8.0976810455322266, 2.0595896244049072, 206.319091796875, true)
-    TDS:Upgrade(6)
-    TDS:Upgrade(6)
-    TDS:Upgrade(6)
-    TDS:Upgrade(6)
-    TDS:Upgrade(5)
-    TDS:Upgrade(4)
-
-    TDS:Place("Militant", -8.0976810455322266, 2.0595896244049072, 206.319091796875, true)
-    TDS:Upgrade(7)
-    TDS:Upgrade(7)
-    TDS:Upgrade(7)
-
-    TDS:Place("Boomerang", -8.0976810455322266, 2.0595896244049072, 206.319091796875, true)
-    TDS:Upgrade(8)
-    TDS:Upgrade(8)
-    TDS:Upgrade(8)
-    TDS:Upgrade(2)
-
-    TDS:Place("Boomerang", -8.0976810455322266, 2.0595896244049072, 206.319091796875, true)
-    TDS:Upgrade(9)
-    TDS:Upgrade(9)
-    TDS:Upgrade(9)
-    TDS:Upgrade(9)
-
-    TDS:Place("Boomerang", -8.0976810455322266, 2.0595896244049072, 206.319091796875, true)
-    TDS:Upgrade(10)
-    TDS:Upgrade(10)
-    TDS:Upgrade(10)
-    TDS:Upgrade(10)
+    local function PlaceSniper()
+        TDS:Place("Sniper", -7.591506004333496, 8.861952781677246, 197.08810424804688, true)
+    end
+    for i = 4, 10 do
+        PlaceSniper()
+        TDS:Upgrade(i)
+    end
+    for i = 4, 10 do
+        for j = 1, 2 do
+            TDS:Upgrade(i)
+        end
+    end
+    for i = 1, 3 do
+        for j = 1, 2 do
+            TDS:Upgrade(i)
+        end
+    end
+    for i = 11, 20 do
+        PlaceSniper()
+        for j = 1, 3 do
+            TDS:Upgrade(i)
+        end
+    end
+    for i = 4, 20 do
+        TDS:Upgrade(i)
+    end
+    for i = 1, 3 do
+        TDS:Upgrade(i)
+    end
 end
 
 local function RunNight1Hard(TDS)
