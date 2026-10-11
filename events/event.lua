@@ -7,7 +7,7 @@ local LOBBY_PLACE_ID = 3260590327
 local Requirements = {
     ["Night 1"] = {
         Easy = {"Boomerang", "Militant"},
-        Hard = {"Boomerang", "Militant", "Commander"},
+        Hard = {"Sniper"},
     },
 }
 
@@ -179,7 +179,7 @@ function Event.GetRequirements(night, mode)
 end
 
 function Event.GetRequiredLevel(night, mode)
-    if night == "Night 1" and mode == "Easy" then
+    if night == "Night 1" and (mode == "Easy" or mode == "Hard") then
         return 0
     end
     return nil
@@ -288,90 +288,43 @@ local function RunNight1Easy(TDS)
 end
 
 local function RunNight1Hard(TDS)
-    TDS:Loadout("Boomerang", "Militant", "Commander", "Turret", "None")
-
-    TDS:Place("Boomerang", -8.55457878112793, 2.0652565956115723, 207.20245361328125, true)
-    TDS:Place("Boomerang", -8.55457878112793, 2.0652565956115723, 207.20245361328125, true)
+    TDS:Loadout("Sniper", "None", "None", "None", "None")
+    TDS:Place("Sniper", 9.266754150390625, 6.802427291870117, 203.55477905273438)
+    TDS:Place("Sniper", 10.11859130859375, 6.741560459136963, 205.9476776123047)
+    TDS:Upgrade(2)
+    TDS:Upgrade(1)
     TDS:Ready()
-
-    -- Wave 1
-    TDS:VoteSkip(1)
-    TDS:Upgrade(1)
-
-    -- Wave 2
-    TDS:VoteSkip(2)
-
-    -- Wave 3
-    TDS:Upgrade(2)
-    TDS:VoteSkip(3)
-
-    -- Wave 4
-    TDS:VoteSkip(4)
-
-    -- Wave 5
-    TDS:Place("Militant", -7.364101409912109, 2.059061050415039, 207.34213256835938, true)
-    TDS:Place("Militant", -8.865612030029297, 2.050936222076416, 208.03802490234375, true)
-    TDS:Place("Militant", -10.657787322998047, 2.0503177642822266, 207.81719970703125, true)
-    TDS:Upgrade(5)
-    TDS:Upgrade(4)
+    TDS:Place("Sniper", 7.6457014083862305, 8.861952781677246, 209.50477600097656)
     TDS:Upgrade(3)
-    TDS:Place("Militant", -10.332830429077148, 2.0369067192077637, 207.84109497070312, true)
-    TDS:Upgrade(6)
-    TDS:Upgrade(6)
-
-    -- Wave 6
-    TDS:Upgrade(5)
-    TDS:Upgrade(4)
-    TDS:Place("Commander", -8.37071418762207, 2.0034849643707275, 201.2025146484375)
-
-    -- Wave 7
-    TDS:Upgrade(2)
-    TDS:Upgrade(7)
-    TDS:Upgrade(3)
-
-    -- Wave 8
-    TDS:Upgrade(2)
-    TDS:VoteSkip(8)
-
-    -- Wave 9
-    TDS:Upgrade(1)
-    TDS:Upgrade(1)
-    TDS:Upgrade(3)
-    TDS:Upgrade(6)
-
-    -- Wave 10
-    TDS:Upgrade(4)
-
-    -- Wave 11
-    TDS:Place("Turret", -8.82754898071289, 2.0518181324005127, 205.82386779785156, true)
-
-    -- Wave 12
-    TDS:Upgrade(8)
-
-    -- Wave 13
-    TDS:Upgrade(8)
-    TDS:Upgrade(7)
-
-    -- Wave 14
-    TDS:Place("Commander", -11.818249702453613, 2.001413345336914, 201.78997802734375, true)
-    TDS:Place("Commander", -12.282033920288086, 2.0866596698760986, 202.96209716796875, true)
-    TDS:Upgrade(9)
-    TDS:Upgrade(10)
-    TDS:Upgrade(10)
-    TDS:Upgrade(9)
-    TDS:Place("Turret", -10.076197624206543, 2.091841459274292, 205.66558837890625, true)
-
-    -- Wave 15
-    TDS:Upgrade(11)
-    TDS:Upgrade(11)
-    TDS:Upgrade(9)
-    TDS:Place("Turret", -7.479306221008301, 2.038647413253784, 204.6977081298828, true)
-    TDS:Upgrade(12)
-    TDS:Upgrade(12)
-    TDS:Upgrade(8)
-    TDS:Upgrade(11)
-    TDS:Upgrade(12)
-    TDS:VoteSkip(15)
+    local function PlaceSniper()
+        TDS:Place("Sniper", -7.591506004333496, 8.861952781677246, 197.08810424804688, true)
+    end
+    for i = 4, 14 do
+        PlaceSniper()
+        TDS:Upgrade(i)
+    end
+    for i = 4, 14 do
+        for j = 1, 2 do
+            TDS:Upgrade(i)
+        end
+    end
+    for i = 1, 3 do
+        for j = 1, 2 do
+            TDS:Upgrade(i)
+        end
+    end
+    for i = 15, 20 do
+        PlaceSniper()
+        for j = 1, 3 do
+            TDS:Upgrade(i)
+        end
+    end
+    for i = 4, 20 do
+        TDS:Upgrade(i)
+    end
+    for i = 1, 3 do
+        TDS:Upgrade(i)
+    end
 end
 
 function Event.Start(night, mode, TDS)
