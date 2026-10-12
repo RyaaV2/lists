@@ -62,11 +62,12 @@ return {
             TrialCurrency = "Timescale Ticket",
 
             RequiredTowers = {
-                "Militant"
+                "Militant",
+                "Gatling Gun"
             },
 
             SupportedTrials = {
-                Exploding = "ExplodingEnemie"
+                Exploding = "ExplodingEnemies"
             },
 
             Strategies = {
