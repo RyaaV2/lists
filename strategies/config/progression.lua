@@ -66,11 +66,7 @@ return {
             },
 
             SupportedTrials = {
-                Exploding = "ExplodingEnemies",
-                Hidden = "HiddenEnemies",
-                Quarantine = "Quarantine",
-                Fog = "Fog",
-                Limitation = "Limitation"
+                Exploding = "ExplodingEnemie"
             },
 
             Strategies = {
