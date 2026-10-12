@@ -58,7 +58,7 @@ return {
         TowerCoinStep = 10000,
 
         Trial = {
-            Enabled = false,
+            Enabled = true,
             TrialCurrency = "Timescale Ticket",
 
             RequiredTowers = {
