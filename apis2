@@ -1407,15 +1407,22 @@ local function StartAutoCommanderChain()
         or 2
 
     local interval =
-        tonumber(
-            config.Interval
+        math.max(
+            0.1,
+            tonumber(config.Interval) or 10.5
         )
-        or 10.5
+
+    local cooldown =
+        math.max(
+            0,
+            tonumber(config.Cooldown) or 30
+        )
 
     SupportAutomationRunning.AutoChain = true
 
     task.spawn(function()
         local index = 1
+        local lastUsed = {}
 
         while IsStrategyRuntimeEnabled()
             and TDS.HasCommander == true do
@@ -1426,7 +1433,7 @@ local function StartAutoCommanderChain()
                     minUpgrade
                 )
 
-            if #commanders >= 1 then
+            if #commanders > 0 then
                 if index > #commanders then
                     index = 1
                 end
@@ -1434,37 +1441,62 @@ local function StartAutoCommanderChain()
                 local commander =
                     commanders[index]
 
-                local ok, result =
-                    pcall(function()
-                        return rf:InvokeServer(
-                            "Troops",
-                            "Abilities",
-                            "Activate",
-                            {
-                                Troop = commander,
-                                Name = abilityName,
-                                Data = {}
-                            }
+                index = index % #commanders + 1
+
+                local usedAt =
+                    lastUsed[commander]
+
+                local ready =
+                    usedAt == nil
+                    or os.clock() - usedAt
+                        >= GetCommanderChainDelay(
+                            cooldown
                         )
-                    end)
 
-                if ok
-                    and DirectResponseOK(
-                        result
-                    ) then
+                if ready then
+                    local ok, result =
+                        pcall(function()
+                            return rf:InvokeServer(
+                                "Troops",
+                                "Abilities",
+                                "Activate",
+                                {
+                                    Troop = commander,
+                                    Name = abilityName,
+                                    Data = {}
+                                }
+                            )
+                        end)
 
-                    index += 1
-
-                    task.wait(
-                        GetCommanderChainDelay(
-                            interval
+                    -- Commander ability replies can be truthy
+                    -- without matching DirectResponseOK.
+                    local accepted =
+                        ok
+                        and result ~= nil
+                        and result ~= false
+                        and not (
+                            type(result) == "table"
+                            and result.Success == false
                         )
-                    )
+
+                    if accepted then
+                        lastUsed[commander] =
+                            os.clock()
+
+                        task.wait(
+                            GetCommanderChainDelay(
+                                interval
+                            )
+                        )
+                    else
+                        task.wait(0.25)
+                    end
                 else
-                    task.wait(0.5)
+                    task.wait(0.1)
                 end
             else
-                task.wait(0.5)
+                index = 1
+                task.wait(0.2)
             end
         end
 
