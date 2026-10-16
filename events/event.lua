@@ -4,80 +4,38 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Remote = ReplicatedStorage:WaitForChild("RemoteFunction")
 local LOBBY_PLACE_ID = 3260590327
 
-local Requirements = {
-    ["Night 1"] = {
-        Easy = {"Sniper"},
-        Hard = {"Sniper"},
-    },
-}
+-- Each night lives in events/nights/nightN.lua and exports
+-- Requirements, RequiredLevels, PrepareLobby, Queue and Run.
+local NightCache = {}
+local function GetNightModule(night)
+    local number = type(night) == "string" and night:match("^Night ([1-9]%d*)$")
+    if not number then return nil end
+    if NightCache[number] then return NightCache[number] end
+    local url = "https://raw.githubusercontent.com/RyaaV2/lists/refs/heads/main/events/nights/night" .. number .. ".lua"
+    local ok, module = pcall(function()
+        return loadstring(game:HttpGet(url))()
+    end)
+    if not ok or type(module) ~= "table"
+        or type(module.Queue) ~= "function"
+        or type(module.Run) ~= "function" then
+        return nil
+    end
+    NightCache[number] = module
+    return module
+end
 
 local Running = false
 local SkipGeneration = 0
 local StrategyStarted = false
 local MatchQueued = false
 local ModuleSession = 0
+local ActiveNight = nil
+local ActiveMode = nil
 
 local function IsGameOver()
     local rs = ReplicatedStorage:FindFirstChild("StateReplicators")
     local rep = rs and rs:FindFirstChild("GameStateReplicator")
     return rep and rep:GetAttribute("GameOver") == true or false
-end
-
-local function EquipNight1EasyLobbyLoadout()
-    local stateReplicators = ReplicatedStorage:WaitForChild("StateReplicators", 10)
-    if not stateReplicators then return false end
-
-    local playerReplicator
-    local deadline = os.clock() + 10
-    repeat
-        for _, rep in ipairs(stateReplicators:GetChildren()) do
-            if rep.Name == "PlayerReplicator"
-                and tonumber(rep:GetAttribute("UserId")) == Players.LocalPlayer.UserId then
-                playerReplicator = rep
-                break
-            end
-        end
-        if not playerReplicator then task.wait(0.2) end
-    until playerReplicator or os.clock() >= deadline
-    if not playerReplicator then return false end
-
-    local equipped = {}
-    local raw = playerReplicator:GetAttribute("EquippedTowers")
-    if type(raw) == "string" then
-        local json = raw:match("%[.*%]")
-        if json then
-            pcall(function()
-                equipped = game:GetService("HttpService"):JSONDecode(json)
-            end)
-        end
-    end
-
-    local remoteEvent = ReplicatedStorage:WaitForChild("RemoteEvent")
-    for _, tower in ipairs(equipped) do
-        if tower and tower ~= "" and tower ~= "None" then
-            remoteEvent:FireServer("Inventory", "Unequip", "Tower", tower)
-            task.wait(0.3)
-        end
-    end
-
-    task.wait(0.2)
-    for _, tower in ipairs({"Sniper"}) do
-        remoteEvent:FireServer("Inventory", "Equip", "Tower", tower)
-        task.wait(0.3)
-    end
-
-    return true
-end
-
-local function QueueNight1(mode)
-    return pcall(function()
-        return Remote:InvokeServer("Multiplayer", "v2:start", {
-            difficulty = mode == "Easy" and "Act1Easy" or "Act1",
-            night = 1,
-            count = 1,
-            mode = "halloween2026",
-        })
-    end)
 end
 
 local function ReturnToLobby()
@@ -133,9 +91,14 @@ local function EndMatchWatch(session)
                 -- Matchmaking is attempted immediately after game over.
                 -- If the server does not accept it, lobby startup retries.
                 if globals.AutoEventEnabled == true
-                    and tostring(globals.EventNight or "Night 1") == "Night 1"
-                    then
-                    local ok, result = QueueNight1(tostring(globals.EventMode or "Easy"))
+                    and tostring(globals.EventNight or "Night 1") == ActiveNight
+                    and tostring(globals.EventMode or "Easy") == ActiveMode then
+                    local nightModule = GetNightModule(ActiveNight)
+                    local ok, result = false, false
+                    if nightModule then
+                        ok, result = pcall(nightModule.Queue, ActiveMode)
+                        if ok and result == true then result = true end
+                    end
                     if ok and result ~= false then
                         MatchQueued = true
                         -- An InvokeServer call may return without actually
@@ -167,22 +130,18 @@ local function EndMatchWatch(session)
 end
 
 function Event.GetRequirements(night, mode)
-    local config = Requirements[night]
-    if not config then
-        return "Coming soon"
-    end
-    local towers = config[mode]
-    if not towers or #towers == 0 then
+    local module = GetNightModule(night)
+    if not module then return "Coming soon" end
+    local towers = module.Requirements and module.Requirements[mode]
+    if type(towers) ~= "table" or #towers == 0 then
         return "Not configured yet"
     end
     return towers
 end
 
 function Event.GetRequiredLevel(night, mode)
-    if night == "Night 1" and (mode == "Easy" or mode == "Hard") then
-        return 0
-    end
-    return nil
+    local module = GetNightModule(night)
+    return module and module.RequiredLevels and module.RequiredLevels[mode] or nil
 end
 
 local function StartSkipWatcher()
@@ -216,109 +175,27 @@ local function StartSkipWatcher()
     end)
 end
 
-local function RunNight1Easy(TDS)
-    TDS:Loadout("Sniper", "None", "None", "None", "None")
-    local playerManager = ReplicatedStorage:WaitForChild("Network"):WaitForChild("PlayerManager")
-    playerManager["RE:SelectLoadout"]:FireServer()
-    task.wait(0.2)
-    playerManager["RE:UserLoadout"]:FireServer()
-    TDS:Place("Sniper", 9.266754150390625, 6.802427291870117, 203.55477905273438)
-    TDS:Place("Sniper", 10.11859130859375, 6.741560459136963, 205.9476776123047)
-    TDS:Upgrade(2)
-    TDS:Upgrade(1)
-    TDS:Ready()
-    TDS:Place("Sniper", 7.6457014083862305, 8.861952781677246, 209.50477600097656)
-    TDS:Upgrade(3)
-    local function PlaceSniper()
-        TDS:Place("Sniper", -7.591506004333496, 8.861952781677246, 197.08810424804688, true)
-    end
-    for i = 4, 10 do
-        PlaceSniper()
-        TDS:Upgrade(i)
-    end
-    for i = 4, 10 do
-        for j = 1, 2 do
-            TDS:Upgrade(i)
-        end
-    end
-    for i = 1, 3 do
-        for j = 1, 2 do
-            TDS:Upgrade(i)
-        end
-    end
-    for i = 11, 20 do
-        PlaceSniper()
-        for j = 1, 3 do
-            TDS:Upgrade(i)
-        end
-    end
-    for i = 4, 20 do
-        TDS:Upgrade(i)
-    end
-    for i = 1, 3 do
-        TDS:Upgrade(i)
-    end
-end
-
-local function RunNight1Hard(TDS)
-    TDS:Loadout("Sniper", "None", "None", "None", "None")
-    TDS:Place("Sniper", 9.266754150390625, 6.802427291870117, 203.55477905273438)
-    TDS:Place("Sniper", 10.11859130859375, 6.741560459136963, 205.9476776123047)
-    TDS:Upgrade(2)
-    TDS:Upgrade(1)
-    TDS:Ready()
-    TDS:Place("Sniper", 7.6457014083862305, 8.861952781677246, 209.50477600097656)
-    TDS:Upgrade(3)
-    local function PlaceSniper()
-        TDS:Place("Sniper", -7.591506004333496, 8.861952781677246, 197.08810424804688, true)
-    end
-    for i = 4, 14 do
-        PlaceSniper()
-        TDS:Upgrade(i)
-    end
-    for i = 4, 14 do
-        for j = 1, 2 do
-            TDS:Upgrade(i)
-        end
-    end
-    for i = 1, 3 do
-        for j = 1, 2 do
-            TDS:Upgrade(i)
-        end
-    end
-    for i = 15, 20 do
-        PlaceSniper()
-        for j = 1, 3 do
-            TDS:Upgrade(i)
-        end
-    end
-    for i = 4, 20 do
-        TDS:Upgrade(i)
-    end
-    for i = 1, 3 do
-        TDS:Upgrade(i)
-    end
-end
-
 function Event.Start(night, mode, TDS)
-    if night ~= "Night 1" or (mode ~= "Hard" and mode ~= "Easy") then
-        return false
-    end
-    if Running or MatchQueued then
+    if mode ~= "Hard" and mode ~= "Easy" then return false end
+    if Running or MatchQueued then return false end
+
+    local nightModule = GetNightModule(night)
+    if not nightModule then return false end
+    if type(nightModule.Requirements) ~= "table"
+        or type(nightModule.Requirements[mode]) ~= "table" then
         return false
     end
 
     if game.PlaceId == LOBBY_PLACE_ID then
-        if mode == "Easy" then
-            local ok, result = pcall(EquipNight1EasyLobbyLoadout)
+        if type(nightModule.PrepareLobby) == "function" then
+            local ok, result = pcall(nightModule.PrepareLobby, mode)
             if not ok or result ~= true then
-                warn("[Auto Event] Failed to prepare Easy lobby loadout")
+                warn("[Auto Event] Failed to prepare " .. night .. " " .. mode .. " lobby loadout")
                 return false
             end
         end
-
-        local ok, result = QueueNight1(mode)
-        if ok and result ~= false then
+        local ok, result = pcall(nightModule.Queue, mode)
+        if ok and result == true then
             MatchQueued = true
             return true
         end
@@ -326,21 +203,20 @@ function Event.Start(night, mode, TDS)
     end
 
     -- Use the API instance installed by the main Auto Progress backend.
-    -- apis/tds.lua returns a context installer, not a standalone TDS table.
     TDS = TDS or shared.TDSTable or shared["TDS_Table"]
-    if type(TDS) ~= "table" or StrategyStarted then
-        return false
-    end
+    if type(TDS) ~= "table" or StrategyStarted then return false end
 
+    ActiveNight = night
+    ActiveMode = mode
     Running = true
     StrategyStarted = true
     ModuleSession += 1
     StartSkipWatcher()
     EndMatchWatch(ModuleSession)
     task.spawn(function()
-        local ok, err = pcall(mode == "Easy" and RunNight1Easy or RunNight1Hard, TDS)
+        local ok, err = pcall(nightModule.Run, mode, TDS)
         if not ok then
-            warn("[Auto Event] Night 1 " .. mode .. " strategy error:", err)
+            warn("[Auto Event] " .. night .. " " .. mode .. " strategy error:", err)
         end
     end)
     return true
@@ -351,6 +227,8 @@ function Event.Stop()
     SkipGeneration += 1
     ModuleSession += 1
     MatchQueued = false
+    ActiveNight = nil
+    ActiveMode = nil
     return true
 end
 
