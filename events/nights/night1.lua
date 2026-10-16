@@ -161,7 +161,8 @@ end
 
 function Night.Queue(mode)
     if mode ~= "Easy" and mode ~= "Hard" then return false end
-    return QueueNight1(mode)
+    local ok, result = QueueNight1(mode)
+    return ok and result ~= false
 end
 
 function Night.Run(mode, TDS)
