@@ -62,6 +62,137 @@ return function(Context)
 
     TDS.HasVIP = HasVIP
 
+
+    -- Tower support automation (per API instance).
+    local TowerAutoFlags = {Commander=false, DJ=false, Necromancer=false}
+    local TowerAutoRunning = {Commander=false, DJ=false, Necromancer=false}
+    local function SupportTowers(name, minLevel)
+        local found = {}
+        local folder = workspace:FindFirstChild("Towers")
+        if not folder then return found end
+        for _, rep in ipairs(folder:GetDescendants()) do
+            if rep:IsA("Folder") and rep.Name == "TowerReplicator"
+                and rep:GetAttribute("Name") == name
+                and tonumber(rep:GetAttribute("OwnerId")) == plr.UserId
+                and (tonumber(rep:GetAttribute("Upgrade")) or 0) >= minLevel then
+                table.insert(found, rep.Parent)
+            end
+        end
+        return found
+    end
+    local function ActivateSupport(tower, ability)
+        local ok, result = pcall(function()
+            return rf:InvokeServer("Troops", "Abilities", "Activate",
+                {Troop=tower, Name=ability, Data={}})
+        end)
+        return ok and result ~= false and result ~= nil
+    end
+    local function SupportDelay(seconds)
+        local pg = plr:FindFirstChild("PlayerGui")
+        local hotbar = pg and pg:FindFirstChild("ReactUniversalHotbar")
+        local frame = hotbar and hotbar:FindFirstChild("Frame")
+        local scale = frame and frame:FindFirstChild("timescale")
+        if scale and scale.Visible then
+            local lock = scale:FindFirstChild("Lock")
+            if lock and not lock.Visible then return seconds / 2 end
+        end
+        return seconds
+    end
+    local function CountNecroGraves(rep)
+        local store = rep and rep:FindFirstChild("GraveStone")
+        if not store then return 0, 0 end
+        local max = tonumber(store:GetAttribute("Max_Graves"))
+            or tonumber(rep:GetAttribute("Max_Graves"))
+        local level = tonumber(rep:GetAttribute("Upgrade")) or 0
+        if not max or max < 2 then
+            max = level >= 4 and 9 or (level >= 2 and 6 or 3)
+        end
+        local count = 0
+        for key, value in pairs(store:GetAttributes()) do
+            if type(key) == "string" and #key > 20 then
+                if tostring(value):find("Destroy") then
+                    store:SetAttribute(key, nil)
+                else
+                    count += 1
+                end
+            end
+        end
+        return count, max
+    end
+    local function StartSupportAuto(kind)
+        if TowerAutoRunning[kind] or not TowerAutoFlags[kind] then return end
+        TowerAutoRunning[kind] = true
+        task.spawn(function()
+            local index, lastUsed = 1, {}
+            while TowerAutoFlags[kind] and IsStrategyRuntimeEnabled() do
+                local name = kind == "DJ" and "DJ Booth" or kind
+                local minLevel = kind == "Commander" and 2 or (kind == "DJ" and 3 or 0)
+                local towers = SupportTowers(name, minLevel)
+                if #towers == 0 then
+                    index = 1
+                    task.wait(0.3)
+                else
+                    if index > #towers then index = 1 end
+                    local tower = towers[index]
+                    index = index % #towers + 1
+                    local now = os.clock()
+                    if kind == "Commander" then
+                        local last = lastUsed[tower]
+                        if last == nil or now-last >= SupportDelay(30) then
+                            local rep = tower:FindFirstChild("TowerReplicator")
+                            if rep and (tonumber(rep:GetAttribute("Upgrade")) or 0) >= 4
+                                and getgenv().SupportCaravan ~= false then
+                                ActivateSupport(tower, "Support Caravan")
+                            end
+                            if ActivateSupport(tower, "Call Of Arms") then
+                                lastUsed[tower] = os.clock()
+                                task.wait(SupportDelay(10.5))
+                            else
+                                task.wait(0.25)
+                            end
+                        else
+                            task.wait(0.1)
+                        end
+                    elseif kind == "DJ" then
+                        ActivateSupport(tower, "Drop The Beat")
+                        task.wait(1)
+                    else
+                        local rep = tower:FindFirstChild("TowerReplicator")
+                        local count, max = CountNecroGraves(rep)
+                        local cooldown = tonumber(rep and rep:GetAttribute("AbilityDebounce")) or 5
+                        if max > 0 and count >= max
+                            and (not lastUsed[tower] or now-lastUsed[tower] >= cooldown) then
+                            if ActivateSupport(tower, "Raise The Dead") then
+                                lastUsed[tower] = os.clock()
+                                task.wait(1)
+                            else
+                                task.wait(0.5)
+                            end
+                        else
+                            task.wait(0.1)
+                        end
+                    end
+                end
+            end
+            TowerAutoRunning[kind] = false
+        end)
+    end
+    function TDS:AutoChain()
+        TowerAutoFlags.Commander = true
+        StartSupportAuto("Commander")
+        return true
+    end
+    function TDS:AutoDJ()
+        TowerAutoFlags.DJ = true
+        StartSupportAuto("DJ")
+        return true
+    end
+    function TDS:AutoNecro()
+        TowerAutoFlags.Necromancer = true
+        StartSupportAuto("Necromancer")
+        return true
+    end
+
     local VoteSkipWaves = {}
     local VoteSkipAll = false
     local VoteSkipConfigured = false
@@ -269,6 +400,15 @@ return function(Context)
                 end
             elseif towerName == "Mercenary Base" then
                 hasMercenaryBase = true
+            elseif towerName == "Commander" then
+                TowerAutoFlags.Commander = true
+                StartSupportAuto("Commander")
+            elseif towerName == "DJ Booth" then
+                TowerAutoFlags.DJ = true
+                StartSupportAuto("DJ")
+            elseif towerName == "Necromancer" then
+                TowerAutoFlags.Necromancer = true
+                StartSupportAuto("Necromancer")
             end
         end
 
