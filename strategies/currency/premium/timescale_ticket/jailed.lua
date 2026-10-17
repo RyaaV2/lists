@@ -2,6 +2,7 @@ TDS:Loadout("Militant", "Hacker", "Gatling Gun", "DJ Booth", "Mercenary Base")
 TDS:Mode("Trial")
 
 TDS:Place("Militant", 134.32298278808594, 2.0749998092651367, -49.73613739013672)
+TDS:Ready()
 
 TDS:Upgrade(1)
 TDS:Place("Militant", 137.36297607421875, 2.0749998092651367, -49.73613739013672)
