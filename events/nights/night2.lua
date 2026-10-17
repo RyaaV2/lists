@@ -5,7 +5,6 @@ local Remote = ReplicatedStorage:WaitForChild("RemoteFunction")
 Night.Requirements = {
     Hard = {"Freezer", "Crook Boss", "DJ Booth", "Commander", "Trapper"}
 }
-Night.RequiredLevels = {Hard = 0}
 
 function Night.PrepareLobby(mode)
     return mode == "Hard"
