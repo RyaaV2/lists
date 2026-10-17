@@ -26,6 +26,7 @@ end
 function Night.Run(mode, TDS)
     if mode ~= "Hard" then return false end
     TDS:Loadout("Freezer", "Crook Boss", "DJ Booth", "Commander", "Trapper")
+    TDS:VoteSkip(21)
     TDS:Place("Trapper", 10.050795555114746, 47.70799255371094, 1.0367521047592163)
     TDS:Place("Trapper", 9.647570610046387, 47.68596649169922, -2.012082576751709)
     TDS:Upgrade(2)
