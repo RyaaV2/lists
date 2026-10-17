@@ -9,7 +9,6 @@ Night.Requirements = {
     Easy = {"Sniper"},
     Hard = {"Sniper"},
 }
-Night.RequiredLevels = { Easy = 0, Hard = 0 }
 
 local function EquipNight1EasyLobbyLoadout()
     local stateReplicators = ReplicatedStorage:WaitForChild("StateReplicators", 10)
