@@ -1,5 +1,6 @@
 TDS:Loadout("Militant", "Hacker", "Gatling Gun", "DJ Booth", "Mercenary Base")
 TDS:Mode("Trial")
+TDS:VoteSkip()
 
 TDS:Place("Militant", 134.32298278808594, 2.0749998092651367, -49.73613739013672)
 TDS:Ready()
