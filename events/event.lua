@@ -5,7 +5,7 @@ local Remote = ReplicatedStorage:WaitForChild("RemoteFunction")
 local LOBBY_PLACE_ID = 3260590327
 
 -- Each night lives in events/nights/nightN.lua and exports
--- Requirements, RequiredLevels, PrepareLobby, Queue and Run.
+-- Requirements, PrepareLobby, Queue and Run.
 local NightCache = {}
 local function GetNightModule(night)
     local number = type(night) == "string" and night:match("^Night ([1-9]%d*)$")
@@ -140,8 +140,7 @@ function Event.GetRequirements(night, mode)
 end
 
 function Event.GetRequiredLevel(night, mode)
-    local module = GetNightModule(night)
-    return module and module.RequiredLevels and module.RequiredLevels[mode] or nil
+    return nil
 end
 
 local function StartSkipWatcher()
